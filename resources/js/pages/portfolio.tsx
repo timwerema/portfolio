@@ -4,51 +4,15 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Separator } from '@/components/ui/separator';
 import { useAppearance } from '@/hooks/use-appearance';
 import { Head } from '@inertiajs/react';
-import { ArrowUpRight, Bot, ChartLine, CodeXml, Download, LayoutTemplate, type LucideIcon, Github, Linkedin, Mail, MapPin, Menu, Moon, Sun, X } from 'lucide-react';
+import { ArrowUpRight, Bot, ChartLine, CodeXml, FileText, LayoutTemplate, type LucideIcon, Github, Linkedin, Mail, MapPin, Menu, Moon, Sun, X } from 'lucide-react';
+import { type Portfolio, type Service } from '@/types/portfolio';
 import { useState } from 'react';
-
-type Project = {
-    title: string;
-    description: string;
-    tags: string[];
-    url: string | null;
-    repo: string | null;
-    image: string | null;
-};
-
-type Service = {
-    icon: 'websites' | 'software' | 'growth' | 'agents';
-    title: string;
-    description: string;
-    points: string[];
-};
 
 const serviceIcons: Record<Service['icon'], { icon: LucideIcon; color: string }> = {
     websites: { icon: LayoutTemplate, color: 'text-orange-500' },
     software: { icon: CodeXml, color: 'text-sky-500' },
     growth: { icon: ChartLine, color: 'text-violet-500' },
     agents: { icon: Bot, color: 'text-emerald-500' },
-};
-
-type Experience = {
-    role: string;
-    company: string;
-    period: string;
-    summary: string;
-};
-
-type Portfolio = {
-    name: string;
-    role: string;
-    location: string;
-    tagline: string;
-    about: string[];
-    resume_url: string | null;
-    links: { email?: string; github?: string; linkedin?: string };
-    services: Service[];
-    skills: Record<string, string[]>;
-    projects: Project[];
-    experience: Experience[];
 };
 
 const sections = [
@@ -81,7 +45,7 @@ function SectionHeading({ eyebrow, title }: { eyebrow: string; title: string }) 
 }
 
 export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
-    const { name, role, location, tagline, about, resume_url, links, services, skills, projects, experience } = portfolio;
+    const { name, first_name, availability, role, location, tagline, about, resume_url, links, services, skills, projects, experience } = portfolio;
     const [menuOpen, setMenuOpen] = useState(false);
 
     return (
@@ -106,6 +70,11 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                     <a href={`#${s.id}`}>{s.label}</a>
                                 </Button>
                             ))}
+                            {resume_url && (
+                                <Button variant="ghost" size="sm" asChild>
+                                    <a href={resume_url}>Resume</a>
+                                </Button>
+                            )}
                             <ThemeToggle />
                         </div>
                         <div className="flex items-center gap-1 sm:hidden">
@@ -127,6 +96,11 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                     {s.label}
                                 </a>
                             ))}
+                            {resume_url && (
+                                <a href={resume_url} className="hover:bg-accent block rounded-md px-3 py-2 text-sm">
+                                    Resume
+                                </a>
+                            )}
                         </div>
                     )}
                 </header>
@@ -139,10 +113,10 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                 <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-75" />
                                 <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
                             </span>
-                            Available for new projects
+                            {availability}
                         </p>
                         <h1 className="max-w-3xl text-4xl leading-tight font-bold tracking-tight sm:text-6xl">
-                            Hi, I'm {name}.
+                            Hi, I'm {first_name}.
                             <br />
                             <span className="text-muted-foreground">{role}.</span>
                         </h1>
@@ -153,8 +127,8 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                             </Button>
                             {resume_url ? (
                                 <Button size="lg" variant="outline" asChild>
-                                    <a href={resume_url} target="_blank" rel="noreferrer">
-                                        <Download className="size-4" /> Resume
+                                    <a href={resume_url}>
+                                        <FileText className="size-4" /> Resume
                                     </a>
                                 </Button>
                             ) : (
@@ -251,6 +225,12 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                     )}
                                     <CardHeader>
                                         <CardTitle className="text-lg">{project.title}</CardTitle>
+                                        {project.subtitle && (
+                                            <p className="text-muted-foreground font-mono text-xs">
+                                                {project.subtitle}
+                                                {project.period && ` · ${project.period}`}
+                                            </p>
+                                        )}
                                         <CardDescription className="leading-relaxed">{project.description}</CardDescription>
                                     </CardHeader>
                                     <CardContent className="flex flex-wrap gap-2">
