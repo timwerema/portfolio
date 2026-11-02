@@ -46,6 +46,14 @@ return [
         'phone' => null,
     ],
 
+    'contact' => [
+        // Where contact-form emails go. Defaults to links.email above.
+        'notify_email' => env('CONTACT_NOTIFY_EMAIL'),
+    ],
+
+    // Public sign-up stays off. Create your login with: php artisan user:create
+    'allow_registration' => false,
+
     'education' => [
         [
             'school' => 'The University of Texas at Dallas',

@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import ContactForm from '@/components/contact-form';
 import { useAppearance } from '@/hooks/use-appearance';
 import { Head } from '@inertiajs/react';
 import { ArrowUpRight, Bot, ChartLine, CodeXml, FileText, LayoutTemplate, type LucideIcon, Github, Linkedin, Mail, MapPin, Menu, Moon, Sun, X } from 'lucide-react';
@@ -287,34 +288,39 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                     <Separator />
 
                     {/* Contact */}
-                    <section id="contact" className="scroll-mt-20 py-20 text-center">
-                        <p className="text-muted-foreground mb-2 font-mono text-xs tracking-widest uppercase">05 · Contact</p>
-                        <h2 className="text-3xl font-semibold tracking-tight sm:text-5xl">Let's work together.</h2>
-                        <p className="text-muted-foreground mx-auto mt-4 max-w-lg">
-                            Have a project in mind or just want to say hi? My inbox is always open.
-                        </p>
-                        <div className="mt-8 flex flex-wrap justify-center gap-3">
-                            {links.email && (
-                                <Button size="lg" asChild>
-                                    <a href={`mailto:${links.email}`}>
-                                        <Mail className="size-4" /> Say hello
-                                    </a>
-                                </Button>
-                            )}
-                            {links.github && (
-                                <Button size="lg" variant="outline" asChild>
-                                    <a href={links.github} target="_blank" rel="noreferrer">
-                                        <Github className="size-4" /> GitHub
-                                    </a>
-                                </Button>
-                            )}
-                            {links.linkedin && (
-                                <Button size="lg" variant="outline" asChild>
-                                    <a href={links.linkedin} target="_blank" rel="noreferrer">
-                                        <Linkedin className="size-4" /> LinkedIn
-                                    </a>
-                                </Button>
-                            )}
+                    <section id="contact" className="scroll-mt-20 py-20">
+                        <div className="grid gap-12 lg:grid-cols-5">
+                            <div className="lg:col-span-2">
+                                <p className="text-muted-foreground mb-2 font-mono text-xs tracking-widest uppercase">05 · Contact</p>
+                                <h2 className="text-3xl font-semibold tracking-tight sm:text-5xl">Let's work together.</h2>
+                                <p className="text-muted-foreground mt-4 max-w-md">
+                                    Have a project in mind, a tedious task you'd love to automate, or just want to say hi? Send a message and I'll
+                                    get back to you.
+                                </p>
+                                <div className="mt-8 flex flex-col items-start gap-3">
+                                    {links.email && (
+                                        <a href={`mailto:${links.email}`} className="hover:text-foreground text-muted-foreground flex items-center gap-3 text-sm">
+                                            <Mail className="size-4" /> {links.email}
+                                        </a>
+                                    )}
+                                    {links.linkedin && (
+                                        <a href={links.linkedin} target="_blank" rel="noreferrer" className="hover:text-foreground text-muted-foreground flex items-center gap-3 text-sm">
+                                            <Linkedin className="size-4" /> LinkedIn
+                                        </a>
+                                    )}
+                                    {links.github && (
+                                        <a href={links.github} target="_blank" rel="noreferrer" className="hover:text-foreground text-muted-foreground flex items-center gap-3 text-sm">
+                                            <Github className="size-4" /> GitHub
+                                        </a>
+                                    )}
+                                    <span className="text-muted-foreground flex items-center gap-3 text-sm">
+                                        <MapPin className="size-4" /> {location}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="relative lg:col-span-3">
+                                <ContactForm services={services.map((s) => s.title)} />
+                            </div>
                         </div>
                     </section>
                 </main>
