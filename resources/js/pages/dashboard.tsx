@@ -1,34 +1,81 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
+import { Inbox, Mail, MailOpen, Reply } from 'lucide-react';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-    },
-];
+type ContactMessage = {
+    id: number;
+    name: string;
+    email: string;
+    service: string | null;
+    message: string;
+    read_at: string | null;
+    created_at: string;
+};
 
-export default function Dashboard() {
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Messages', href: '/dashboard' }];
+
+const formatDate = (iso: string) =>
+    new Date(iso).toLocaleString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+export default function Dashboard({ messages, unread }: { messages: ContactMessage[]; unread: number }) {
+    const toggleRead = (id: number) => router.patch(route('messages.toggle-read', id), {}, { preserveScroll: true });
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
+            <Head title="Messages" />
+            <div className="flex flex-1 flex-col gap-4 p-4">
+                <div className="flex items-baseline justify-between">
+                    <h1 className="text-xl font-semibold">Contact messages</h1>
+                    <p className="text-muted-foreground text-sm">
+                        {messages.length} total · {unread} unread
+                    </p>
                 </div>
-                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 rounded-xl border md:min-h-min">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                </div>
+
+                {messages.length === 0 ? (
+                    <div className="text-muted-foreground flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed p-16 text-center">
+                        <Inbox className="size-10" strokeWidth={1.5} />
+                        <p className="mt-4 font-medium">No messages yet</p>
+                        <p className="mt-1 text-sm">Messages from your portfolio's contact form will show up here.</p>
+                    </div>
+                ) : (
+                    <ul className="space-y-3">
+                        {messages.map((m) => (
+                            <li key={m.id} className={`rounded-xl border p-5 ${m.read_at ? 'opacity-70' : 'bg-muted/30'}`}>
+                                <div className="flex flex-wrap items-start justify-between gap-3">
+                                    <div>
+                                        <p className="flex items-center gap-2 font-medium">
+                                            {!m.read_at && <span className="size-2 rounded-full bg-sky-500" aria-label="Unread" />}
+                                            {m.name}
+                                            {m.service && (
+                                                <Badge variant="secondary" className="font-normal">
+                                                    {m.service}
+                                                </Badge>
+                                            )}
+                                        </p>
+                                        <p className="text-muted-foreground text-sm">
+                                            {m.email} · {formatDate(m.created_at)}
+                                        </p>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <Button size="sm" variant="outline" asChild>
+                                            <a href={`mailto:${m.email}?subject=${encodeURIComponent('Re: your enquiry')}`}>
+                                                <Reply className="size-4" /> Reply
+                                            </a>
+                                        </Button>
+                                        <Button size="sm" variant="ghost" onClick={() => toggleRead(m.id)}>
+                                            {m.read_at ? <Mail className="size-4" /> : <MailOpen className="size-4" />}
+                                            {m.read_at ? 'Mark unread' : 'Mark read'}
+                                        </Button>
+                                    </div>
+                                </div>
+                                <p className="mt-3 text-sm leading-relaxed whitespace-pre-line">{m.message}</p>
+                            </li>
+                        ))}
+                    </ul>
+                )}
             </div>
         </AppLayout>
     );
