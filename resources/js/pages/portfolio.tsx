@@ -3,51 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import ContactForm from '@/components/contact-form';
-import { useAppearance } from '@/hooks/use-appearance';
-import { Head } from '@inertiajs/react';
-import { ArrowUpRight, Bot, ChartLine, CodeXml, FileText, LayoutTemplate, type LucideIcon, Github, Linkedin, Mail, MapPin, Menu, Moon, Sun, X } from 'lucide-react';
-import { type Portfolio, type Service } from '@/types/portfolio';
-import { useState } from 'react';
-
-const serviceIcons: Record<Service['icon'], { icon: LucideIcon; color: string }> = {
-    websites: { icon: LayoutTemplate, color: 'text-orange-500' },
-    software: { icon: CodeXml, color: 'text-sky-500' },
-    growth: { icon: ChartLine, color: 'text-violet-500' },
-    agents: { icon: Bot, color: 'text-emerald-500' },
-};
-
-const sections = [
-    { id: 'services', label: 'Services' },
-    { id: 'about', label: 'About' },
-    { id: 'projects', label: 'Projects' },
-    { id: 'experience', label: 'Experience' },
-    { id: 'contact', label: 'Contact' },
-];
-
-function ThemeToggle() {
-    const { appearance, updateAppearance } = useAppearance();
-    const isDark =
-        appearance === 'dark' || (appearance === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-
-    return (
-        <Button variant="ghost" size="icon" aria-label="Toggle theme" onClick={() => updateAppearance(isDark ? 'light' : 'dark')}>
-            {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
-        </Button>
-    );
-}
-
-function SectionHeading({ eyebrow, title }: { eyebrow: string; title: string }) {
-    return (
-        <div className="mb-10">
-            <p className="text-muted-foreground mb-2 font-mono text-xs tracking-widest uppercase">{eyebrow}</p>
-            <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h2>
-        </div>
-    );
-}
+import { iconFor, SectionHeading, SiteLayout } from '@/components/site-layout';
+import { Head, Link } from '@inertiajs/react';
+import { ArrowUpRight, FileText, Github, Linkedin, Mail, MapPin } from 'lucide-react';
+import { type Portfolio } from '@/types/portfolio';
 
 export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
     const { name, first_name, availability, role, location, tagline, about, resume_url, links, services, skills, projects, experience } = portfolio;
-    const [menuOpen, setMenuOpen] = useState(false);
 
     return (
         <>
@@ -57,55 +19,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                 <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
             </Head>
 
-            <div className="bg-background text-foreground min-h-screen">
-                {/* Nav */}
-                <header className="bg-background/80 sticky top-0 z-40 border-b backdrop-blur">
-                    <nav className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
-                        <a href="#top" className="font-semibold tracking-tight">
-                            {name}
-                            <span className="text-muted-foreground">.</span>
-                        </a>
-                        <div className="hidden items-center gap-1 sm:flex">
-                            {sections.map((s) => (
-                                <Button key={s.id} variant="ghost" size="sm" asChild>
-                                    <a href={`#${s.id}`}>{s.label}</a>
-                                </Button>
-                            ))}
-                            {resume_url && (
-                                <Button variant="ghost" size="sm" asChild>
-                                    <a href={resume_url}>Resume</a>
-                                </Button>
-                            )}
-                            <ThemeToggle />
-                        </div>
-                        <div className="flex items-center gap-1 sm:hidden">
-                            <ThemeToggle />
-                            <Button variant="ghost" size="icon" aria-label="Menu" onClick={() => setMenuOpen((o) => !o)}>
-                                {menuOpen ? <X className="size-4" /> : <Menu className="size-4" />}
-                            </Button>
-                        </div>
-                    </nav>
-                    {menuOpen && (
-                        <div className="border-t px-4 py-2 sm:hidden">
-                            {sections.map((s) => (
-                                <a
-                                    key={s.id}
-                                    href={`#${s.id}`}
-                                    onClick={() => setMenuOpen(false)}
-                                    className="hover:bg-accent block rounded-md px-3 py-2 text-sm"
-                                >
-                                    {s.label}
-                                </a>
-                            ))}
-                            {resume_url && (
-                                <a href={resume_url} className="hover:bg-accent block rounded-md px-3 py-2 text-sm">
-                                    Resume
-                                </a>
-                            )}
-                        </div>
-                    )}
-                </header>
-
+            <SiteLayout name={name} resumeUrl={resume_url} home>
                 <main id="top" className="mx-auto max-w-5xl px-4 sm:px-6">
                     {/* Hero */}
                     <section className="py-20 sm:py-32">
@@ -147,7 +61,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                         <SectionHeading eyebrow="01 · Services" title="What I can build for you" />
                         <div className="grid overflow-hidden rounded-xl border sm:grid-cols-2 lg:grid-cols-4">
                             {services.map((service, i) => {
-                                const { icon: Icon, color } = serviceIcons[service.icon] ?? serviceIcons.software;
+                                const { icon: Icon, color } = iconFor(service);
                                 return (
                                     <div
                                         key={service.title}
@@ -159,7 +73,11 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                             </span>
                                             <Icon className={`size-5 ${color}`} strokeWidth={1.75} />
                                         </div>
-                                        <h3 className="mt-10 text-2xl font-semibold tracking-tight">{service.title}</h3>
+                                        <h3 className="mt-10 text-2xl font-semibold tracking-tight">
+                                            <Link href={route('services.show', service.slug)} className="hover:underline">
+                                                {service.title}
+                                            </Link>
+                                        </h3>
                                         <p className="text-muted-foreground mt-3 text-sm leading-relaxed">{service.description}</p>
                                         <ul className="mt-6 space-y-2 text-sm">
                                             {service.points.map((point) => (
@@ -169,13 +87,13 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                                 </li>
                                             ))}
                                         </ul>
-                                        <a
-                                            href="#contact"
+                                        <Link
+                                            href={route('services.show', service.slug)}
                                             className="group mt-auto inline-flex items-center gap-1 pt-8 text-sm font-medium"
                                         >
-                                            Start a project
+                                            Learn more
                                             <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                                        </a>
+                                        </Link>
                                     </div>
                                 );
                             })}
@@ -325,15 +243,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                     </section>
                 </main>
 
-                <footer className="border-t">
-                    <div className="text-muted-foreground mx-auto flex max-w-5xl flex-col items-center justify-between gap-2 px-4 py-6 text-sm sm:flex-row sm:px-6">
-                        <p>
-                            © {new Date().getFullYear()} {name}
-                        </p>
-                        <p>Built with Laravel, Inertia & React</p>
-                    </div>
-                </footer>
-            </div>
+            </SiteLayout>
         </>
     );
 }
