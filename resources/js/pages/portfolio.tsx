@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Separator } from '@/components/ui/separator';
 import { useAppearance } from '@/hooks/use-appearance';
 import { Head } from '@inertiajs/react';
-import { ArrowUpRight, Download, Github, Linkedin, Mail, MapPin, Menu, Moon, Sun, X } from 'lucide-react';
+import { ArrowUpRight, Bot, ChartLine, CodeXml, Download, LayoutTemplate, type LucideIcon, Github, Linkedin, Mail, MapPin, Menu, Moon, Sun, X } from 'lucide-react';
 import { useState } from 'react';
 
 type Project = {
@@ -14,6 +14,20 @@ type Project = {
     url: string | null;
     repo: string | null;
     image: string | null;
+};
+
+type Service = {
+    icon: 'websites' | 'software' | 'growth' | 'agents';
+    title: string;
+    description: string;
+    points: string[];
+};
+
+const serviceIcons: Record<Service['icon'], { icon: LucideIcon; color: string }> = {
+    websites: { icon: LayoutTemplate, color: 'text-orange-500' },
+    software: { icon: CodeXml, color: 'text-sky-500' },
+    growth: { icon: ChartLine, color: 'text-violet-500' },
+    agents: { icon: Bot, color: 'text-emerald-500' },
 };
 
 type Experience = {
@@ -31,12 +45,14 @@ type Portfolio = {
     about: string[];
     resume_url: string | null;
     links: { email?: string; github?: string; linkedin?: string };
+    services: Service[];
     skills: Record<string, string[]>;
     projects: Project[];
     experience: Experience[];
 };
 
 const sections = [
+    { id: 'services', label: 'Services' },
     { id: 'about', label: 'About' },
     { id: 'projects', label: 'Projects' },
     { id: 'experience', label: 'Experience' },
@@ -65,7 +81,7 @@ function SectionHeading({ eyebrow, title }: { eyebrow: string; title: string }) 
 }
 
 export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
-    const { name, role, location, tagline, about, resume_url, links, skills, projects, experience } = portfolio;
+    const { name, role, location, tagline, about, resume_url, links, services, skills, projects, experience } = portfolio;
     const [menuOpen, setMenuOpen] = useState(false);
 
     return (
@@ -151,9 +167,51 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
 
                     <Separator />
 
+                    {/* Services */}
+                    <section id="services" className="scroll-mt-20 py-20">
+                        <SectionHeading eyebrow="01 · Services" title="What I can build for you" />
+                        <div className="grid overflow-hidden rounded-xl border sm:grid-cols-2 lg:grid-cols-4">
+                            {services.map((service, i) => {
+                                const { icon: Icon, color } = serviceIcons[service.icon] ?? serviceIcons.software;
+                                return (
+                                    <div
+                                        key={service.title}
+                                        className="hover:bg-muted/40 flex flex-col border-b p-6 transition-colors last:border-b-0 sm:[&:nth-child(odd)]:border-r lg:border-b-0 lg:border-r lg:last:border-r-0 sm:[&:nth-last-child(-n+2)]:border-b-0"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-muted-foreground font-mono text-xs tracking-widest">
+                                                {String(i + 1).padStart(2, '0')}
+                                            </span>
+                                            <Icon className={`size-5 ${color}`} strokeWidth={1.75} />
+                                        </div>
+                                        <h3 className="mt-10 text-2xl font-semibold tracking-tight">{service.title}</h3>
+                                        <p className="text-muted-foreground mt-3 text-sm leading-relaxed">{service.description}</p>
+                                        <ul className="mt-6 space-y-2 text-sm">
+                                            {service.points.map((point) => (
+                                                <li key={point} className="flex items-start gap-2">
+                                                    <span className="bg-muted-foreground/50 mt-2 size-1 shrink-0 rounded-full" />
+                                                    {point}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <a
+                                            href="#contact"
+                                            className="group mt-auto inline-flex items-center gap-1 pt-8 text-sm font-medium"
+                                        >
+                                            Start a project
+                                            <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                                        </a>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </section>
+
+                    <Separator />
+
                     {/* About + skills */}
                     <section id="about" className="scroll-mt-20 py-20">
-                        <SectionHeading eyebrow="01 · About" title="A bit about me" />
+                        <SectionHeading eyebrow="02 · About" title="A bit about me" />
                         <div className="grid gap-12 md:grid-cols-5">
                             <div className="text-muted-foreground space-y-4 leading-relaxed md:col-span-3">
                                 {about.map((p, i) => (
@@ -184,7 +242,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
 
                     {/* Projects */}
                     <section id="projects" className="scroll-mt-20 py-20">
-                        <SectionHeading eyebrow="02 · Projects" title="Selected work" />
+                        <SectionHeading eyebrow="03 · Projects" title="Selected work" />
                         <div className="grid gap-6 sm:grid-cols-2">
                             {projects.map((project) => (
                                 <Card key={project.title} className="group flex flex-col overflow-hidden transition-shadow hover:shadow-md">
@@ -229,7 +287,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
 
                     {/* Experience */}
                     <section id="experience" className="scroll-mt-20 py-20">
-                        <SectionHeading eyebrow="03 · Experience" title="Where I've worked" />
+                        <SectionHeading eyebrow="04 · Experience" title="Where I've worked" />
                         <ol className="relative space-y-10 border-l pl-6">
                             {experience.map((job) => (
                                 <li key={`${job.company}-${job.period}`} className="relative">
@@ -250,7 +308,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
 
                     {/* Contact */}
                     <section id="contact" className="scroll-mt-20 py-20 text-center">
-                        <p className="text-muted-foreground mb-2 font-mono text-xs tracking-widest uppercase">04 · Contact</p>
+                        <p className="text-muted-foreground mb-2 font-mono text-xs tracking-widest uppercase">05 · Contact</p>
                         <h2 className="text-3xl font-semibold tracking-tight sm:text-5xl">Let's work together.</h2>
                         <p className="text-muted-foreground mx-auto mt-4 max-w-lg">
                             Have a project in mind or just want to say hi? My inbox is always open.

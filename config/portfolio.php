@@ -34,6 +34,34 @@ return [
         'linkedin' => 'https://www.linkedin.com/in/your-username',
     ],
 
+    // Services you offer. `icon` is one of: websites, software, growth, agents.
+    'services' => [
+        [
+            'icon' => 'websites',
+            'title' => 'Websites',
+            'description' => 'Sites that load fast, look sharp on every screen, and turn visitors into enquiries, bookings, or sales.',
+            'points' => ['Custom design & build', 'Online stores', 'Landing pages'],
+        ],
+        [
+            'icon' => 'software',
+            'title' => 'Software',
+            'description' => 'Tailor-made web apps for the parts of your business that generic tools can\'t handle.',
+            'points' => ['Business web apps', 'Dashboards & portals', 'API integrations'],
+        ],
+        [
+            'icon' => 'growth',
+            'title' => 'Growth',
+            'description' => 'Getting found and getting chosen - search, ads, and content tracked against real results.',
+            'points' => ['SEO', 'Paid campaigns', 'Analytics & reporting'],
+        ],
+        [
+            'icon' => 'agents',
+            'title' => 'AI Agents',
+            'description' => 'Programmable task bots that take the repetitive, tedious work off your plate - and keep doing it without getting bored.',
+            'points' => ['Data entry & form filling', 'Inbox & document processing', 'Scheduled workflows'],
+        ],
+    ],
+
     'skills' => [
         'Backend' => ['PHP', 'Laravel', 'MySQL', 'REST APIs'],
         'Frontend' => ['TypeScript', 'React', 'Inertia.js', 'Tailwind CSS', 'shadcn/ui'],
