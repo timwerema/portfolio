@@ -16,12 +16,12 @@ type ContactFormData = {
     website: string; // honeypot - stays empty for real visitors
 };
 
-export default function ContactForm({ services }: { services: string[] }) {
+export default function ContactForm({ services, defaultService = '' }: { services: string[]; defaultService?: string }) {
     const [sent, setSent] = useState(false);
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm<ContactFormData>({
         name: '',
         email: '',
-        service: '',
+        service: defaultService,
         message: '',
         website: '',
     });

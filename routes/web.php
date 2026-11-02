@@ -11,6 +11,17 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+Route::get('/services/{slug}', function (string $slug) {
+    $service = collect(config('portfolio.services'))->firstWhere('slug', $slug);
+
+    abort_unless($service, 404);
+
+    return Inertia::render('service', [
+        'portfolio' => config('portfolio'),
+        'service' => $service,
+    ]);
+})->name('services.show');
+
 Route::get('/resume', function () {
     return Inertia::render('resume', [
         'portfolio' => config('portfolio'),

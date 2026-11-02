@@ -12,10 +12,18 @@ export type Project = {
 };
 
 export type Service = {
+    slug: string;
     icon: 'websites' | 'software' | 'growth' | 'agents';
     title: string;
     description: string;
     points: string[];
+    headline: string;
+    intro: string;
+    for: string[];
+    deliverables: { title: string; description: string }[];
+    process: { title: string; description: string }[];
+    faq: { q: string; a: string }[];
+    related_tags: string[];
 };
 
 export type Experience = {
