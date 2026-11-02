@@ -9,6 +9,13 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+Route::get('/resume', function () {
+    return Inertia::render('resume', [
+        'portfolio' => config('portfolio'),
+        'pdfAvailable' => file_exists(public_path('resume.pdf')),
+    ]);
+})->name('resume');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
