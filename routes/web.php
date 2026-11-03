@@ -26,6 +26,7 @@ Route::get('/services/{slug}', function (string $slug) {
 
 // Demo sites for fictional businesses, to show prospective clients what's possible.
 Route::get('/demos/clearcoat', fn () => Inertia::render('demos/clearcoat'))->name('demos.clearcoat');
+Route::get('/demos/galacticals', fn () => Inertia::render('demos/galacticals'))->name('demos.galacticals');
 
 Route::get('/resume', function () {
     return Inertia::render('resume', [
