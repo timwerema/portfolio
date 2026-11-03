@@ -177,9 +177,9 @@ export default function InvoiceForm({ invoice, nextNumber, clients, projects, pr
                         type="url"
                         value={data.payment_link}
                         onChange={(e) => setData('payment_link', e.target.value)}
-                        placeholder="https://buy.stripe.com/…"
+                        placeholder="https://square.link/… or https://buy.stripe.com/…"
                     />
-                    <p className="text-muted-foreground text-xs">Paste a Stripe Payment Link (or Square/PayPal link). The client sees a "Pay now" button on their invoice.</p>
+                    <p className="text-muted-foreground text-xs">Paste a Square, Stripe or PayPal payment link. The client sees a "Pay now" button on their invoice.</p>
                     <InputError message={errors.payment_link} />
                 </div>
 

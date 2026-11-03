@@ -14,7 +14,7 @@ import { useState } from 'react';
 export default function InvoiceShow({ invoice }: { invoice: Invoice }) {
     const [copied, setCopied] = useState(false);
     const [paying, setPaying] = useState(false);
-    const [method, setMethod] = useState('Stripe');
+    const [method, setMethod] = useState('Square');
     const [paidOn, setPaidOn] = useState(today());
 
     const setStatus = (status: string, extra: Record<string, string> = {}) =>
@@ -141,7 +141,7 @@ export default function InvoiceShow({ invoice }: { invoice: Invoice }) {
                                     <div className="grid gap-1.5">
                                         <Label htmlFor="method">Paid via</Label>
                                         <NativeSelect id="method" value={method} onChange={(e) => setMethod(e.target.value)}>
-                                            {['Stripe', 'Zelle', 'Venmo', 'Cash App', 'Cash', 'Check', 'Bank transfer', 'Other'].map((m) => (
+                                            {['Square', 'Stripe', 'Zelle', 'Venmo', 'Cash App', 'PayPal', 'Cash', 'Check', 'Bank transfer', 'Other'].map((m) => (
                                                 <option key={m}>{m}</option>
                                             ))}
                                         </NativeSelect>
