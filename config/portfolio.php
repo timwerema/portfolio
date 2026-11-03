@@ -188,6 +188,41 @@ return [
         ],
     ],
 
+    // Pricing packages shown on the home page. 'featured' highlights one.
+    'packages' => [
+        [
+            'name' => 'Starter',
+            'price' => '$750',
+            'summary' => 'A polished site of up to five pages for a small business - mobile-first, contact form, basic SEO, launched on your domain.',
+            'featured' => false,
+        ],
+        [
+            'name' => 'Business',
+            'price' => '$1,750',
+            'summary' => 'A fully custom site with more pages, bookings or a small store, easy content updates and analytics.',
+            'featured' => true,
+        ],
+        [
+            'name' => 'Custom',
+            'price' => '$3,500+',
+            'summary' => 'Custom software - web apps, client portals, dashboards, integrations or AI task bots. Scoped together.',
+            'featured' => false,
+        ],
+    ],
+
+    'care_plan' => [
+        'price' => '$79-$149/month',
+        'summary' => 'Optional care plan: hosting, updates, backups and small changes.',
+    ],
+
+    // Shown on the home page scoreboard.
+    'stats' => [
+        ['value' => '65%', 'label' => 'Validation time cut', 'note' => 'Nokia portal'],
+        ['value' => '40%', 'label' => 'Fewer verification errors', 'note' => 'Node.js backend'],
+        ['value' => '3+', 'label' => 'Infra environments', 'note' => 'EKS-A · OpenShift · Wind River'],
+        ['value' => '04', 'label' => 'Seasons at the arena', 'note' => 'American Airlines Center'],
+    ],
+
     'skills' => [
         'Languages' => ['Java', 'Python', 'C/C++', 'JavaScript', 'SQL (MySQL, PostgreSQL)', 'HTML/CSS'],
         'Frameworks & Tools' => ['Node.js', 'Express', 'React Native', 'REST APIs', 'Git', 'Docker', 'Linux', 'SSH', 'Firebase', 'Supabase'],
