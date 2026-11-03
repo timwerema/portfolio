@@ -22,6 +22,9 @@ Route::get('/services/{slug}', function (string $slug) {
     ]);
 })->name('services.show');
 
+// Demo sites for fictional businesses, to show prospective clients what's possible.
+Route::get('/demos/clearcoat', fn () => Inertia::render('demos/clearcoat'))->name('demos.clearcoat');
+
 Route::get('/resume', function () {
     return Inertia::render('resume', [
         'portfolio' => config('portfolio'),

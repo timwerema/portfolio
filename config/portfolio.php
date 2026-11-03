@@ -290,6 +290,17 @@ return [
         ],
     ],
 
+    // Demo sites for fictional businesses (shown under "Demo sites" on the home page).
+    'demos' => [
+        [
+            'title' => 'Clearcoat Detailing',
+            'type' => 'Mobile car detailing',
+            'description' => 'A booking-focused site for a mobile detailer: package picker, before/after paint slider, and an online booking form.',
+            'url' => '/demos/clearcoat',
+            'package' => 'Business',
+        ],
+    ],
+
     'experience' => [
         [
             'role' => 'AI RAN Intern',
