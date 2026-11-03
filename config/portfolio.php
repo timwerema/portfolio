@@ -261,11 +261,11 @@ return [
         ],
         [
             'title' => 'Galacticals SC',
-            'subtitle' => 'Soccer Club Web Platform',
+            'subtitle' => 'Youth soccer academy website · Frisco, TX',
             'period' => '2026',
-            'description' => 'The club\'s website for events, training sessions, and member information, with Supabase authentication and serverless functions protecting member data.',
-            'tags' => ['JavaScript', 'Supabase', 'Netlify Functions'],
-            'url' => null,
+            'description' => 'The live website for a youth soccer academy: pricing, drop-in schedule, camps and coach profiles, with Square payment links and a private admin editor so the club can update its own content.',
+            'tags' => ['React', 'Supabase', 'Netlify Functions', 'Square'],
+            'url' => 'https://galacticalssc.com',
             'repo' => null,
             'image' => null,
             'bullets' => [
