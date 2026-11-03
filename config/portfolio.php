@@ -299,6 +299,13 @@ return [
             'url' => '/demos/clearcoat',
             'package' => 'Business',
         ],
+        [
+            'title' => 'Galacticals SC - v3 concept',
+            'type' => 'Youth soccer academy',
+            'description' => 'A redesign of the club site I built: Apple/Google sign-in, a schedule hub with calendar, upcoming and payment tabs, and one-tap registration.',
+            'url' => '/demos/galacticals',
+            'package' => 'Custom',
+        ],
     ],
 
     'experience' => [
