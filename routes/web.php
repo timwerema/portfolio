@@ -1,8 +1,14 @@
 <?php
 
+use App\Http\Controllers\Admin\ClientController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ExpenseController;
+use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\PreviewController;
+use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\ContactMessageController;
 use App\Http\Controllers\PreviewReviewController;
+use App\Http\Controllers\PublicInvoiceController;
 use App\Models\ContactMessage;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -37,6 +43,9 @@ Route::get('/resume', function () {
 
 Route::post('/contact', [ContactMessageController::class, 'store'])->name('contact.store');
 
+// Client's view of an invoice (drafts stay hidden).
+Route::get('/i/{token}', [PublicInvoiceController::class, 'show'])->where('token', '[A-Za-z0-9]{40}')->name('invoices.public');
+
 // Demo approval portal - client side. The token in the link is the only "password".
 Route::controller(PreviewReviewController::class)->where(['token' => '[A-Za-z0-9]{40}'])->group(function () {
     Route::get('/p/{token}', 'show')->name('previews.review');
@@ -56,18 +65,25 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{preview}', 'destroy')->name('destroy');
     });
 
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard', [
-            'messages' => ContactMessage::latest()->limit(50)->get(),
-            'unread' => ContactMessage::whereNull('read_at')->count(),
-        ]);
-    })->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'overview'])->name('dashboard');
+    Route::get('dashboard/messages', [DashboardController::class, 'messages'])->name('admin.messages');
 
     Route::patch('dashboard/messages/{message}/read', function (ContactMessage $message) {
         $message->forceFill(['read_at' => $message->read_at ? null : now()])->save();
 
         return back();
     })->name('messages.toggle-read');
+
+    // Business: clients, projects, invoices, expenses.
+    Route::prefix('dashboard')->name('admin.')->group(function () {
+        Route::resource('clients', ClientController::class);
+        Route::resource('projects', ProjectController::class)->except('show');
+        Route::patch('projects/{project}/status', [ProjectController::class, 'status'])->name('projects.status');
+        Route::resource('invoices', InvoiceController::class);
+        Route::post('invoices/{invoice}/send', [InvoiceController::class, 'send'])->name('invoices.send');
+        Route::patch('invoices/{invoice}/status', [InvoiceController::class, 'status'])->name('invoices.status');
+        Route::resource('expenses', ExpenseController::class)->only(['index', 'store', 'destroy']);
+    });
 });
 
 require __DIR__.'/settings.php';

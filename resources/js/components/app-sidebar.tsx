@@ -4,20 +4,17 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { ExternalLink, Github, Inbox, MonitorCheck } from 'lucide-react';
+import { BriefcaseBusiness, ExternalLink, FileText, Github, Inbox, LayoutDashboard, MonitorCheck, Receipt, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
-    {
-        title: 'Messages',
-        url: '/dashboard',
-        icon: Inbox,
-    },
-    {
-        title: 'Client previews',
-        url: '/dashboard/previews',
-        icon: MonitorCheck,
-    },
+    { title: 'Overview', url: '/dashboard', icon: LayoutDashboard },
+    { title: 'Messages', url: '/dashboard/messages', icon: Inbox },
+    { title: 'Clients', url: '/dashboard/clients', icon: Users },
+    { title: 'Projects', url: '/dashboard/projects', icon: BriefcaseBusiness },
+    { title: 'Invoices', url: '/dashboard/invoices', icon: FileText },
+    { title: 'Expenses', url: '/dashboard/expenses', icon: Receipt },
+    { title: 'Client previews', url: '/dashboard/previews', icon: MonitorCheck },
 ];
 
 const footerNavItems: NavItem[] = [

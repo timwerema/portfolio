@@ -14,7 +14,7 @@
 
 Hit reply to answer {{ $contactMessage->name }} directly.
 
-<x-mail::button :url="url('/dashboard')">
+<x-mail::button :url="url('/dashboard/messages')">
 View all messages
 </x-mail::button>
 </x-mail::message>

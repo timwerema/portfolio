@@ -91,11 +91,11 @@ class ContactFormTest extends TestCase
         $user = User::factory()->create();
         $message = ContactMessage::create($this->validPayload());
 
-        $this->get('/dashboard')->assertRedirect('/login');
+        $this->get('/dashboard/messages')->assertRedirect('/login');
 
-        $this->actingAs($user)->get('/dashboard')
+        $this->actingAs($user)->get('/dashboard/messages')
             ->assertOk()
-            ->assertInertia(fn ($page) => $page->component('dashboard', false)->has('messages', 1)->where('unread', 1));
+            ->assertInertia(fn ($page) => $page->component('admin/messages', false)->has('messages', 1)->where('unread', 1));
 
         $this->actingAs($user)->patch("/dashboard/messages/{$message->id}/read")->assertRedirect();
         $this->assertNotNull($message->fresh()->read_at);

@@ -12,7 +12,7 @@ export default function PreviewsIndex({ previews }: { previews: Preview[] }) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Client previews" />
-            <div className="flex flex-1 flex-col gap-4 p-4">
+            <div className="flex min-w-0 flex-1 flex-col gap-4 p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                         <h1 className="text-xl font-semibold">Client previews</h1>
