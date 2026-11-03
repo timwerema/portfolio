@@ -156,3 +156,49 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* ---------------------------------------------------------------------------
+   Hardwood theme (public pages): maple court, Dallas navy, royal blue, silver.
+   Admin pages keep the default shadcn theme above.
+--------------------------------------------------------------------------- */
+@theme {
+    --color-maple: #f1e4cc;
+    --color-maple-light: #fbf4e6;
+    --color-maple-line: #c9b999;
+    --color-ink: #17130e;
+    --color-ink-soft: #3d3328;
+    --color-ink-muted: #6b5d4c;
+    --color-navy: #0b2545;
+    --color-navy-deep: #071a33;
+    --color-navy-line: #26426b;
+    --color-royal: #0b5fcf;
+    --color-royal-dark: #084aa3;
+    --color-silver: #c4ccd3;
+    --color-led: #6cb8ff;
+
+    --font-display: 'Anton', 'Impact', sans-serif;
+    --font-cond: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    --font-body: 'Barlow', ui-sans-serif, system-ui, sans-serif;
+    --font-led: 'Share Tech Mono', ui-monospace, monospace;
+}
+
+/* Public pages always render light, whatever the visitor's system theme.
+   Set on <html> so popovers/dropdowns (portalled to <body>) match too. */
+html:has(.hardwood) {
+    color-scheme: light;
+    --color-background: #fbf4e6;
+    --color-foreground: #17130e;
+    --color-popover: #fbf4e6;
+    --color-popover-foreground: #17130e;
+    --color-primary: #0b5fcf;
+    --color-primary-foreground: #ffffff;
+    --color-muted: #ece0c7;
+    --color-muted-foreground: #5c4f40;
+    --color-accent: #e6d7b9;
+    --color-accent-foreground: #17130e;
+    --color-border: #0b2545;
+    --color-input: #0b2545;
+    --color-ring: #0b5fcf;
+    --color-destructive: #b42318;
+    background: #f1e4cc;
+}

@@ -1,248 +1,303 @@
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import ContactForm from '@/components/contact-form';
-import { iconFor, SectionHeading, SiteLayout } from '@/components/site-layout';
-import { Head, Link } from '@inertiajs/react';
-import { ArrowUpRight, FileText, Github, Linkedin, Mail, MapPin } from 'lucide-react';
+import { PillLink, PlayDiagram, SectionHeading, SiteLayout } from '@/components/site-layout';
 import { type Portfolio } from '@/types/portfolio';
+import { Head, Link } from '@inertiajs/react';
+import { ArrowUpRight, Github, Linkedin, Mail, MapPin } from 'lucide-react';
+
+/** Faint half-court lines behind the hero. */
+function CourtLines() {
+    return (
+        <svg
+            aria-hidden="true"
+            viewBox="0 0 600 600"
+            preserveAspectRatio="xMaxYMid slice"
+            className="text-navy pointer-events-none absolute top-0 -right-32 hidden h-full w-[720px] opacity-40 md:block"
+        >
+            <g fill="none" stroke="currentColor" strokeWidth="3">
+                <rect x="200" y="160" width="400" height="280" />
+                <circle cx="200" cy="300" r="90" />
+                <path d="M 600 40 L 520 40 A 260 260 0 0 0 520 560 L 600 560" />
+                <circle cx="540" cy="300" r="14" />
+            </g>
+        </svg>
+    );
+}
 
 export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
-    const { name, first_name, availability, role, location, tagline, about, resume_url, links, services, skills, projects, experience } = portfolio;
+    const { name, availability, role, location, tagline, about, resume_url, links, education, services, packages, care_plan, stats, skills, projects, experience } =
+        portfolio;
+    const school = education[0];
+    const classYear = school?.period.match(/\d{4}/)?.[0]?.slice(2);
 
     return (
         <>
             <Head title={`${name} · ${role}`}>
                 <meta name="description" content={tagline} />
-                <link rel="preconnect" href="https://fonts.bunny.net" />
-                <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
             </Head>
 
             <SiteLayout name={name} resumeUrl={resume_url} home>
-                <main id="top" className="mx-auto max-w-5xl px-4 sm:px-6">
+                <main id="top">
                     {/* Hero */}
-                    <section className="py-20 sm:py-32">
-                        <p className="text-muted-foreground mb-4 flex items-center gap-2 text-sm">
-                            <span className="relative flex size-2">
-                                <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-75" />
-                                <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
-                            </span>
-                            {availability}
-                        </p>
-                        <h1 className="max-w-3xl text-4xl leading-tight font-bold tracking-tight sm:text-6xl">
-                            Hi, I'm {first_name}.
-                            <br />
-                            <span className="text-muted-foreground">{role}.</span>
-                        </h1>
-                        <p className="text-muted-foreground mt-6 max-w-2xl text-lg">{tagline}</p>
-                        <div className="mt-8 flex flex-wrap gap-3">
-                            <Button size="lg" asChild>
-                                <a href="#projects">View my work</a>
-                            </Button>
-                            {resume_url ? (
-                                <Button size="lg" variant="outline" asChild>
-                                    <a href={resume_url}>
-                                        <FileText className="size-4" /> Resume
-                                    </a>
-                                </Button>
-                            ) : (
-                                <Button size="lg" variant="outline" asChild>
-                                    <a href="#contact">Get in touch</a>
-                                </Button>
-                            )}
+                    <section className="border-navy relative overflow-hidden border-b-[3px]">
+                        <CourtLines />
+                        <div className="relative mx-auto flex max-w-[1240px] flex-wrap items-end gap-12 px-5 py-16 sm:px-10 sm:py-24 lg:px-16 lg:py-28">
+                            <div className="min-w-0 flex-[999_1_540px]">
+                                <p className="font-cond text-royal mb-4 flex items-center gap-2 text-lg font-bold tracking-[0.14em] uppercase">
+                                    <span className="relative flex size-2.5">
+                                        <span className="bg-royal absolute inline-flex size-full animate-ping rounded-full opacity-60" />
+                                        <span className="bg-royal relative inline-flex size-2.5 rounded-full" />
+                                    </span>
+                                    {availability}
+                                </p>
+                                <h1 className="font-display text-[56px] leading-[0.92] uppercase sm:text-8xl lg:text-[132px]">
+                                    Built to
+                                    <br />
+                                    win your next
+                                    <br />
+                                    <span className="text-royal">customer.</span>
+                                </h1>
+                                <p className="text-ink-soft mt-7 max-w-xl text-xl">{tagline}</p>
+                                <div className="mt-9 flex flex-wrap gap-3">
+                                    <PillLink href="#contact">Start a project</PillLink>
+                                    <PillLink href="#work" variant="outline">
+                                        Watch highlights
+                                    </PillLink>
+                                </div>
+                            </div>
+
+                            {/* Player card */}
+                            <div className="bg-navy text-maple-light w-full max-w-[360px] flex-[1_1_300px] rounded-md p-7 shadow-[10px_10px_0_var(--color-royal)]">
+                                <div className="flex items-start justify-between">
+                                    <span className="font-cond text-silver text-[15px] font-bold tracking-[0.12em] uppercase">Player card</span>
+                                    {classYear && <span className="font-display text-led text-6xl leading-[0.8]">{classYear}</span>}
+                                </div>
+                                <p className="font-display mt-2 mb-5 text-[34px] leading-none uppercase">{name}</p>
+                                <dl className="text-base">
+                                    {[
+                                        ['Position', role],
+                                        ['College', classYear ? `UT Dallas · Class of '${classYear}` : (school?.school ?? '—')],
+                                        ['Last team', experience[0]?.company ?? '—'],
+                                        ['Home court', location],
+                                    ].map(([label, value]) => (
+                                        <div key={label} className="border-navy-line flex justify-between gap-3 border-t py-2.5">
+                                            <dt className="text-silver">{label}</dt>
+                                            <dd className="text-right font-semibold">{value}</dd>
+                                        </div>
+                                    ))}
+                                </dl>
+                            </div>
                         </div>
                     </section>
 
-                    <Separator />
+                    {/* Scoreboard */}
+                    <section aria-label="Career stats" className="bg-navy-deep text-maple-light">
+                        <dl className="mx-auto flex max-w-[1240px] flex-wrap gap-y-8 px-5 py-10 sm:px-10 lg:px-16">
+                            {stats.map((s) => (
+                                <div key={s.label} className="border-navy-line flex-[1_1_220px] border-l-2 px-6">
+                                    <dt className="font-cond text-silver text-[15px] font-semibold tracking-[0.14em] uppercase">{s.label}</dt>
+                                    <dd className="font-led text-led mt-1.5 text-6xl leading-none">{s.value}</dd>
+                                    <dd className="text-silver mt-1.5 text-sm">{s.note}</dd>
+                                </div>
+                            ))}
+                        </dl>
+                    </section>
+
+                    {/* Work */}
+                    <section id="work" className="scroll-mt-20">
+                        <div className="mx-auto max-w-[1240px] px-5 py-20 sm:px-10 lg:px-16 lg:py-28">
+                            <SectionHeading eyebrow="Selected work" title="Season highlights" />
+                            <div className="border-navy border-y-[3px]">
+                                {projects.map((p, i) => (
+                                    <article key={p.title} className="border-maple-line flex flex-wrap items-center gap-x-10 gap-y-2 border-t py-8 first:border-t-0">
+                                        <span
+                                            aria-hidden="true"
+                                            className="font-display flex-[0_0_140px] text-[112px] leading-[0.85] text-transparent [-webkit-text-stroke:2px_var(--color-navy)]"
+                                        >
+                                            {String(i + 1).padStart(2, '0')}
+                                        </span>
+                                        <div className="min-w-0 flex-[999_1_420px]">
+                                            <p className="font-cond text-royal text-[15px] font-bold tracking-[0.12em] uppercase">
+                                                {[p.subtitle, p.period].filter(Boolean).join(' · ')}
+                                            </p>
+                                            <h3 className="font-display mt-1 mb-2 text-[38px] leading-[1.05] uppercase">{p.title}</h3>
+                                            <p className="text-ink-soft">{p.description}</p>
+                                            <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
+                                                <p className="font-cond text-ink-muted text-base font-semibold tracking-[0.06em] uppercase">{p.tags.join(' · ')}</p>
+                                                {p.url && (
+                                                    <a
+                                                        href={p.url}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="text-royal inline-flex min-h-11 items-center gap-1 font-semibold underline-offset-4 hover:underline"
+                                                    >
+                                                        Live site <ArrowUpRight className="size-4" />
+                                                    </a>
+                                                )}
+                                                {p.repo && (
+                                                    <a
+                                                        href={p.repo}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="text-royal inline-flex min-h-11 items-center gap-1 font-semibold underline-offset-4 hover:underline"
+                                                    >
+                                                        <Github className="size-4" /> Code
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </article>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
 
                     {/* Services */}
-                    <section id="services" className="scroll-mt-20 py-20">
-                        <SectionHeading eyebrow="01 · Services" title="What I can build for you" />
-                        <div className="grid overflow-hidden rounded-xl border sm:grid-cols-2 lg:grid-cols-4">
-                            {services.map((service, i) => {
-                                const { icon: Icon, color } = iconFor(service);
-                                return (
-                                    <div
-                                        key={service.title}
-                                        className="hover:bg-muted/40 flex flex-col border-b p-6 transition-colors last:border-b-0 sm:[&:nth-child(odd)]:border-r lg:border-b-0 lg:border-r lg:last:border-r-0 sm:[&:nth-last-child(-n+2)]:border-b-0"
+                    <section id="services" className="bg-navy text-maple-light scroll-mt-20">
+                        <div className="mx-auto max-w-[1240px] px-5 py-20 sm:px-10 lg:px-16 lg:py-28">
+                            <SectionHeading eyebrow="What I build" title="The playbook" tone="dark" className="mb-4" />
+                            <p className="text-silver mb-12 max-w-xl text-lg">
+                                Four plays I run for businesses. Every one starts with your goal and ends with something you can measure.
+                            </p>
+                            <div className="border-navy-line border-y">
+                                {services.map((s) => (
+                                    <Link
+                                        key={s.slug}
+                                        href={route('services.show', s.slug)}
+                                        className="group border-navy-line hover:bg-navy-deep/60 -mx-4 flex flex-wrap items-center gap-x-10 gap-y-4 rounded-sm border-t px-4 py-7 transition-colors first:border-t-0"
                                     >
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-muted-foreground font-mono text-xs tracking-widest">
-                                                {String(i + 1).padStart(2, '0')}
-                                            </span>
-                                            <Icon className={`size-5 ${color}`} strokeWidth={1.75} />
-                                        </div>
-                                        <h3 className="mt-10 text-2xl font-semibold tracking-tight">
-                                            <Link href={route('services.show', service.slug)} className="hover:underline">
-                                                {service.title}
-                                            </Link>
+                                        <PlayDiagram icon={s.icon} className="text-maple-light h-20 w-[120px] flex-none" />
+                                        <h3 className="font-display flex-[1_1_200px] text-4xl uppercase">{s.title}</h3>
+                                        <p className="text-silver flex-[999_1_380px]">{s.description}</p>
+                                        <span className="font-cond text-led inline-flex items-center gap-1 text-lg font-bold tracking-[0.06em] uppercase">
+                                            Run this play
+                                            <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                                        </span>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Packages */}
+                    <section id="packages" className="scroll-mt-20">
+                        <div className="mx-auto max-w-[1240px] px-5 py-20 sm:px-10 lg:px-16 lg:py-28">
+                            <SectionHeading eyebrow="Packages" title="Sign the deal" className="mb-4" />
+                            <p className="text-ink-soft mb-12 max-w-xl text-lg">Every website starts with a free demo homepage. You approve it before we go any further.</p>
+                            <div className="flex flex-col gap-5">
+                                {packages.map((pkg) => (
+                                    <div
+                                        key={pkg.name}
+                                        className={`border-navy flex flex-wrap items-baseline gap-x-8 gap-y-2 rounded-md border-2 px-6 py-7 sm:px-8 ${
+                                            pkg.featured ? 'bg-navy text-maple-light shadow-[8px_8px_0_var(--color-royal)]' : 'bg-maple-light'
+                                        }`}
+                                    >
+                                        <h3 className="font-display flex-[1_1_200px] text-4xl uppercase">
+                                            {pkg.name}
+                                            {pkg.featured && (
+                                                <span className="bg-royal font-cond ml-3 inline-block rounded-full px-3 py-0.5 align-middle text-sm font-bold tracking-[0.08em] text-white">
+                                                    MVP pick
+                                                </span>
+                                            )}
                                         </h3>
-                                        <p className="text-muted-foreground mt-3 text-sm leading-relaxed">{service.description}</p>
-                                        <ul className="mt-6 space-y-2 text-sm">
-                                            {service.points.map((point) => (
-                                                <li key={point} className="flex items-start gap-2">
-                                                    <span className="bg-muted-foreground/50 mt-2 size-1 shrink-0 rounded-full" />
-                                                    {point}
+                                        <p className={`flex-[999_1_380px] ${pkg.featured ? 'text-silver' : 'text-ink-soft'}`}>{pkg.summary}</p>
+                                        <p className={`font-display text-5xl leading-none ${pkg.featured ? 'text-led' : ''}`}>{pkg.price}</p>
+                                    </div>
+                                ))}
+                            </div>
+                            <p className="text-ink-soft mt-6">
+                                <strong className="font-cond text-royal text-lg tracking-[0.08em] uppercase">Training staff</strong> — {care_plan.summary}{' '}
+                                <span className="font-semibold">{care_plan.price}</span>
+                            </p>
+                        </div>
+                    </section>
+
+                    {/* About */}
+                    <section id="about" className="bg-maple-light border-navy scroll-mt-20 border-y-[3px]">
+                        <div className="mx-auto max-w-[1240px] px-5 py-20 sm:px-10 lg:px-16 lg:py-28">
+                            <SectionHeading eyebrow="About me" title="Scouting report" />
+                            <div className="flex flex-wrap gap-x-20 gap-y-12">
+                                <div className="text-ink-soft min-w-0 flex-[999_1_480px] space-y-5 text-lg">
+                                    {about.map((p, i) => (
+                                        <p key={i}>{p}</p>
+                                    ))}
+                                    <p className="text-ink-muted flex items-center gap-2 text-base">
+                                        <MapPin className="size-4" /> {location}
+                                    </p>
+                                </div>
+                                <div className="flex-[1_1_320px] space-y-8">
+                                    <div>
+                                        <h3 className="font-cond text-royal mb-3 text-lg font-bold tracking-[0.12em] uppercase">Career</h3>
+                                        <ol className="border-navy space-y-5 border-l-2 pl-5">
+                                            {experience.map((job) => (
+                                                <li key={`${job.company}-${job.period}`}>
+                                                    <p className="font-semibold">
+                                                        {job.role} · {job.company}
+                                                    </p>
+                                                    <p className="font-led text-ink-muted text-sm">{job.period}</p>
+                                                    <p className="text-ink-soft mt-1 text-base">{job.summary}</p>
                                                 </li>
                                             ))}
-                                        </ul>
-                                        <Link
-                                            href={route('services.show', service.slug)}
-                                            className="group mt-auto inline-flex items-center gap-1 pt-8 text-sm font-medium"
-                                        >
-                                            Learn more
-                                            <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                                        </Link>
+                                            {school && (
+                                                <li>
+                                                    <p className="font-semibold">{school.degree}</p>
+                                                    <p className="text-ink-soft text-base">{school.school}</p>
+                                                    <p className="font-led text-ink-muted text-sm">{school.period}</p>
+                                                </li>
+                                            )}
+                                        </ol>
                                     </div>
-                                );
-                            })}
-                        </div>
-                    </section>
-
-                    <Separator />
-
-                    {/* About + skills */}
-                    <section id="about" className="scroll-mt-20 py-20">
-                        <SectionHeading eyebrow="02 · About" title="A bit about me" />
-                        <div className="grid gap-12 md:grid-cols-5">
-                            <div className="text-muted-foreground space-y-4 leading-relaxed md:col-span-3">
-                                {about.map((p, i) => (
-                                    <p key={i}>{p}</p>
-                                ))}
-                                <p className="flex items-center gap-2 text-sm">
-                                    <MapPin className="size-4" /> {location}
-                                </p>
-                            </div>
-                            <div className="space-y-6 md:col-span-2">
-                                {Object.entries(skills).map(([group, items]) => (
-                                    <div key={group}>
-                                        <h3 className="mb-3 text-sm font-medium">{group}</h3>
-                                        <div className="flex flex-wrap gap-2">
-                                            {items.map((skill) => (
-                                                <Badge key={skill} variant="secondary" className="font-normal">
-                                                    {skill}
-                                                </Badge>
+                                    <div>
+                                        <h3 className="font-cond text-royal mb-3 text-lg font-bold tracking-[0.12em] uppercase">Strengths</h3>
+                                        <dl className="space-y-3 text-base">
+                                            {Object.entries(skills).map(([group, items]) => (
+                                                <div key={group}>
+                                                    <dt className="font-semibold">{group}</dt>
+                                                    <dd className="text-ink-soft">{items.join(' · ')}</dd>
+                                                </div>
                                             ))}
-                                        </div>
+                                        </dl>
                                     </div>
-                                ))}
+                                </div>
                             </div>
                         </div>
                     </section>
-
-                    <Separator />
-
-                    {/* Projects */}
-                    <section id="projects" className="scroll-mt-20 py-20">
-                        <SectionHeading eyebrow="03 · Projects" title="Selected work" />
-                        <div className="grid gap-6 sm:grid-cols-2">
-                            {projects.map((project) => (
-                                <Card key={project.title} className="group flex flex-col overflow-hidden transition-shadow hover:shadow-md">
-                                    {project.image && (
-                                        <img src={project.image} alt={project.title} className="aspect-video w-full border-b object-cover" />
-                                    )}
-                                    <CardHeader>
-                                        <CardTitle className="text-lg">{project.title}</CardTitle>
-                                        {project.subtitle && (
-                                            <p className="text-muted-foreground font-mono text-xs">
-                                                {project.subtitle}
-                                                {project.period && ` · ${project.period}`}
-                                            </p>
-                                        )}
-                                        <CardDescription className="leading-relaxed">{project.description}</CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="flex flex-wrap gap-2">
-                                        {project.tags.map((tag) => (
-                                            <Badge key={tag} variant="outline" className="font-normal">
-                                                {tag}
-                                            </Badge>
-                                        ))}
-                                    </CardContent>
-                                    {(project.url || project.repo) && (
-                                        <CardFooter className="mt-auto gap-2">
-                                            {project.url && (
-                                                <Button size="sm" variant="outline" asChild>
-                                                    <a href={project.url} target="_blank" rel="noreferrer">
-                                                        Live <ArrowUpRight className="size-3.5" />
-                                                    </a>
-                                                </Button>
-                                            )}
-                                            {project.repo && (
-                                                <Button size="sm" variant="ghost" asChild>
-                                                    <a href={project.repo} target="_blank" rel="noreferrer">
-                                                        <Github className="size-3.5" /> Code
-                                                    </a>
-                                                </Button>
-                                            )}
-                                        </CardFooter>
-                                    )}
-                                </Card>
-                            ))}
-                        </div>
-                    </section>
-
-                    <Separator />
-
-                    {/* Experience */}
-                    <section id="experience" className="scroll-mt-20 py-20">
-                        <SectionHeading eyebrow="04 · Experience" title="Where I've worked" />
-                        <ol className="relative space-y-10 border-l pl-6">
-                            {experience.map((job) => (
-                                <li key={`${job.company}-${job.period}`} className="relative">
-                                    <span className="bg-foreground absolute top-1.5 -left-[29px] size-2.5 rounded-full ring-4 ring-[var(--background)]" />
-                                    <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
-                                        <h3 className="font-medium">
-                                            {job.role} <span className="text-muted-foreground">· {job.company}</span>
-                                        </h3>
-                                        <span className="text-muted-foreground font-mono text-xs">{job.period}</span>
-                                    </div>
-                                    <p className="text-muted-foreground mt-2 max-w-2xl text-sm leading-relaxed">{job.summary}</p>
-                                </li>
-                            ))}
-                        </ol>
-                    </section>
-
-                    <Separator />
 
                     {/* Contact */}
-                    <section id="contact" className="scroll-mt-20 py-20">
-                        <div className="grid gap-12 lg:grid-cols-5">
-                            <div className="lg:col-span-2">
-                                <p className="text-muted-foreground mb-2 font-mono text-xs tracking-widest uppercase">05 · Contact</p>
-                                <h2 className="text-3xl font-semibold tracking-tight sm:text-5xl">Let's work together.</h2>
-                                <p className="text-muted-foreground mt-4 max-w-md">
-                                    Have a project in mind, a tedious task you'd love to automate, or just want to say hi? Send a message and I'll
-                                    get back to you.
+                    <section id="contact" className="scroll-mt-20">
+                        <div className="mx-auto flex max-w-[1240px] flex-wrap gap-x-20 gap-y-12 px-5 py-20 sm:px-10 lg:px-16 lg:py-28">
+                            <div className="min-w-0 flex-[1_1_340px]">
+                                <h2 className="font-display text-6xl leading-[0.95] uppercase sm:text-7xl lg:text-[88px]">
+                                    Get in
+                                    <br />
+                                    the <span className="text-royal">game.</span>
+                                </h2>
+                                <p className="text-ink-soft mt-5 text-lg">
+                                    Tell me about your business. For websites, you'll get a free demo homepage to approve before we tip off.
                                 </p>
-                                <div className="mt-8 flex flex-col items-start gap-3">
+                                <div className="mt-8 flex flex-col items-start gap-1 font-semibold">
                                     {links.email && (
-                                        <a href={`mailto:${links.email}`} className="hover:text-foreground text-muted-foreground flex items-center gap-3 text-sm">
-                                            <Mail className="size-4" /> {links.email}
+                                        <a href={`mailto:${links.email}`} className="hover:text-royal flex min-h-11 items-center gap-3">
+                                            <Mail className="size-5" /> {links.email}
                                         </a>
                                     )}
                                     {links.linkedin && (
-                                        <a href={links.linkedin} target="_blank" rel="noreferrer" className="hover:text-foreground text-muted-foreground flex items-center gap-3 text-sm">
-                                            <Linkedin className="size-4" /> LinkedIn
+                                        <a href={links.linkedin} target="_blank" rel="noreferrer" className="hover:text-royal flex min-h-11 items-center gap-3">
+                                            <Linkedin className="size-5" /> LinkedIn
                                         </a>
                                     )}
                                     {links.github && (
-                                        <a href={links.github} target="_blank" rel="noreferrer" className="hover:text-foreground text-muted-foreground flex items-center gap-3 text-sm">
-                                            <Github className="size-4" /> GitHub
+                                        <a href={links.github} target="_blank" rel="noreferrer" className="hover:text-royal flex min-h-11 items-center gap-3">
+                                            <Github className="size-5" /> GitHub
                                         </a>
                                     )}
-                                    <span className="text-muted-foreground flex items-center gap-3 text-sm">
-                                        <MapPin className="size-4" /> {location}
-                                    </span>
                                 </div>
                             </div>
-                            <div className="relative lg:col-span-3">
+                            <div className="bg-maple-light relative min-w-0 flex-[999_1_480px] rounded-xl">
                                 <ContactForm services={services.map((s) => s.title)} />
                             </div>
                         </div>
                     </section>
                 </main>
-
             </SiteLayout>
         </>
     );

@@ -1,100 +1,150 @@
-import { Button } from '@/components/ui/button';
-import { useAppearance } from '@/hooks/use-appearance';
 import { type Service } from '@/types/portfolio';
 import { Link } from '@inertiajs/react';
-import { Bot, ChartLine, CodeXml, LayoutTemplate, type LucideIcon, Menu, Moon, Sun, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 
-export const serviceIcons: Record<Service['icon'], { icon: LucideIcon; color: string; bg: string }> = {
-    websites: { icon: LayoutTemplate, color: 'text-orange-500', bg: 'bg-orange-500/10' },
-    software: { icon: CodeXml, color: 'text-sky-500', bg: 'bg-sky-500/10' },
-    growth: { icon: ChartLine, color: 'text-violet-500', bg: 'bg-violet-500/10' },
-    agents: { icon: Bot, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-};
-
-export const iconFor = (service: Service) => serviceIcons[service.icon] ?? serviceIcons.software;
-
 const sections = [
+    { id: 'work', label: 'Work' },
     { id: 'services', label: 'Services' },
+    { id: 'packages', label: 'Packages' },
     { id: 'about', label: 'About' },
-    { id: 'projects', label: 'Projects' },
-    { id: 'experience', label: 'Experience' },
-    { id: 'contact', label: 'Contact' },
 ];
 
-export function ThemeToggle() {
-    const { appearance, updateAppearance } = useAppearance();
-    const isDark =
-        appearance === 'dark' || (appearance === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-
-    return (
-        <Button variant="ghost" size="icon" aria-label="Toggle theme" onClick={() => updateAppearance(isDark ? 'light' : 'dark')}>
-            {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
-        </Button>
-    );
-}
-
-export function SectionHeading({ eyebrow, title, className = 'mb-10' }: { eyebrow: string; title: string; className?: string }) {
+/** Big condensed section title with a small label above it. `tone` = background it sits on. */
+export function SectionHeading({ eyebrow, title, tone = 'light', className = 'mb-12' }: { eyebrow: string; title: string; tone?: 'light' | 'dark'; className?: string }) {
     return (
         <div className={className}>
-            <p className="text-muted-foreground mb-2 font-mono text-xs tracking-widest uppercase">{eyebrow}</p>
-            <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h2>
+            <p className={`font-cond mb-2 text-base font-bold tracking-[0.14em] uppercase ${tone === 'dark' ? 'text-led' : 'text-royal'}`}>{eyebrow}</p>
+            <h2 className="font-display text-5xl leading-[0.95] uppercase sm:text-7xl lg:text-[88px]">{title}</h2>
         </div>
     );
 }
 
+/** A small basketball play diagram, one per service, drawn in line art. */
+export function PlayDiagram({ icon, className = '' }: { icon: Service['icon']; className?: string }) {
+    const frame = <rect x="2" y="2" width="116" height="76" fill="none" stroke="currentColor" strokeOpacity="0.35" strokeWidth="2" />;
+    const run = 'var(--play-run, var(--color-led))';
+
+    return (
+        <svg aria-hidden="true" viewBox="0 0 120 80" className={className}>
+            {frame}
+            {icon === 'websites' && (
+                <>
+                    <circle cx="24" cy="58" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
+                    <path d="M30 52 Q 60 20 92 30" fill="none" stroke={run} strokeWidth="2.5" strokeDasharray="5 4" />
+                    <path d="M86 24 l8 6 -9 3" fill="none" stroke={run} strokeWidth="2.5" />
+                    <path d="M100 20 l8 8 M108 20 l-8 8" stroke="currentColor" strokeWidth="2" />
+                </>
+            )}
+            {icon === 'software' && (
+                <>
+                    <circle cx="30" cy="40" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
+                    <circle cx="70" cy="22" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
+                    <circle cx="70" cy="58" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
+                    <path d="M37 37 L63 25 M37 43 L63 55 M77 25 L98 40 M77 55 L98 40" stroke={run} strokeWidth="2.5" />
+                </>
+            )}
+            {icon === 'growth' && (
+                <>
+                    <path d="M16 64 L44 48 L68 54 L104 18" fill="none" stroke={run} strokeWidth="2.5" />
+                    <path d="M96 18 l8 0 0 8" fill="none" stroke={run} strokeWidth="2.5" />
+                    <circle cx="16" cy="64" r="5" fill="currentColor" />
+                </>
+            )}
+            {icon === 'agents' && (
+                <>
+                    <path d="M20 40 C 40 10, 60 70, 80 40 S 100 20, 104 40" fill="none" stroke={run} strokeWidth="2.5" />
+                    <circle cx="20" cy="40" r="6" fill="none" stroke="currentColor" strokeWidth="2" />
+                    <circle cx="104" cy="40" r="6" fill="currentColor" />
+                </>
+            )}
+        </svg>
+    );
+}
+
+/** Pill-shaped button link in the Hardwood style. */
+export function PillLink({ href, children, variant = 'solid', internal = false }: { href: string; children: ReactNode; variant?: 'solid' | 'outline' | 'outline-light'; internal?: boolean }) {
+    const styles = {
+        solid: 'bg-royal text-white hover:bg-royal-dark',
+        outline: 'border-2 border-navy text-navy hover:bg-navy hover:text-maple-light',
+        'outline-light': 'border-2 border-silver text-maple-light hover:bg-maple-light hover:text-navy',
+    }[variant];
+    const className = `font-cond inline-flex min-h-[54px] items-center gap-2 rounded-full px-7 text-xl font-bold tracking-[0.06em] uppercase transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-royal ${styles}`;
+
+    return internal ? (
+        <Link href={href} className={className}>
+            {children}
+        </Link>
+    ) : (
+        <a href={href} className={className}>
+            {children}
+        </a>
+    );
+}
+
 /**
- * Header + footer shared by the public pages.
+ * Header + footer shared by the public pages (Hardwood theme).
  * On the home page (`home`), menu links scroll to sections; elsewhere they go back to the home page sections.
  */
 export function SiteLayout({ name, resumeUrl, home = false, children }: { name: string; resumeUrl: string | null; home?: boolean; children: ReactNode }) {
     const [menuOpen, setMenuOpen] = useState(false);
     const href = (id: string) => (home ? `#${id}` : `/#${id}`);
+    const navLink = 'font-cond py-3 text-lg font-semibold tracking-[0.08em] uppercase text-silver hover:text-white';
+
+    const brand = (
+        <>
+            <span className="bg-royal font-display flex size-11 items-center justify-center rounded-full text-lg text-white">TW</span>
+            <span className="font-cond text-xl font-bold tracking-[0.06em] uppercase">{name}</span>
+        </>
+    );
 
     return (
-        <div className="bg-background text-foreground min-h-screen">
-            <header className="bg-background/80 sticky top-0 z-40 border-b backdrop-blur">
-                <nav className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
+        <div className="hardwood bg-maple text-ink font-body min-h-screen text-[17px] leading-relaxed">
+            <header className="bg-navy text-maple-light sticky top-0 z-40">
+                <nav className="mx-auto flex max-w-[1240px] items-center justify-between gap-6 px-5 py-3 sm:px-10 lg:px-16">
                     {home ? (
-                        <a href="#top" className="font-semibold tracking-tight">
-                            {name}
-                            <span className="text-muted-foreground">.</span>
+                        <a href="#top" className="flex items-center gap-3">
+                            {brand}
                         </a>
                     ) : (
-                        <Link href="/" className="font-semibold tracking-tight">
-                            {name}
-                            <span className="text-muted-foreground">.</span>
+                        <Link href="/" className="flex items-center gap-3">
+                            {brand}
                         </Link>
                     )}
-                    <div className="hidden items-center gap-1 sm:flex">
+                    <div className="hidden items-center gap-7 md:flex">
                         {sections.map((s) => (
-                            <Button key={s.id} variant="ghost" size="sm" asChild>
-                                <a href={href(s.id)}>{s.label}</a>
-                            </Button>
-                        ))}
-                        {resumeUrl && (
-                            <Button variant="ghost" size="sm" asChild>
-                                <a href={resumeUrl}>Resume</a>
-                            </Button>
-                        )}
-                        <ThemeToggle />
-                    </div>
-                    <div className="flex items-center gap-1 sm:hidden">
-                        <ThemeToggle />
-                        <Button variant="ghost" size="icon" aria-label="Menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((o) => !o)}>
-                            {menuOpen ? <X className="size-4" /> : <Menu className="size-4" />}
-                        </Button>
-                    </div>
-                </nav>
-                {menuOpen && (
-                    <div className="border-t px-4 py-2 sm:hidden">
-                        {sections.map((s) => (
-                            <a key={s.id} href={href(s.id)} onClick={() => setMenuOpen(false)} className="hover:bg-accent block rounded-md px-3 py-2 text-sm">
+                            <a key={s.id} href={href(s.id)} className={navLink}>
                                 {s.label}
                             </a>
                         ))}
                         {resumeUrl && (
-                            <a href={resumeUrl} className="hover:bg-accent block rounded-md px-3 py-2 text-sm">
+                            <a href={resumeUrl} className={navLink}>
+                                Resume
+                            </a>
+                        )}
+                        <a href={href('contact')} className="font-cond border-led border-b-2 py-2 text-lg font-bold tracking-[0.08em] text-white uppercase">
+                            Get in the game
+                        </a>
+                    </div>
+                    <button
+                        type="button"
+                        className="flex size-11 items-center justify-center rounded-md text-white md:hidden"
+                        aria-label="Menu"
+                        aria-expanded={menuOpen}
+                        onClick={() => setMenuOpen((o) => !o)}
+                    >
+                        {menuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
+                    </button>
+                </nav>
+                {menuOpen && (
+                    <div className="border-navy-line border-t px-5 pb-4 md:hidden">
+                        {[...sections, { id: 'contact', label: 'Get in the game' }].map((s) => (
+                            <a key={s.id} href={href(s.id)} onClick={() => setMenuOpen(false)} className={`${navLink} block`}>
+                                {s.label}
+                            </a>
+                        ))}
+                        {resumeUrl && (
+                            <a href={resumeUrl} className={`${navLink} block`}>
                                 Resume
                             </a>
                         )}
@@ -104,12 +154,12 @@ export function SiteLayout({ name, resumeUrl, home = false, children }: { name: 
 
             {children}
 
-            <footer className="border-t">
-                <div className="text-muted-foreground mx-auto flex max-w-5xl flex-col items-center justify-between gap-2 px-4 py-6 text-sm sm:flex-row sm:px-6">
+            <footer className="bg-navy text-silver">
+                <div className="font-cond mx-auto flex max-w-[1240px] flex-col items-center justify-between gap-2 px-5 py-6 text-base font-semibold tracking-[0.08em] uppercase sm:flex-row sm:px-10 lg:px-16">
                     <p>
                         © {new Date().getFullYear()} {name}
                     </p>
-                    <p>Built with Laravel, Inertia & React</p>
+                    <p>Home court: Dallas, TX</p>
                 </div>
             </footer>
         </div>
