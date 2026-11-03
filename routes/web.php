@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\PreviewController;
 use App\Http\Controllers\ContactMessageController;
+use App\Http\Controllers\PreviewReviewController;
 use App\Models\ContactMessage;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -34,7 +36,25 @@ Route::get('/resume', function () {
 
 Route::post('/contact', [ContactMessageController::class, 'store'])->name('contact.store');
 
+// Demo approval portal - client side. The token in the link is the only "password".
+Route::controller(PreviewReviewController::class)->where(['token' => '[A-Za-z0-9]{40}'])->group(function () {
+    Route::get('/p/{token}', 'show')->name('previews.review');
+    Route::get('/p/{token}/demo', 'demo')->name('previews.demo');
+    Route::post('/p/{token}/decision', 'decide')->name('previews.decide');
+});
+
 Route::middleware(['auth'])->group(function () {
+    // Demo approval portal - your side.
+    Route::prefix('dashboard/previews')->name('admin.previews.')->controller(PreviewController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{preview}', 'show')->name('show');
+        Route::post('/{preview}', 'update')->name('update'); // POST so file uploads work
+        Route::post('/{preview}/send', 'send')->name('send');
+        Route::delete('/{preview}', 'destroy')->name('destroy');
+    });
+
     Route::get('dashboard', function () {
         return Inertia::render('dashboard', [
             'messages' => ContactMessage::latest()->limit(50)->get(),
