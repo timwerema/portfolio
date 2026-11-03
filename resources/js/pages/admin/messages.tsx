@@ -2,8 +2,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router } from '@inertiajs/react';
-import { Inbox, Mail, MailOpen, Reply } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import { Inbox, Mail, MailOpen, Reply, UserPlus } from 'lucide-react';
 
 type ContactMessage = {
     id: number;
@@ -15,7 +15,7 @@ type ContactMessage = {
     created_at: string;
 };
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Messages', href: '/dashboard' }];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Messages', href: '/dashboard/messages' }];
 
 const formatDate = (iso: string) =>
     new Date(iso).toLocaleString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
@@ -26,7 +26,7 @@ export default function Dashboard({ messages, unread }: { messages: ContactMessa
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Messages" />
-            <div className="flex flex-1 flex-col gap-4 p-4">
+            <div className="flex min-w-0 flex-1 flex-col gap-4 p-4">
                 <div className="flex items-baseline justify-between">
                     <h1 className="text-xl font-semibold">Contact messages</h1>
                     <p className="text-muted-foreground text-sm">
@@ -59,11 +59,16 @@ export default function Dashboard({ messages, unread }: { messages: ContactMessa
                                             {m.email} · {formatDate(m.created_at)}
                                         </p>
                                     </div>
-                                    <div className="flex gap-2">
+                                    <div className="flex flex-wrap gap-2">
                                         <Button size="sm" variant="outline" asChild>
                                             <a href={`mailto:${m.email}?subject=${encodeURIComponent('Re: your enquiry')}`}>
                                                 <Reply className="size-4" /> Reply
                                             </a>
+                                        </Button>
+                                        <Button size="sm" variant="outline" asChild>
+                                            <Link href={route('admin.clients.create', { name: m.name, email: m.email, notes: `${m.service ? `Interested in: ${m.service}\n` : ''}${m.message}` })}>
+                                                <UserPlus className="size-4" /> Add as client
+                                            </Link>
                                         </Button>
                                         <Button size="sm" variant="ghost" onClick={() => toggleRead(m.id)}>
                                             {m.read_at ? <Mail className="size-4" /> : <MailOpen className="size-4" />}
