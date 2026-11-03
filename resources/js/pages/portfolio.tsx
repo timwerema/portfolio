@@ -24,7 +24,7 @@ function CourtLines() {
 }
 
 export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
-    const { name, availability, role, location, tagline, about, resume_url, links, education, services, packages, care_plan, stats, skills, projects, experience } =
+    const { name, availability, role, location, tagline, about, resume_url, links, education, services, packages, care_plan, stats, demos, skills, projects, experience } =
         portfolio;
     const school = education[0];
     const classYear = school?.period.match(/\d{4}/)?.[0]?.slice(2);
@@ -148,6 +148,33 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                     </article>
                                 ))}
                             </div>
+
+                            {demos.length > 0 && (
+                                <div className="mt-16">
+                                    <h3 className="font-cond text-royal text-lg font-bold tracking-[0.12em] uppercase">Demo sites</h3>
+                                    <p className="text-ink-soft mt-1 mb-6 max-w-xl">Websites I built for fictional businesses, to show what your site could look like.</p>
+                                    <div className="flex flex-col gap-4">
+                                        {demos.map((d) => (
+                                            <Link
+                                                key={d.url}
+                                                href={d.url}
+                                                className="group border-navy bg-maple-light hover:bg-navy hover:text-maple-light flex flex-wrap items-center gap-x-8 gap-y-2 rounded-md border-2 px-6 py-5 transition-colors"
+                                            >
+                                                <div className="min-w-0 flex-[999_1_360px]">
+                                                    <p className="font-cond text-royal group-hover:text-led text-[15px] font-bold tracking-[0.12em] uppercase">
+                                                        {d.type} · {d.package} package
+                                                    </p>
+                                                    <h4 className="font-display text-3xl uppercase">{d.title}</h4>
+                                                    <p className="text-ink-soft group-hover:text-silver">{d.description}</p>
+                                                </div>
+                                                <span className="font-cond inline-flex items-center gap-1 text-lg font-bold tracking-[0.06em] uppercase">
+                                                    View demo <ArrowUpRight className="size-5" />
+                                                </span>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </section>
 
