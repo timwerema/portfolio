@@ -28,6 +28,9 @@ class Invoice extends Model
             'due_date' => 'date:Y-m-d',
             'sent_at' => 'datetime',
             'paid_at' => 'datetime',
+            'last_reminder_at' => 'datetime',
+            'reminders_paused' => 'boolean',
+            'reminders_sent' => 'integer',
         ];
     }
 
@@ -75,6 +78,24 @@ class Invoice extends Model
     public function getIsOverdueAttribute(): bool
     {
         return $this->status === self::SENT && $this->due_date?->isBefore(today());
+    }
+
+    public function daysOverdue(): int
+    {
+        return $this->due_date && $this->due_date->isBefore(today()) ? (int) $this->due_date->diffInDays(today()) : 0;
+    }
+
+    /** Is a payment reminder due today? (sent, unpaid, overdue enough, not paused, under the cap, spaced out) */
+    public function reminderDue(): bool
+    {
+        $cfg = config('portfolio.reminders');
+
+        return $this->status === self::SENT
+            && ! $this->reminders_paused
+            && $this->client?->email
+            && $this->reminders_sent < $cfg['max']
+            && $this->daysOverdue() >= $cfg['days_after_due']
+            && (! $this->last_reminder_at || $this->last_reminder_at->lte(now()->subDays($cfg['repeat_every_days'])->addHour()));
     }
 
     public function getPublicUrlAttribute(): string

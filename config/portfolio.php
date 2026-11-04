@@ -51,6 +51,17 @@ return [
         'notify_email' => env('CONTACT_NOTIFY_EMAIL'),
     ],
 
+    // Automatic payment reminders for overdue invoices (php artisan invoices:remind, daily).
+    'reminders' => [
+        'enabled' => env('INVOICE_REMINDERS', true),
+        'days_after_due' => 3,      // first reminder 3 days after the due date
+        'repeat_every_days' => 7,   // then weekly
+        'max' => 3,                 // never more than 3 per invoice
+    ],
+
+    // Monday-morning business summary email to you.
+    'weekly_summary' => env('WEEKLY_SUMMARY', true),
+
     'alerts' => [
         // Where site problem alerts go. Defaults to contact.notify_email, then links.email.
         'email' => env('ALERT_EMAIL'),

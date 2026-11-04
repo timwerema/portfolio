@@ -128,6 +128,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('invoices', InvoiceController::class);
         Route::post('invoices/{invoice}/send', [InvoiceController::class, 'send'])->name('invoices.send');
         Route::patch('invoices/{invoice}/status', [InvoiceController::class, 'status'])->name('invoices.status');
+        Route::patch('invoices/{invoice}/reminders', [InvoiceController::class, 'reminders'])->name('invoices.reminders');
         Route::resource('expenses', ExpenseController::class)->only(['index', 'store', 'destroy']);
     });
 });

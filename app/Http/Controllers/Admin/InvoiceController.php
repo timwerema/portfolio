@@ -125,6 +125,15 @@ class InvoiceController extends Controller
         return back()->with('status', "Invoice marked {$data['status']}.");
     }
 
+    /** Pause or resume automatic payment reminders for one invoice. */
+    public function reminders(Request $request, Invoice $invoice): RedirectResponse
+    {
+        $paused = $request->validate(['paused' => ['required', 'boolean']])['paused'];
+        $invoice->forceFill(['reminders_paused' => $paused])->save();
+
+        return back()->with('status', $paused ? 'Reminders paused for this invoice.' : 'Reminders turned back on.');
+    }
+
     public function destroy(Invoice $invoice): RedirectResponse
     {
         $invoice->delete();
