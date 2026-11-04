@@ -37,4 +37,7 @@ export type Invoice = {
     total_cents: number;
     is_overdue: boolean;
     public_url: string;
+    reminders_sent: number;
+    last_reminder_at: string | null;
+    reminders_paused: boolean;
 };

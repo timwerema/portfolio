@@ -8,7 +8,7 @@ import AppLayout from '@/layouts/app-layout';
 import { date, money, today } from '@/lib/format';
 import { type Invoice } from '@/types/business';
 import { Head, Link, router } from '@inertiajs/react';
-import { Ban, Check, CircleDollarSign, Copy, ExternalLink, Pencil, Send, Trash2, Undo2 } from 'lucide-react';
+import { Ban, BellOff, BellRing, Check, CircleDollarSign, Copy, ExternalLink, Pencil, Send, Trash2, Undo2 } from 'lucide-react';
 import { useState } from 'react';
 
 export default function InvoiceShow({ invoice }: { invoice: Invoice }) {
@@ -122,6 +122,34 @@ export default function InvoiceShow({ invoice }: { invoice: Invoice }) {
                         </div>
                         {invoice.status === 'draft' && <p className="text-muted-foreground text-xs">The link works once the invoice is sent.</p>}
                     </div>
+
+                    {invoice.status === 'sent' && (
+                        <div className="space-y-2 rounded-xl border p-4">
+                            <p className="flex items-center gap-2 text-sm font-medium">
+                                {invoice.reminders_paused ? <BellOff className="size-4" /> : <BellRing className="size-4" />} Payment reminders
+                            </p>
+                            <p className="text-muted-foreground text-xs">
+                                {invoice.reminders_paused
+                                    ? 'Paused - no automatic reminders will be sent.'
+                                    : invoice.reminders_sent > 0
+                                      ? `${invoice.reminders_sent} sent, last on ${date(invoice.last_reminder_at)}.`
+                                      : 'Sent automatically 3 days after the due date, then weekly (max 3).'}
+                            </p>
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                    router.patch(
+                                        route('admin.invoices.reminders', invoice.id),
+                                        { paused: !invoice.reminders_paused },
+                                        { preserveScroll: true },
+                                    )
+                                }
+                            >
+                                {invoice.reminders_paused ? 'Resume reminders' : 'Pause reminders'}
+                            </Button>
+                        </div>
+                    )}
 
                     <div className="flex flex-col gap-2 rounded-xl border p-4">
                         {['draft', 'sent'].includes(invoice.status) && (

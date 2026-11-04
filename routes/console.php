@@ -13,3 +13,9 @@ Schedule::command('backup:run')->dailyAt('03:10')->withoutOverlapping()->onOneSe
 
 // Every 5 minutes: heartbeat + email alert when a health check fails or recovers.
 Schedule::command('health:check')->everyFiveMinutes()->withoutOverlapping();
+
+// Payment reminders for overdue invoices, every morning at 9:20.
+Schedule::command('invoices:remind')->dailyAt('09:20')->withoutOverlapping();
+
+// Weekly business summary to you, Mondays at 7:40.
+Schedule::command('business:weekly-summary')->weeklyOn(1, '07:40');
