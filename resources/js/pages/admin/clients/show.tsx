@@ -11,7 +11,8 @@ type Props = { client: Client & { projects: Project[]; invoices: Invoice[] }; ba
 
 export default function ClientShow({ client, balance_cents }: Props) {
     const destroy = () => {
-        if (window.confirm(`Delete ${client.name}? Their projects and invoices will be deleted too.`)) router.delete(route('admin.clients.destroy', client.id));
+        if (window.confirm(`Delete ${client.name}? Their projects and invoices will be deleted too.`))
+            router.delete(route('admin.clients.destroy', client.id));
     };
     const paid = client.invoices.filter((i) => i.status === 'paid').reduce((s, i) => s + i.total_cents, 0);
 
@@ -86,7 +87,9 @@ export default function ClientShow({ client, balance_cents }: Props) {
                                             {p.name}
                                         </Link>
                                         <p className="text-muted-foreground text-xs">
-                                            {[p.package, p.budget_cents ? money(p.budget_cents) : null, p.due_date ? `due ${date(p.due_date)}` : null].filter(Boolean).join(' · ') || 'No details yet'}
+                                            {[p.package, p.budget_cents ? money(p.budget_cents) : null, p.due_date ? `due ${date(p.due_date)}` : null]
+                                                .filter(Boolean)
+                                                .join(' · ') || 'No details yet'}
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-3">
@@ -116,7 +119,10 @@ export default function ClientShow({ client, balance_cents }: Props) {
                         <ul className="divide-y">
                             {client.invoices.map((i) => (
                                 <li key={i.id}>
-                                    <Link href={route('admin.invoices.show', i.id)} className="hover:bg-muted/40 flex flex-wrap items-center justify-between gap-3 p-4">
+                                    <Link
+                                        href={route('admin.invoices.show', i.id)}
+                                        className="hover:bg-muted/40 flex flex-wrap items-center justify-between gap-3 p-4"
+                                    >
                                         <span>
                                             <span className="font-medium">{i.number}</span>
                                             <span className="text-muted-foreground"> · {date(i.issue_date)}</span>

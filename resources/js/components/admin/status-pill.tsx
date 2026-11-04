@@ -18,5 +18,9 @@ const tones: Record<string, string> = {
 
 export default function StatusPill({ status, overdue = false }: { status: string; overdue?: boolean }) {
     const key = overdue ? 'overdue' : status;
-    return <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap ${tones[key] ?? tones.lead}`}>{overdue ? 'Overdue' : labelize(status)}</span>;
+    return (
+        <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap ${tones[key] ?? tones.lead}`}>
+            {overdue ? 'Overdue' : labelize(status)}
+        </span>
+    );
 }

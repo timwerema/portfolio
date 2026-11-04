@@ -16,7 +16,13 @@ type PublicInvoice = {
     items: { description: string; quantity: number; unit_price_cents: number; amount_cents: number }[];
 };
 
-export default function PublicInvoicePage({ invoice, studio }: { invoice: PublicInvoice; studio: { name: string; email: string | null; location: string } }) {
+export default function PublicInvoicePage({
+    invoice,
+    studio,
+}: {
+    invoice: PublicInvoice;
+    studio: { name: string; email: string | null; location: string };
+}) {
     return (
         <>
             <Head title={`Invoice ${invoice.number} · ${studio.name}`}>
@@ -26,7 +32,9 @@ export default function PublicInvoicePage({ invoice, studio }: { invoice: Public
                 <article className="bg-maple-light border-navy mx-auto max-w-3xl rounded-md border-2 p-6 sm:p-10 print:border-0 print:p-0">
                     <header className="flex flex-wrap items-start justify-between gap-6">
                         <div className="flex items-center gap-3">
-                            <span className="bg-royal font-display flex size-12 items-center justify-center rounded-full text-lg text-white print:border print:border-black">TW</span>
+                            <span className="bg-royal font-display flex size-12 items-center justify-center rounded-full text-lg text-white print:border print:border-black">
+                                TW
+                            </span>
                             <div>
                                 <p className="font-display text-2xl uppercase">{studio.name}</p>
                                 <p className="text-ink-muted text-sm">
@@ -80,7 +88,9 @@ export default function PublicInvoicePage({ invoice, studio }: { invoice: Public
                                     <td colSpan={3} className="font-cond pt-4 text-right text-lg font-bold tracking-[0.06em] uppercase">
                                         Total due
                                     </td>
-                                    <td className="font-display pt-4 text-right text-3xl">{invoice.status === 'paid' ? money(0) : money(invoice.total_cents)}</td>
+                                    <td className="font-display pt-4 text-right text-3xl">
+                                        {invoice.status === 'paid' ? money(0) : money(invoice.total_cents)}
+                                    </td>
                                 </tr>
                             </tfoot>
                         </table>

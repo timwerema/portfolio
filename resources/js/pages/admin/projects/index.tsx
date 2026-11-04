@@ -10,7 +10,9 @@ import { useState } from 'react';
 
 export default function ProjectsIndex({ projects, statuses }: { projects: Project[]; statuses: ProjectStatus[] }) {
     const [filter, setFilter] = useState<'open' | 'all' | ProjectStatus>('open');
-    const shown = projects.filter((p) => (filter === 'all' ? true : filter === 'open' ? !['completed', 'on_hold'].includes(p.status) : p.status === filter));
+    const shown = projects.filter((p) =>
+        filter === 'all' ? true : filter === 'open' ? !['completed', 'on_hold'].includes(p.status) : p.status === filter,
+    );
 
     const setStatus = (p: Project, status: string) => router.patch(route('admin.projects.status', p.id), { status }, { preserveScroll: true });
 
@@ -21,7 +23,12 @@ export default function ProjectsIndex({ projects, statuses }: { projects: Projec
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <h1 className="text-xl font-semibold">Projects</h1>
                     <div className="flex flex-wrap items-center gap-2">
-                        <NativeSelect aria-label="Filter projects" value={filter} onChange={(e) => setFilter(e.target.value as typeof filter)} className="w-auto">
+                        <NativeSelect
+                            aria-label="Filter projects"
+                            value={filter}
+                            onChange={(e) => setFilter(e.target.value as typeof filter)}
+                            className="w-auto"
+                        >
                             <option value="open">Open</option>
                             <option value="all">All</option>
                             {statuses.map((s) => (
@@ -63,7 +70,10 @@ export default function ProjectsIndex({ projects, statuses }: { projects: Projec
                                             <Link href={route('admin.projects.edit', p.id)} className="font-medium hover:underline">
                                                 {p.name}
                                             </Link>
-                                            <Link href={route('admin.clients.show', p.client_id)} className="text-muted-foreground block text-xs hover:underline">
+                                            <Link
+                                                href={route('admin.clients.show', p.client_id)}
+                                                className="text-muted-foreground block text-xs hover:underline"
+                                            >
                                                 {p.client?.name}
                                             </Link>
                                         </td>
@@ -71,7 +81,12 @@ export default function ProjectsIndex({ projects, statuses }: { projects: Projec
                                         <td className="p-3 text-right tabular-nums">{p.budget_cents ? money(p.budget_cents) : '—'}</td>
                                         <td className="text-muted-foreground p-3">{date(p.due_date)}</td>
                                         <td className="p-3">
-                                            <NativeSelect aria-label={`Status of ${p.name}`} value={p.status} onChange={(e) => setStatus(p, e.target.value)} className="h-8 w-36">
+                                            <NativeSelect
+                                                aria-label={`Status of ${p.name}`}
+                                                value={p.status}
+                                                onChange={(e) => setStatus(p, e.target.value)}
+                                                className="h-8 w-36"
+                                            >
                                                 {statuses.map((s) => (
                                                     <option key={s} value={s}>
                                                         {labelize(s)}

@@ -23,7 +23,10 @@ export default function ServicePage({ portfolio, service }: { portfolio: Portfol
                     {/* Hero */}
                     <section className="border-navy border-b-[3px]">
                         <div className={`${wrap} py-14 sm:py-20`}>
-                            <Link href="/#services" className="font-cond text-ink-muted hover:text-royal inline-flex min-h-11 items-center gap-1.5 text-lg font-semibold tracking-[0.06em] uppercase">
+                            <Link
+                                href="/#services"
+                                className="font-cond text-ink-muted hover:text-royal inline-flex min-h-11 items-center gap-1.5 text-lg font-semibold tracking-[0.06em] uppercase"
+                            >
                                 <ArrowLeft className="size-4" /> The playbook
                             </Link>
                             <div className="mt-8 flex flex-wrap items-end gap-x-12 gap-y-8">
@@ -31,7 +34,9 @@ export default function ServicePage({ portfolio, service }: { portfolio: Portfol
                                     <p className="font-cond text-royal mb-3 text-lg font-bold tracking-[0.14em] uppercase">
                                         Play {String(index + 1).padStart(2, '0')} · {service.title}
                                     </p>
-                                    <h1 className="font-display text-[52px] leading-[0.95] uppercase sm:text-7xl lg:text-[104px]">{service.headline}</h1>
+                                    <h1 className="font-display text-[52px] leading-[0.95] uppercase sm:text-7xl lg:text-[104px]">
+                                        {service.headline}
+                                    </h1>
                                     <p className="text-ink-soft mt-6 max-w-2xl text-xl">{service.intro}</p>
                                     <div className="mt-8 flex flex-wrap gap-3">
                                         <PillLink href="#start">Start a project</PillLink>
@@ -44,7 +49,9 @@ export default function ServicePage({ portfolio, service }: { portfolio: Portfol
                                     <PlayDiagram icon={service.icon} className="text-maple-light h-28 w-full" />
                                     {service.for.length > 0 && (
                                         <>
-                                            <p className="font-cond text-silver mt-5 mb-2 text-[15px] font-bold tracking-[0.12em] uppercase">Great for</p>
+                                            <p className="font-cond text-silver mt-5 mb-2 text-[15px] font-bold tracking-[0.12em] uppercase">
+                                                Great for
+                                            </p>
                                             <ul className="space-y-1.5">
                                                 {service.for.map((f) => (
                                                     <li key={f} className="flex items-start gap-2">
@@ -65,7 +72,10 @@ export default function ServicePage({ portfolio, service }: { portfolio: Portfol
                         <SectionHeading eyebrow="What's included" title="What you get" />
                         <ul className="border-navy border-y-[3px]">
                             {service.deliverables.map((d) => (
-                                <li key={d.title} className="border-maple-line flex flex-wrap items-baseline gap-x-8 gap-y-1 border-t py-6 first:border-t-0">
+                                <li
+                                    key={d.title}
+                                    className="border-maple-line flex flex-wrap items-baseline gap-x-8 gap-y-1 border-t py-6 first:border-t-0"
+                                >
                                     <h3 className="font-display flex flex-[1_1_260px] items-center gap-3 text-[28px] uppercase">
                                         <Check className="text-royal size-6 shrink-0" strokeWidth={3} /> {d.title}
                                     </h3>
@@ -97,7 +107,10 @@ export default function ServicePage({ portfolio, service }: { portfolio: Portfol
                             <SectionHeading eyebrow="Related work" title="Game tape" />
                             <div className="border-navy border-y-[3px]">
                                 {related.map((p) => (
-                                    <article key={p.title} className="border-maple-line flex flex-wrap items-baseline gap-x-8 gap-y-2 border-t py-7 first:border-t-0">
+                                    <article
+                                        key={p.title}
+                                        className="border-maple-line flex flex-wrap items-baseline gap-x-8 gap-y-2 border-t py-7 first:border-t-0"
+                                    >
                                         <div className="min-w-0 flex-[999_1_420px]">
                                             <p className="font-cond text-royal text-[15px] font-bold tracking-[0.12em] uppercase">
                                                 {[p.subtitle, p.period].filter(Boolean).join(' · ')}
@@ -107,12 +120,22 @@ export default function ServicePage({ portfolio, service }: { portfolio: Portfol
                                         </div>
                                         <div className="flex flex-wrap gap-4">
                                             {p.url && (
-                                                <a href={p.url} target="_blank" rel="noreferrer" className="text-royal inline-flex min-h-11 items-center gap-1 font-semibold hover:underline">
+                                                <a
+                                                    href={p.url}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="text-royal inline-flex min-h-11 items-center gap-1 font-semibold hover:underline"
+                                                >
                                                     Live site <ArrowUpRight className="size-4" />
                                                 </a>
                                             )}
                                             {p.repo && (
-                                                <a href={p.repo} target="_blank" rel="noreferrer" className="text-royal inline-flex min-h-11 items-center gap-1 font-semibold hover:underline">
+                                                <a
+                                                    href={p.repo}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="text-royal inline-flex min-h-11 items-center gap-1 font-semibold hover:underline"
+                                                >
                                                     <Github className="size-4" /> Code
                                                 </a>
                                             )}
@@ -150,7 +173,9 @@ export default function ServicePage({ portfolio, service }: { portfolio: Portfol
                                     <br />
                                     <span className="text-royal">play.</span>
                                 </h2>
-                                <p className="text-ink-soft mt-5 text-lg">Tell me a little about what you need. I'll reply with a few questions and a rough plan — no obligation.</p>
+                                <p className="text-ink-soft mt-5 text-lg">
+                                    Tell me a little about what you need. I'll reply with a few questions and a rough plan — no obligation.
+                                </p>
                             </div>
                             <div className="relative min-w-0 flex-[999_1_480px]">
                                 <ContactForm services={services.map((s) => s.title)} defaultService={service.title} />

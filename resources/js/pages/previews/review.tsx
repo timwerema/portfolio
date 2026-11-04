@@ -50,7 +50,9 @@ export default function PreviewReview({ preview, studio }: { preview: ReviewPrev
                 {/* Top bar */}
                 <header className="bg-navy text-maple-light flex flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-3 sm:px-6">
                     <div className="flex min-w-0 items-center gap-3">
-                        <span className="bg-royal font-display flex size-10 shrink-0 items-center justify-center rounded-full text-base text-white">TW</span>
+                        <span className="bg-royal font-display flex size-10 shrink-0 items-center justify-center rounded-full text-base text-white">
+                            TW
+                        </span>
                         <div className="min-w-0">
                             <p className="font-cond text-silver text-sm font-semibold tracking-[0.1em] uppercase">Demo for {preview.client_name}</p>
                             <h1 className="truncate font-semibold">
@@ -75,7 +77,12 @@ export default function PreviewReview({ preview, studio }: { preview: ReviewPrev
                     <div className="border-navy bg-maple-light flex items-start gap-3 border-b-2 px-4 py-3 sm:px-6">
                         <MessageSquare className="text-royal mt-0.5 size-5 shrink-0" />
                         <p className="flex-1 whitespace-pre-line">{preview.note}</p>
-                        <button type="button" aria-label="Hide note" onClick={() => setNoteOpen(false)} className="text-ink-muted hover:text-ink -m-2 flex size-11 items-center justify-center">
+                        <button
+                            type="button"
+                            aria-label="Hide note"
+                            onClick={() => setNoteOpen(false)}
+                            className="text-ink-muted hover:text-ink -m-2 flex size-11 items-center justify-center"
+                        >
                             <X className="size-5" />
                         </button>
                     </div>
@@ -89,7 +96,11 @@ export default function PreviewReview({ preview, studio }: { preview: ReviewPrev
                             src={preview.frame_url}
                             className="h-full w-full border-0"
                             // Uploaded demos are served from this site, so they never get same-origin access.
-                            sandbox={preview.is_upload ? 'allow-scripts allow-forms allow-popups allow-modals' : 'allow-scripts allow-forms allow-popups allow-modals allow-same-origin'}
+                            sandbox={
+                                preview.is_upload
+                                    ? 'allow-scripts allow-forms allow-popups allow-modals'
+                                    : 'allow-scripts allow-forms allow-popups allow-modals allow-same-origin'
+                            }
                         />
                     ) : (
                         <p className="text-ink-muted p-10 text-center">This demo isn't available right now.</p>
@@ -138,11 +149,14 @@ export default function PreviewReview({ preview, studio }: { preview: ReviewPrev
                             <div role="status">
                                 {preview.status === 'approved' && (
                                     <p className="flex items-center gap-2 font-semibold">
-                                        <CircleCheck className="text-led size-5" /> You approved version {preview.version}. Thanks, {preview.client_name}! I'll be in touch about next steps.
+                                        <CircleCheck className="text-led size-5" /> You approved version {preview.version}. Thanks,{' '}
+                                        {preview.client_name}! I'll be in touch about next steps.
                                     </p>
                                 )}
                                 {preview.status === 'changes_requested' && (
-                                    <p className="font-semibold">Got your feedback on version {preview.version}. I'll send an updated version soon.</p>
+                                    <p className="font-semibold">
+                                        Got your feedback on version {preview.version}. I'll send an updated version soon.
+                                    </p>
                                 )}
                                 {!decided && (
                                     <p>

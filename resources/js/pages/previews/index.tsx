@@ -29,13 +29,18 @@ export default function PreviewsIndex({ previews }: { previews: Preview[] }) {
                     <div className="text-muted-foreground flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed p-16 text-center">
                         <MonitorCheck className="size-10" strokeWidth={1.5} />
                         <p className="mt-4 font-medium">No previews yet</p>
-                        <p className="mt-1 max-w-sm text-sm">Upload a demo homepage for a client, send them the link, and they can approve it or ask for changes.</p>
+                        <p className="mt-1 max-w-sm text-sm">
+                            Upload a demo homepage for a client, send them the link, and they can approve it or ask for changes.
+                        </p>
                     </div>
                 ) : (
                     <ul className="divide-y rounded-xl border">
                         {previews.map((p) => (
                             <li key={p.id}>
-                                <Link href={route('admin.previews.show', p.id)} className="hover:bg-muted/40 flex flex-wrap items-center justify-between gap-3 p-4 transition-colors">
+                                <Link
+                                    href={route('admin.previews.show', p.id)}
+                                    className="hover:bg-muted/40 flex flex-wrap items-center justify-between gap-3 p-4 transition-colors"
+                                >
                                     <div className="min-w-0">
                                         <p className="font-medium">
                                             {p.client_name} <span className="text-muted-foreground font-normal">· {p.title}</span>

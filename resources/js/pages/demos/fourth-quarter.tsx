@@ -1,5 +1,5 @@
-import '@fontsource/bebas-neue/400';
 import '@fontsource-variable/manrope/wght';
+import '@fontsource/bebas-neue/400';
 
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, ArrowRight, Check, ChevronDown, CircleCheck, Clock, MapPin, Users } from 'lucide-react';
@@ -86,8 +86,14 @@ const GOALS = ['Get faster for my sport', 'Get stronger', 'Lose weight & get fit
 const SLOTS = ['Mon 4:30 PM', 'Tue 6:00 AM', 'Wed 6:00 PM', 'Thu 5:00 PM', 'Sat 8:00 AM', 'Sat 10:00 AM'];
 
 const FAQS = [
-    ["I've never lifted before. Is that okay?", 'Absolutely. Most members start as beginners. Your first session is a movement assessment, and every workout is scaled to you.'],
-    ['How young can athletes start?', 'Our youth program starts at age 10, with coaching focused on movement quality, speed and confidence rather than heavy weights.'],
+    [
+        "I've never lifted before. Is that okay?",
+        'Absolutely. Most members start as beginners. Your first session is a movement assessment, and every workout is scaled to you.',
+    ],
+    [
+        'How young can athletes start?',
+        'Our youth program starts at age 10, with coaching focused on movement quality, speed and confidence rather than heavy weights.',
+    ],
     ['Do I need to sign a contract?', 'No. Memberships are month to month. Annual plans are optional and save you about 15%.'],
     ['What should I bring?', 'Athletic shoes, a water bottle and a towel. We have everything else.'],
 ];
@@ -166,7 +172,10 @@ export default function FourthQuarterDemo() {
                             <h1 className="text-[64px] leading-[0.88] sm:text-8xl lg:text-[136px]" style={display}>
                                 Train like it's
                                 <br />
-                                <span className="rounded-lg px-3 [box-decoration-break:clone] [-webkit-box-decoration-break:clone]" style={{ background: C.volt }}>
+                                <span
+                                    className="rounded-lg [box-decoration-break:clone] px-3 [-webkit-box-decoration-break:clone]"
+                                    style={{ background: C.volt }}
+                                >
                                     the 4th quarter.
                                 </span>
                             </h1>
@@ -185,7 +194,10 @@ export default function FourthQuarterDemo() {
                         {/* Coach card */}
                         <aside className="min-w-0 flex-[1_1_300px] rounded-2xl p-6" style={{ background: C.dark, color: C.bone }}>
                             <div className="flex items-center gap-4">
-                                <span className="flex size-16 shrink-0 items-center justify-center rounded-full text-3xl" style={{ ...display, background: C.volt, color: C.ink }}>
+                                <span
+                                    className="flex size-16 shrink-0 items-center justify-center rounded-full text-3xl"
+                                    style={{ ...display, background: C.volt, color: C.ink }}
+                                >
                                     DM
                                 </span>
                                 <div>
@@ -196,14 +208,17 @@ export default function FourthQuarterDemo() {
                                 </div>
                             </div>
                             <p className="mt-5 text-sm leading-relaxed opacity-90">
-                                Former college point guard turned strength coach. Dre built 4th Quarter for athletes who want an edge and adults who want to feel like one.
+                                Former college point guard turned strength coach. Dre built 4th Quarter for athletes who want an edge and adults who
+                                want to feel like one.
                             </p>
                             <ul className="mt-5 space-y-2 text-sm">
-                                {['Certified strength & conditioning coach', 'Youth athletic development specialist', '10 years coaching in DFW'].map((c) => (
-                                    <li key={c} className="flex items-start gap-2">
-                                        <Check className="mt-0.5 size-4 shrink-0" style={{ color: C.volt }} /> {c}
-                                    </li>
-                                ))}
+                                {['Certified strength & conditioning coach', 'Youth athletic development specialist', '10 years coaching in DFW'].map(
+                                    (c) => (
+                                        <li key={c} className="flex items-start gap-2">
+                                            <Check className="mt-0.5 size-4 shrink-0" style={{ color: C.volt }} /> {c}
+                                        </li>
+                                    ),
+                                )}
                             </ul>
                         </aside>
                     </section>
@@ -250,7 +265,10 @@ export default function FourthQuarterDemo() {
                                                     <ul className="flex-[1_1_300px] space-y-2">
                                                         {p.includes.map((i) => (
                                                             <li key={i} className="flex items-start gap-2 font-semibold">
-                                                                <span className="mt-1 flex size-5 shrink-0 items-center justify-center rounded-full" style={{ background: C.volt }}>
+                                                                <span
+                                                                    className="mt-1 flex size-5 shrink-0 items-center justify-center rounded-full"
+                                                                    style={{ background: C.volt }}
+                                                                >
                                                                     <Check className="size-3.5" />
                                                                 </span>
                                                                 {i}
@@ -272,7 +290,12 @@ export default function FourthQuarterDemo() {
                             <h2 className="text-6xl sm:text-7xl" style={display}>
                                 This week
                             </h2>
-                            <div role="tablist" aria-label="Day" className="flex flex-wrap gap-1 rounded-full border-2 p-1" style={{ borderColor: C.ink }}>
+                            <div
+                                role="tablist"
+                                aria-label="Day"
+                                className="flex flex-wrap gap-1 rounded-full border-2 p-1"
+                                style={{ borderColor: C.ink }}
+                            >
                                 {DAYS.map((d) => (
                                     <button
                                         key={d}
@@ -293,7 +316,11 @@ export default function FourthQuarterDemo() {
                                 const key = `${day}-${c.time}`;
                                 const done = reserved.includes(key);
                                 return (
-                                    <li key={key} className="flex flex-wrap items-center gap-x-8 gap-y-2 border-b py-5" style={{ borderColor: C.line }}>
+                                    <li
+                                        key={key}
+                                        className="flex flex-wrap items-center gap-x-8 gap-y-2 border-b py-5"
+                                        style={{ borderColor: C.line }}
+                                    >
                                         <span className="w-24 text-3xl" style={display}>
                                             {c.time}
                                         </span>
@@ -314,11 +341,21 @@ export default function FourthQuarterDemo() {
                                                 <CircleCheck className="size-5" /> {c.spots ? 'Reserved' : 'On waitlist'}
                                             </span>
                                         ) : c.spots ? (
-                                            <button type="button" onClick={() => setReserved((r) => [...r, key])} className={`${pill} min-h-10 text-sm`} style={{ background: C.volt, color: C.ink }}>
+                                            <button
+                                                type="button"
+                                                onClick={() => setReserved((r) => [...r, key])}
+                                                className={`${pill} min-h-10 text-sm`}
+                                                style={{ background: C.volt, color: C.ink }}
+                                            >
                                                 Reserve spot
                                             </button>
                                         ) : (
-                                            <button type="button" className={`${pill} min-h-10 border-2 text-sm`} style={{ borderColor: C.line, color: C.soft }} onClick={() => setReserved((r) => [...r, key])}>
+                                            <button
+                                                type="button"
+                                                className={`${pill} min-h-10 border-2 text-sm`}
+                                                style={{ borderColor: C.line, color: C.soft }}
+                                                onClick={() => setReserved((r) => [...r, key])}
+                                            >
                                                 Join waitlist
                                             </button>
                                         )}
@@ -338,7 +375,12 @@ export default function FourthQuarterDemo() {
                                 <h2 className="text-6xl sm:text-7xl" style={display}>
                                     Memberships
                                 </h2>
-                                <div role="radiogroup" aria-label="Billing" className="flex gap-1 rounded-full border-2 p-1" style={{ borderColor: C.bone }}>
+                                <div
+                                    role="radiogroup"
+                                    aria-label="Billing"
+                                    className="flex gap-1 rounded-full border-2 p-1"
+                                    style={{ borderColor: C.bone }}
+                                >
                                     {[
                                         [false, 'Monthly'],
                                         [true, 'Annual · save 15%'],
@@ -359,12 +401,19 @@ export default function FourthQuarterDemo() {
                             </div>
                             <ul className="mt-8 space-y-3">
                                 {PROGRAMS.map((p) => (
-                                    <li key={p.id} className="flex flex-wrap items-center gap-x-8 gap-y-3 rounded-2xl border p-6" style={{ borderColor: p.id === 'youth' ? C.volt : '#333' }}>
+                                    <li
+                                        key={p.id}
+                                        className="flex flex-wrap items-center gap-x-8 gap-y-3 rounded-2xl border p-6"
+                                        style={{ borderColor: p.id === 'youth' ? C.volt : '#333' }}
+                                    >
                                         <div className="min-w-0 flex-[1_1_260px]">
                                             <p className="text-4xl" style={display}>
                                                 {p.name}
                                                 {p.id === 'youth' && (
-                                                    <span className="ml-3 rounded-full px-2.5 py-0.5 align-middle text-xs font-bold" style={{ background: C.volt, color: C.ink, fontFamily: 'inherit' }}>
+                                                    <span
+                                                        className="ml-3 rounded-full px-2.5 py-0.5 align-middle text-xs font-bold"
+                                                        style={{ background: C.volt, color: C.ink, fontFamily: 'inherit' }}
+                                                    >
                                                         Most popular
                                                     </span>
                                                 )}
@@ -427,12 +476,20 @@ export default function FourthQuarterDemo() {
                                 {step < 4 && (
                                     <ol className="mt-6 flex gap-2" aria-label="Progress">
                                         {[1, 2, 3].map((n) => (
-                                            <li key={n} aria-current={step === n ? 'step' : undefined} className="h-2 w-12 rounded-full" style={{ background: step >= n ? C.ink : C.line }} />
+                                            <li
+                                                key={n}
+                                                aria-current={step === n ? 'step' : undefined}
+                                                className="h-2 w-12 rounded-full"
+                                                style={{ background: step >= n ? C.ink : C.line }}
+                                            />
                                         ))}
                                     </ol>
                                 )}
                             </div>
-                            <div className="min-w-0 flex-[999_1_480px] rounded-2xl border-2 p-6 sm:p-8" style={{ borderColor: C.ink, background: C.bone }}>
+                            <div
+                                className="min-w-0 flex-[999_1_480px] rounded-2xl border-2 p-6 sm:p-8"
+                                style={{ borderColor: C.ink, background: C.bone }}
+                            >
                                 {step === 1 && (
                                     <fieldset>
                                         <legend className="text-3xl" style={display}>
@@ -449,7 +506,10 @@ export default function FourthQuarterDemo() {
                                                         setStep(2);
                                                     }}
                                                     className="flex min-h-12 items-center justify-between rounded-xl border-2 px-4 text-left font-bold"
-                                                    style={{ borderColor: goal === g ? C.ink : C.line, background: goal === g ? C.volt : 'transparent' }}
+                                                    style={{
+                                                        borderColor: goal === g ? C.ink : C.line,
+                                                        background: goal === g ? C.volt : 'transparent',
+                                                    }}
                                                 >
                                                     {g} <ArrowRight className="size-4" />
                                                 </button>
@@ -473,13 +533,20 @@ export default function FourthQuarterDemo() {
                                                         setStep(3);
                                                     }}
                                                     className="min-h-12 rounded-xl border-2 px-4 font-bold"
-                                                    style={{ borderColor: slot === s ? C.ink : C.line, background: slot === s ? C.volt : 'transparent' }}
+                                                    style={{
+                                                        borderColor: slot === s ? C.ink : C.line,
+                                                        background: slot === s ? C.volt : 'transparent',
+                                                    }}
                                                 >
                                                     {s}
                                                 </button>
                                             ))}
                                         </div>
-                                        <button type="button" onClick={() => setStep(1)} className="mt-4 min-h-11 text-sm font-bold underline underline-offset-4">
+                                        <button
+                                            type="button"
+                                            onClick={() => setStep(1)}
+                                            className="mt-4 min-h-11 text-sm font-bold underline underline-offset-4"
+                                        >
                                             ← Back
                                         </button>
                                     </fieldset>
@@ -505,13 +572,24 @@ export default function FourthQuarterDemo() {
                                         </label>
                                         <label className="flex flex-col gap-1.5 text-sm font-bold">
                                             Phone
-                                            <input required type="tel" autoComplete="tel" placeholder="(214) 555-0123" className="min-h-12 rounded-xl border-2 bg-transparent px-4 text-base font-normal" style={{ borderColor: C.line }} />
+                                            <input
+                                                required
+                                                type="tel"
+                                                autoComplete="tel"
+                                                placeholder="(214) 555-0123"
+                                                className="min-h-12 rounded-xl border-2 bg-transparent px-4 text-base font-normal"
+                                                style={{ borderColor: C.line }}
+                                            />
                                         </label>
                                         <div className="flex flex-wrap items-center gap-3">
                                             <button type="submit" className={pill} style={{ background: C.ink, color: C.bone }}>
                                                 Book my free session
                                             </button>
-                                            <button type="button" onClick={() => setStep(2)} className="min-h-11 text-sm font-bold underline underline-offset-4">
+                                            <button
+                                                type="button"
+                                                onClick={() => setStep(2)}
+                                                className="min-h-11 text-sm font-bold underline underline-offset-4"
+                                            >
                                                 ← Back
                                             </button>
                                         </div>
@@ -524,7 +602,8 @@ export default function FourthQuarterDemo() {
                                             You're booked, {name.split(' ')[0] || 'champ'}!
                                         </p>
                                         <p className="mt-2" style={{ color: C.soft }}>
-                                            {slot} · {goal}. This is a demo, so nothing was actually booked. A real site would text you a confirmation and add it to the coach's calendar.
+                                            {slot} · {goal}. This is a demo, so nothing was actually booked. A real site would text you a confirmation
+                                            and add it to the coach's calendar.
                                         </p>
                                         <button
                                             type="button"
@@ -551,7 +630,11 @@ export default function FourthQuarterDemo() {
                         </h2>
                         <div className="mt-6 border-t-2" style={{ borderColor: C.ink }}>
                             {FAQS.map(([q, a]) => (
-                                <details key={q} className="group border-b [&_summary::-webkit-details-marker]:hidden" style={{ borderColor: C.line }}>
+                                <details
+                                    key={q}
+                                    className="group border-b [&_summary::-webkit-details-marker]:hidden"
+                                    style={{ borderColor: C.line }}
+                                >
                                     <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 py-4 text-lg font-bold">
                                         {q}
                                         <ChevronDown className="size-5 shrink-0 transition-transform group-open:rotate-180" />

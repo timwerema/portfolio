@@ -25,7 +25,13 @@ const packages = [
         price: 179,
         time: '3 hrs',
         tagline: 'Our most-booked package: deep clean, inside and out.',
-        items: ['Everything in Express', 'Clay bar decontamination', 'Hand-applied wax (3-month protection)', 'Full interior shampoo & steam', 'Leather clean & condition'],
+        items: [
+            'Everything in Express',
+            'Clay bar decontamination',
+            'Hand-applied wax (3-month protection)',
+            'Full interior shampoo & steam',
+            'Leather clean & condition',
+        ],
     },
     {
         id: 'ceramic',
@@ -33,7 +39,13 @@ const packages = [
         price: 699,
         time: '1–2 days',
         tagline: 'Paint correction plus a long-lasting ceramic coating.',
-        items: ['Everything in Signature', 'One-step paint correction', 'Ceramic coating (multi-year protection)', 'Glass & wheel coating', 'Aftercare kit'],
+        items: [
+            'Everything in Signature',
+            'One-step paint correction',
+            'Ceramic coating (multi-year protection)',
+            'Glass & wheel coating',
+            'Aftercare kit',
+        ],
     },
 ];
 
@@ -45,8 +57,14 @@ const addOns = [
 ];
 
 const faqs = [
-    ['Do you need water or power at my place?', 'No. Our van carries its own water and power, so we can work in a driveway, office lot or apartment garage.'],
-    ['How long does a ceramic coating last?', 'With basic upkeep, our coating keeps its gloss and water beading for years. We’ll walk you through aftercare when we finish.'],
+    [
+        'Do you need water or power at my place?',
+        'No. Our van carries its own water and power, so we can work in a driveway, office lot or apartment garage.',
+    ],
+    [
+        'How long does a ceramic coating last?',
+        'With basic upkeep, our coating keeps its gloss and water beading for years. We’ll walk you through aftercare when we finish.',
+    ],
     ['What if it rains on my appointment day?', 'We’ll text you the day before to reschedule for free if the forecast looks bad.'],
 ];
 
@@ -105,7 +123,14 @@ function BeforeAfter() {
             </div>
             <label className="mt-4 flex flex-col gap-2 text-sm text-[#AEB8C4]">
                 Drag to compare the paint before and after correction
-                <input type="range" min={0} max={100} value={pos} onChange={(e) => setPos(Number(e.target.value))} className="w-full accent-[#29D3E0]" />
+                <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={pos}
+                    onChange={(e) => setPos(Number(e.target.value))}
+                    className="w-full accent-[#29D3E0]"
+                />
             </label>
         </div>
     );
@@ -158,7 +183,10 @@ export default function ClearcoatDemo() {
                             <a href="#faq" className="py-2 hover:text-white">
                                 FAQ
                             </a>
-                            <a href="#book" className="inline-flex min-h-11 items-center rounded-full bg-white px-5 font-bold text-[#0B0D10] hover:bg-[#29D3E0]">
+                            <a
+                                href="#book"
+                                className="inline-flex min-h-11 items-center rounded-full bg-white px-5 font-bold text-[#0B0D10] hover:bg-[#29D3E0]"
+                            >
                                 Book now
                             </a>
                         </div>
@@ -178,13 +206,20 @@ export default function ClearcoatDemo() {
                                 <span className="text-[#29D3E0]">In your driveway.</span>
                             </h1>
                             <p className="mt-6 max-w-xl text-lg text-[#AEB8C4]">
-                                We bring the wash bay to you — hand washes, deep interior details and ceramic coatings, booked online in under a minute.
+                                We bring the wash bay to you — hand washes, deep interior details and ceramic coatings, booked online in under a
+                                minute.
                             </p>
                             <div className="mt-8 flex flex-wrap gap-3">
-                                <a href="#book" className="inline-flex min-h-12 items-center rounded-full bg-[#29D3E0] px-7 font-bold text-[#0B0D10] hover:bg-white">
+                                <a
+                                    href="#book"
+                                    className="inline-flex min-h-12 items-center rounded-full bg-[#29D3E0] px-7 font-bold text-[#0B0D10] hover:bg-white"
+                                >
                                     Book a detail
                                 </a>
-                                <a href="#packages" className="inline-flex min-h-12 items-center rounded-full border border-[#5E6B78] px-7 font-bold hover:border-white">
+                                <a
+                                    href="#packages"
+                                    className="inline-flex min-h-12 items-center rounded-full border border-[#5E6B78] px-7 font-bold hover:border-white"
+                                >
                                     See packages
                                 </a>
                             </div>
@@ -222,7 +257,9 @@ export default function ClearcoatDemo() {
                         <h2 className="text-4xl font-black uppercase sm:text-6xl" style={{ fontStretch: '125%' }}>
                             Pick your package
                         </h2>
-                        <p className="mt-3 max-w-xl text-[#AEB8C4]">Prices for sedans and coupes. SUVs and trucks add $20–$100 depending on the package.</p>
+                        <p className="mt-3 max-w-xl text-[#AEB8C4]">
+                            Prices for sedans and coupes. SUVs and trucks add $20–$100 depending on the package.
+                        </p>
                         <div className="mt-10 flex flex-wrap gap-8">
                             <div role="tablist" aria-label="Packages" className="flex flex-[1_1_300px] flex-col gap-3">
                                 {packages.map((p) => {
@@ -261,7 +298,10 @@ export default function ClearcoatDemo() {
                                         </li>
                                     ))}
                                 </ul>
-                                <a href="#book" className="mt-6 inline-flex min-h-12 items-center rounded-full bg-white px-7 font-bold text-[#0B0D10] hover:bg-[#29D3E0]">
+                                <a
+                                    href="#book"
+                                    className="mt-6 inline-flex min-h-12 items-center rounded-full bg-white px-7 font-bold text-[#0B0D10] hover:bg-[#29D3E0]"
+                                >
                                     Book {active.name} — ${active.price}
                                 </a>
                             </div>
@@ -286,17 +326,20 @@ export default function ClearcoatDemo() {
                                     See the difference
                                 </h2>
                                 <p className="mt-4 text-[#AEB8C4]">
-                                    Paint correction removes the swirl marks and haze that automatic car washes leave behind, then a coating locks in the gloss.
+                                    Paint correction removes the swirl marks and haze that automatic car washes leave behind, then a coating locks in
+                                    the gloss.
                                 </p>
                                 <ol className="mt-8 space-y-4">
-                                    {['Book online and pick a time', 'We arrive with everything we need', 'Drive away looking brand new'].map((step, i) => (
-                                        <li key={step} className="flex items-center gap-4">
-                                            <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-[#29D3E0] font-bold text-[#29D3E0]">
-                                                {i + 1}
-                                            </span>
-                                            {step}
-                                        </li>
-                                    ))}
+                                    {['Book online and pick a time', 'We arrive with everything we need', 'Drive away looking brand new'].map(
+                                        (step, i) => (
+                                            <li key={step} className="flex items-center gap-4">
+                                                <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-[#29D3E0] font-bold text-[#29D3E0]">
+                                                    {i + 1}
+                                                </span>
+                                                {step}
+                                            </li>
+                                        ),
+                                    )}
                                 </ol>
                             </div>
                             <div className="min-w-0 flex-[999_1_480px]">
@@ -318,9 +361,14 @@ export default function ClearcoatDemo() {
                                 <div role="status" className="rounded-2xl border border-[#29D3E0] bg-[#12161C] p-8">
                                     <p className="text-2xl font-bold">Request received!</p>
                                     <p className="mt-2 text-[#AEB8C4]">
-                                        This is a demo, so no booking was actually made. On a real site, the business would get your request by email and text.
+                                        This is a demo, so no booking was actually made. On a real site, the business would get your request by email
+                                        and text.
                                     </p>
-                                    <button type="button" onClick={() => setBooked(false)} className="mt-6 min-h-11 rounded-full border border-[#5E6B78] px-6 font-bold">
+                                    <button
+                                        type="button"
+                                        onClick={() => setBooked(false)}
+                                        className="mt-6 min-h-11 rounded-full border border-[#5E6B78] px-6 font-bold"
+                                    >
                                         Back to the form
                                     </button>
                                 </div>
@@ -366,7 +414,10 @@ export default function ClearcoatDemo() {
                                             <input required inputMode="numeric" className={field} placeholder="75201" autoComplete="postal-code" />
                                         </label>
                                     </div>
-                                    <button type="submit" className="min-h-12 self-start rounded-full bg-[#29D3E0] px-8 font-bold text-[#0B0D10] hover:bg-white">
+                                    <button
+                                        type="submit"
+                                        className="min-h-12 self-start rounded-full bg-[#29D3E0] px-8 font-bold text-[#0B0D10] hover:bg-white"
+                                    >
                                         Request booking
                                     </button>
                                 </form>
@@ -396,7 +447,10 @@ export default function ClearcoatDemo() {
                 <footer className="border-t border-[#1C2229]">
                     <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm text-[#AEB8C4] sm:px-10">
                         <p>Clearcoat Detailing is a fictional business. This site is a portfolio demo.</p>
-                        <Link href="/#contact" className="inline-flex min-h-11 items-center font-bold text-white underline underline-offset-4 hover:text-[#29D3E0]">
+                        <Link
+                            href="/#contact"
+                            className="inline-flex min-h-11 items-center font-bold text-white underline underline-offset-4 hover:text-[#29D3E0]"
+                        >
                             Want a site like this? Let's talk →
                         </Link>
                     </div>

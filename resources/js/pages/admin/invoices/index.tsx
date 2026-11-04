@@ -72,7 +72,11 @@ export default function InvoicesIndex({ invoices, status }: { invoices: Invoice[
                                         </td>
                                         <td className="p-3">{i.client?.name}</td>
                                         <td className="text-muted-foreground p-3">{date(i.issue_date)}</td>
-                                        <td className={`p-3 ${i.is_overdue ? 'font-medium text-red-600 dark:text-red-400' : 'text-muted-foreground'}`}>{date(i.due_date)}</td>
+                                        <td
+                                            className={`p-3 ${i.is_overdue ? 'font-medium text-red-600 dark:text-red-400' : 'text-muted-foreground'}`}
+                                        >
+                                            {date(i.due_date)}
+                                        </td>
                                         <td className="p-3 text-right font-medium tabular-nums">{money(i.total_cents)}</td>
                                         <td className="p-3">
                                             <StatusPill status={i.status} overdue={i.is_overdue} />

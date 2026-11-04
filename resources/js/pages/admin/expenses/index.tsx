@@ -10,7 +10,15 @@ import { Head, Link, router, useForm } from '@inertiajs/react';
 import { ChevronLeft, ChevronRight, LoaderCircle, Plus, Trash2 } from 'lucide-react';
 import { type FormEvent } from 'react';
 
-type Expense = { id: number; date: string; vendor: string; category: string; amount_cents: number; notes: string | null; project?: { id: number; name: string } | null };
+type Expense = {
+    id: number;
+    date: string;
+    vendor: string;
+    category: string;
+    amount_cents: number;
+    notes: string | null;
+    project?: { id: number; name: string } | null;
+};
 type Props = {
     expenses: Expense[];
     year: number;
@@ -21,7 +29,14 @@ type Props = {
 };
 
 export default function ExpensesIndex({ expenses, year, total_cents, by_category, categories, projects }: Props) {
-    const { data, setData, post, processing, errors, reset } = useForm({ date: today(), vendor: '', category: categories[0], amount: '', project_id: '', notes: '' });
+    const { data, setData, post, processing, errors, reset } = useForm({
+        date: today(),
+        vendor: '',
+        category: categories[0],
+        amount: '',
+        project_id: '',
+        notes: '',
+    });
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
@@ -58,7 +73,13 @@ export default function ExpensesIndex({ expenses, year, total_cents, by_category
                     </div>
                     <div className="grid min-w-40 flex-1 gap-1.5">
                         <Label htmlFor="vendor">Vendor</Label>
-                        <Input id="vendor" value={data.vendor} onChange={(e) => setData('vendor', e.target.value)} placeholder="DigitalOcean" required />
+                        <Input
+                            id="vendor"
+                            value={data.vendor}
+                            onChange={(e) => setData('vendor', e.target.value)}
+                            placeholder="DigitalOcean"
+                            required
+                        />
                         <InputError message={errors.vendor} />
                     </div>
                     <div className="grid w-40 gap-1.5">
@@ -71,7 +92,14 @@ export default function ExpensesIndex({ expenses, year, total_cents, by_category
                     </div>
                     <div className="grid w-32 gap-1.5">
                         <Label htmlFor="amount">Amount ($)</Label>
-                        <Input id="amount" inputMode="decimal" value={data.amount} onChange={(e) => setData('amount', e.target.value)} placeholder="6.00" required />
+                        <Input
+                            id="amount"
+                            inputMode="decimal"
+                            value={data.amount}
+                            onChange={(e) => setData('amount', e.target.value)}
+                            placeholder="6.00"
+                            required
+                        />
                         <InputError message={errors.amount} />
                     </div>
                     <div className="grid w-48 gap-1.5">
@@ -93,7 +121,9 @@ export default function ExpensesIndex({ expenses, year, total_cents, by_category
                 <div className="flex flex-col gap-6 lg:flex-row">
                     <section className="min-w-0 flex-1">
                         {expenses.length === 0 ? (
-                            <p className="text-muted-foreground rounded-xl border border-dashed p-10 text-center text-sm">No expenses recorded for {year}.</p>
+                            <p className="text-muted-foreground rounded-xl border border-dashed p-10 text-center text-sm">
+                                No expenses recorded for {year}.
+                            </p>
                         ) : (
                             <div className="relative overflow-x-auto rounded-xl border">
                                 <table className="w-full min-w-[560px] text-sm">
@@ -123,7 +153,10 @@ export default function ExpensesIndex({ expenses, year, total_cents, by_category
                                                         variant="ghost"
                                                         size="icon"
                                                         aria-label={`Delete ${x.vendor} expense`}
-                                                        onClick={() => window.confirm('Delete this expense?') && router.delete(route('admin.expenses.destroy', x.id), { preserveScroll: true })}
+                                                        onClick={() =>
+                                                            window.confirm('Delete this expense?') &&
+                                                            router.delete(route('admin.expenses.destroy', x.id), { preserveScroll: true })
+                                                        }
                                                     >
                                                         <Trash2 className="size-4" />
                                                     </Button>
@@ -147,7 +180,10 @@ export default function ExpensesIndex({ expenses, year, total_cents, by_category
                                             <dd className="tabular-nums">{money(cents)}</dd>
                                         </div>
                                         <div className="bg-muted mt-1 h-1.5 rounded-full" aria-hidden="true">
-                                            <div className="bg-foreground/60 h-1.5 rounded-full" style={{ width: `${Math.max(2, (cents / total_cents) * 100)}%` }} />
+                                            <div
+                                                className="bg-foreground/60 h-1.5 rounded-full"
+                                                style={{ width: `${Math.max(2, (cents / total_cents) * 100)}%` }}
+                                            />
                                         </div>
                                     </div>
                                 ))}

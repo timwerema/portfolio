@@ -24,8 +24,25 @@ function CourtLines() {
 }
 
 export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
-    const { name, availability, role, location, tagline, about, resume_url, links, education, services, packages, care_plan, stats, demos, skills, projects, experience } =
-        portfolio;
+    const {
+        name,
+        availability,
+        role,
+        location,
+        tagline,
+        about,
+        resume_url,
+        links,
+        education,
+        services,
+        packages,
+        care_plan,
+        stats,
+        demos,
+        skills,
+        projects,
+        experience,
+    } = portfolio;
     const school = education[0];
     const classYear = school?.period.match(/\d{4}/)?.[0]?.slice(2);
 
@@ -108,7 +125,10 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                             <SectionHeading eyebrow="Selected work" title="Season highlights" />
                             <div className="border-navy border-y-[3px]">
                                 {projects.map((p, i) => (
-                                    <article key={p.title} className="border-maple-line flex flex-wrap items-center gap-x-10 gap-y-2 border-t py-8 first:border-t-0">
+                                    <article
+                                        key={p.title}
+                                        className="border-maple-line flex flex-wrap items-center gap-x-10 gap-y-2 border-t py-8 first:border-t-0"
+                                    >
                                         <span
                                             aria-hidden="true"
                                             className="font-display flex-[0_0_140px] text-[112px] leading-[0.85] text-transparent [-webkit-text-stroke:2px_var(--color-navy)]"
@@ -122,7 +142,9 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                             <h3 className="font-display mt-1 mb-2 text-[38px] leading-[1.05] uppercase">{p.title}</h3>
                                             <p className="text-ink-soft">{p.description}</p>
                                             <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
-                                                <p className="font-cond text-ink-muted text-base font-semibold tracking-[0.06em] uppercase">{p.tags.join(' · ')}</p>
+                                                <p className="font-cond text-ink-muted text-base font-semibold tracking-[0.06em] uppercase">
+                                                    {p.tags.join(' · ')}
+                                                </p>
                                                 {p.url && (
                                                     <a
                                                         href={p.url}
@@ -152,7 +174,9 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                             {demos.length > 0 && (
                                 <div className="mt-16">
                                     <h3 className="font-cond text-royal text-lg font-bold tracking-[0.12em] uppercase">Demo sites</h3>
-                                    <p className="text-ink-soft mt-1 mb-6 max-w-xl">Websites I built for fictional businesses, to show what your site could look like.</p>
+                                    <p className="text-ink-soft mt-1 mb-6 max-w-xl">
+                                        Websites I built for fictional businesses, to show what your site could look like.
+                                    </p>
                                     <div className="flex flex-col gap-4">
                                         {demos.map((d) => (
                                             <Link
@@ -209,7 +233,9 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                     <section id="packages" className="scroll-mt-20">
                         <div className="mx-auto max-w-[1240px] px-5 py-20 sm:px-10 lg:px-16 lg:py-28">
                             <SectionHeading eyebrow="Packages" title="Sign the deal" className="mb-4" />
-                            <p className="text-ink-soft mb-12 max-w-xl text-lg">Every website starts with a free demo homepage. You approve it before we go any further.</p>
+                            <p className="text-ink-soft mb-12 max-w-xl text-lg">
+                                Every website starts with a free demo homepage. You approve it before we go any further.
+                            </p>
                             <div className="flex flex-col gap-5">
                                 {packages.map((pkg) => (
                                     <div
@@ -232,8 +258,8 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                 ))}
                             </div>
                             <p className="text-ink-soft mt-6">
-                                <strong className="font-cond text-royal text-lg tracking-[0.08em] uppercase">Training staff</strong> — {care_plan.summary}{' '}
-                                <span className="font-semibold">{care_plan.price}</span>
+                                <strong className="font-cond text-royal text-lg tracking-[0.08em] uppercase">Training staff</strong> —{' '}
+                                {care_plan.summary} <span className="font-semibold">{care_plan.price}</span>
                             </p>
                         </div>
                     </section>
@@ -308,12 +334,22 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                         </a>
                                     )}
                                     {links.linkedin && (
-                                        <a href={links.linkedin} target="_blank" rel="noreferrer" className="hover:text-royal flex min-h-11 items-center gap-3">
+                                        <a
+                                            href={links.linkedin}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="hover:text-royal flex min-h-11 items-center gap-3"
+                                        >
                                             <Linkedin className="size-5" /> LinkedIn
                                         </a>
                                     )}
                                     {links.github && (
-                                        <a href={links.github} target="_blank" rel="noreferrer" className="hover:text-royal flex min-h-11 items-center gap-3">
+                                        <a
+                                            href={links.github}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="hover:text-royal flex min-h-11 items-center gap-3"
+                                        >
                                             <Github className="size-5" /> GitHub
                                         </a>
                                     )}

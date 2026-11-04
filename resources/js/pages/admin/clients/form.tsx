@@ -60,7 +60,13 @@ export default function ClientForm({ client, prefill }: { client: Client | null;
                 </div>
                 <div className="grid gap-2">
                     <Label htmlFor="notes">Notes</Label>
-                    <Textarea id="notes" rows={5} value={data.notes} onChange={(e) => setData('notes', e.target.value)} placeholder="How you met, what they need, preferences…" />
+                    <Textarea
+                        id="notes"
+                        rows={5}
+                        value={data.notes}
+                        onChange={(e) => setData('notes', e.target.value)}
+                        placeholder="How you met, what they need, preferences…"
+                    />
                     <InputError message={errors.notes} />
                 </div>
                 <Button type="submit" disabled={processing}>

@@ -10,6 +10,7 @@ use App\Http\Controllers\ContactMessageController;
 use App\Http\Controllers\PreviewReviewController;
 use App\Http\Controllers\PublicInvoiceController;
 use App\Models\ContactMessage;
+use App\Support\HealthChecks;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -32,8 +33,8 @@ Route::get('/services/{slug}', function (string $slug) {
 
 // Health check for an outside uptime monitor (e.g. UptimeRobot): 200 when healthy, 503 when not.
 Route::get('/health', function () {
-    $checks = \App\Support\HealthChecks::run();
-    $healthy = \App\Support\HealthChecks::healthy($checks);
+    $checks = HealthChecks::run();
+    $healthy = HealthChecks::healthy($checks);
 
     return response()->json([
         'status' => $healthy ? 'ok' : 'fail',
