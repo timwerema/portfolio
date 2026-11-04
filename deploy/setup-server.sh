@@ -205,6 +205,16 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+step "Scheduler (nightly backups)"
+CRON_LINE="* * * * * cd ${APP_DIR} && php artisan schedule:run >> /dev/null 2>&1"
+if crontab -l 2>/dev/null | grep -qF "${APP_DIR} && php artisan schedule:run"; then
+    ok "Already installed"
+else
+    ( crontab -l 2>/dev/null; echo "${CRON_LINE}" ) | crontab -
+    ok "Installed - backups run nightly at 3:10am into ${APP_DIR}/storage/backups (14 days kept)"
+fi
+
+# ---------------------------------------------------------------------------
 step "HTTPS certificate"
 if [ -z "${DOMAIN}" ]; then
     warn "No DOMAIN set: skipping HTTPS. Re-run with DOMAIN=... once your domain points here."
@@ -235,3 +245,4 @@ echo "    Next steps:"
 echo "      1. Create your admin login:   cd ${APP_DIR} && php artisan user:create"
 echo "      2. Read messages at:          ${APP_URL}/dashboard"
 echo "      3. Deploy future updates:     ${APP_DIR}/deploy/deploy.sh"
+echo "      4. Back up right now:         cd ${APP_DIR} && php artisan backup:run"
