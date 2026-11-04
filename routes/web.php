@@ -30,6 +30,38 @@ Route::get('/services/{slug}', function (string $slug) {
     ]);
 })->name('services.show');
 
+// Search engines: generated from config so they stay current.
+Route::get('/robots.txt', function () {
+    $lines = [
+        'User-agent: *',
+        'Disallow: /dashboard',
+        'Disallow: /settings',
+        'Disallow: /login',
+        'Disallow: /p/',      // client demo reviews
+        'Disallow: /i/',      // client invoices
+        '',
+        'Sitemap: '.url('/sitemap.xml'),
+    ];
+
+    return response(implode("\n", $lines)."\n", 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
+})->name('robots');
+
+Route::get('/sitemap.xml', function () {
+    $urls = [url('/'), route('resume')];
+    foreach (config('portfolio.services') as $service) {
+        $urls[] = route('services.show', $service['slug']);
+    }
+    $lastmod = date('Y-m-d', (int) filemtime(config_path('portfolio.php')));
+
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
+    foreach ($urls as $u) {
+        $xml .= '  <url><loc>'.e($u).'</loc><lastmod>'.$lastmod.'</lastmod></url>'."\n";
+    }
+    $xml .= '</urlset>'."\n";
+
+    return response($xml, 200, ['Content-Type' => 'application/xml; charset=UTF-8']);
+})->name('sitemap');
+
 // Demo sites for fictional businesses, to show prospective clients what's possible.
 Route::get('/demos/clearcoat', fn () => Inertia::render('demos/clearcoat'))->name('demos.clearcoat');
 Route::get('/demos/galacticals', fn () => Inertia::render('demos/galacticals'))->name('demos.galacticals');

@@ -164,7 +164,7 @@ server {
     }
 
     location = /favicon.ico { access_log off; log_not_found off; }
-    location = /robots.txt  { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; try_files \$uri /index.php?\$query_string; }
 
     location /build/ {
         expires 1y;
