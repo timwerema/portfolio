@@ -58,6 +58,29 @@ cd /var/www/portfolio && php artisan user:create
 
 Then visit `https://yourdomain.com/login` to read contact messages.
 
+## Backups
+
+Every night at 3:10am the site saves `storage/backups/backup-<date>.tar.gz`,
+containing a snapshot of the database (clients, invoices, messages, previews)
+and the uploaded client demos. The last 14 days are kept.
+
+- Back up right now: `php artisan backup:run`
+- The setup script installs the scheduler for you. If you set things up by hand, add this
+  with `crontab -e`:
+  ```
+  * * * * * cd /var/www/portfolio && php artisan schedule:run >> /dev/null 2>&1
+  ```
+- **Restore** (put the site in maintenance mode first with `php artisan down`):
+  ```bash
+  mkdir /tmp/restore && tar -xzf storage/backups/<file>.tar.gz -C /tmp/restore
+  cp /tmp/restore/database.sqlite database/database.sqlite
+  cp -r /tmp/restore/previews storage/app/private/
+  php artisan up
+  ```
+- These backups live on the same server. Once you have real clients, also copy them
+  somewhere else every so often, for example download one to your Mac:
+  `scp timasi@sterango.com:/var/www/portfolio/storage/backups/<file>.tar.gz ~/Downloads/`
+
 ## Updating the site later
 
 Push changes to GitHub, then on the server:
