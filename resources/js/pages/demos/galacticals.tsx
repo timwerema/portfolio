@@ -49,20 +49,42 @@ const PROGRAMS = [
 
 const PLANS = {
     memberships: [
-        { id: 'm1', name: '1× per week', price: 160, unit: '/month', points: ['One training session a week', 'Any program for your age group', 'Cancel anytime'] },
-        { id: 'm2', name: '2× per week', price: 300, unit: '/month', points: ['Two training sessions a week', 'Priority on camp spots', 'Cancel anytime'], featured: true },
+        {
+            id: 'm1',
+            name: '1× per week',
+            price: 160,
+            unit: '/month',
+            points: ['One training session a week', 'Any program for your age group', 'Cancel anytime'],
+        },
+        {
+            id: 'm2',
+            name: '2× per week',
+            price: 300,
+            unit: '/month',
+            points: ['Two training sessions a week', 'Priority on camp spots', 'Cancel anytime'],
+            featured: true,
+        },
         { id: 'm3', name: '3× per week', price: 420, unit: '/month', points: ['Three sessions a week', 'Monthly progress report', 'Cancel anytime'] },
     ],
     sessions: [
         { id: 's1', name: 'Drop-in session', price: 50, unit: '/session', points: ['Any open session', 'Pay as you go'] },
-        { id: 's2', name: 'Unlimited drop-ins', price: 400, unit: '/month', points: ['Every open session this month', 'Best value for busy players'] },
+        {
+            id: 's2',
+            name: 'Unlimited drop-ins',
+            price: 400,
+            unit: '/month',
+            points: ['Every open session this month', 'Best value for busy players'],
+        },
         { id: 's3', name: 'Private lesson', price: 110, unit: '/hour', points: ['1-on-1 with a coach', 'Indoor turf field'] },
     ],
 };
 
 const FAQS = [
     ['What ages do you train?', 'Players ages 3 through 14, grouped by age and level so everyone is challenged at the right pace.'],
-    ['How do registration and payment work?', 'Sign in with Apple, Google or email, pick a session or plan, and pay in a couple of taps with Apple Pay, Google Pay or a card.'],
+    [
+        'How do registration and payment work?',
+        'Sign in with Apple, Google or email, pick a session or plan, and pay in a couple of taps with Apple Pay, Google Pay or a card.',
+    ],
     ['What should my player bring?', 'Cleats or turf shoes, shin guards, a size-appropriate ball and a water bottle.'],
     ['Can I cancel a membership?', 'Yes. Memberships are month to month and can be cancelled from your account at any time.'],
 ];
@@ -76,18 +98,84 @@ function buildSchedule(year: number, month: number): ClubEvent[] {
         const dow = date.getDay();
         const key = `${month}-${d}`;
         if (dow === 2 || dow === 4) {
-            events.push({ id: `${key}-a`, date, time: '5:30 PM', title: 'Future Stars training', type: 'training', group: 'Ages 3–7', price: 0, spots: 6 });
-            events.push({ id: `${key}-b`, date, time: '6:45 PM', title: 'Youth Development training', type: 'training', group: 'Ages 8–11', price: 0, spots: 4 });
+            events.push({
+                id: `${key}-a`,
+                date,
+                time: '5:30 PM',
+                title: 'Future Stars training',
+                type: 'training',
+                group: 'Ages 3–7',
+                price: 0,
+                spots: 6,
+            });
+            events.push({
+                id: `${key}-b`,
+                date,
+                time: '6:45 PM',
+                title: 'Youth Development training',
+                type: 'training',
+                group: 'Ages 8–11',
+                price: 0,
+                spots: 4,
+            });
         }
-        if (dow === 3) events.push({ id: `${key}-c`, date, time: '6:00 PM', title: 'Competitive team practice', type: 'training', group: 'Ages 9–14', price: 0, spots: 2 });
-        if (dow === 6) events.push({ id: `${key}-d`, date, time: '9:00 AM', title: 'Saturday drop-in', type: 'dropin', group: 'All ages', price: 50, spots: 12 });
-        if (dow === 0 && d % 2 === 0) events.push({ id: `${key}-e`, date, time: '1:00 PM', title: 'League match vs. North Texas FC', type: 'match', group: 'Competitive', price: 0, spots: 0 });
+        if (dow === 3)
+            events.push({
+                id: `${key}-c`,
+                date,
+                time: '6:00 PM',
+                title: 'Competitive team practice',
+                type: 'training',
+                group: 'Ages 9–14',
+                price: 0,
+                spots: 2,
+            });
+        if (dow === 6)
+            events.push({
+                id: `${key}-d`,
+                date,
+                time: '9:00 AM',
+                title: 'Saturday drop-in',
+                type: 'dropin',
+                group: 'All ages',
+                price: 50,
+                spots: 12,
+            });
+        if (dow === 0 && d % 2 === 0)
+            events.push({
+                id: `${key}-e`,
+                date,
+                time: '1:00 PM',
+                title: 'League match vs. North Texas FC',
+                type: 'match',
+                group: 'Competitive',
+                price: 0,
+                spots: 0,
+            });
     }
     const campStart = Math.min(22, days - 3);
     for (let i = 0; i < 3; i++) {
-        events.push({ id: `${month}-camp-${i}`, date: new Date(year, month, campStart + i), time: '9:00 AM', title: `Skills camp · day ${i + 1}`, type: 'camp', group: 'Ages 6–12', price: 150, spots: 8 });
+        events.push({
+            id: `${month}-camp-${i}`,
+            date: new Date(year, month, campStart + i),
+            time: '9:00 AM',
+            title: `Skills camp · day ${i + 1}`,
+            type: 'camp',
+            group: 'Ages 6–12',
+            price: 150,
+            spots: 8,
+        });
     }
-    events.push({ id: `${month}-social`, date: new Date(year, month, Math.min(28, days)), time: '4:00 PM', title: 'End-of-month family cookout', type: 'social', group: 'Everyone', price: 0, spots: 40 });
+    events.push({
+        id: `${month}-social`,
+        date: new Date(year, month, Math.min(28, days)),
+        time: '4:00 PM',
+        title: 'End-of-month family cookout',
+        type: 'social',
+        group: 'Everyone',
+        price: 0,
+        spots: 40,
+    });
     return events.sort((a, b) => a.date.getTime() - b.date.getTime() || a.time.localeCompare(b.time));
 }
 
@@ -114,9 +202,18 @@ const AppleLogo = () => (
 const GoogleLogo = () => (
     <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24">
         <path fill="#4285F4" d="M22.5 12.27c0-.79-.07-1.54-.2-2.27H12v4.3h5.9a5.05 5.05 0 0 1-2.19 3.31v2.75h3.54c2.07-1.9 3.25-4.71 3.25-8.09z" />
-        <path fill="#34A853" d="M12 23c2.96 0 5.45-.98 7.26-2.65l-3.54-2.75c-.98.66-2.24 1.05-3.72 1.05-2.86 0-5.29-1.93-6.15-4.53H2.2v2.84A11 11 0 0 0 12 23z" />
-        <path fill="#FBBC05" d="M5.85 14.12A6.6 6.6 0 0 1 5.5 12c0-.74.13-1.45.35-2.12V7.04H2.2A11 11 0 0 0 1 12c0 1.78.43 3.46 1.2 4.96l3.65-2.84z" />
-        <path fill="#EA4335" d="M12 5.35c1.61 0 3.06.55 4.2 1.64l3.14-3.14C17.45 2.09 14.96 1 12 1 7.7 1 3.99 3.47 2.2 7.04l3.65 2.84C6.71 7.28 9.14 5.35 12 5.35z" />
+        <path
+            fill="#34A853"
+            d="M12 23c2.96 0 5.45-.98 7.26-2.65l-3.54-2.75c-.98.66-2.24 1.05-3.72 1.05-2.86 0-5.29-1.93-6.15-4.53H2.2v2.84A11 11 0 0 0 12 23z"
+        />
+        <path
+            fill="#FBBC05"
+            d="M5.85 14.12A6.6 6.6 0 0 1 5.5 12c0-.74.13-1.45.35-2.12V7.04H2.2A11 11 0 0 0 1 12c0 1.78.43 3.46 1.2 4.96l3.65-2.84z"
+        />
+        <path
+            fill="#EA4335"
+            d="M12 5.35c1.61 0 3.06.55 4.2 1.64l3.14-3.14C17.45 2.09 14.96 1 12 1 7.7 1 3.99 3.47 2.2 7.04l3.65 2.84C6.71 7.28 9.14 5.35 12 5.35z"
+        />
     </svg>
 );
 
@@ -152,7 +249,10 @@ export default function GalacticalsConcept() {
     const monthLabel = new Date(view.year, view.month, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
     const firstDow = new Date(view.year, view.month, 1).getDay();
     const daysInMonth = new Date(view.year, view.month + 1, 0).getDate();
-    const cells: (Date | null)[] = [...Array(firstDow).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => new Date(view.year, view.month, i + 1))];
+    const cells: (Date | null)[] = [
+        ...Array(firstDow).fill(null),
+        ...Array.from({ length: daysInMonth }, (_, i) => new Date(view.year, view.month, i + 1)),
+    ];
 
     const shiftMonth = (delta: number) => {
         const d = new Date(view.year, view.month + delta, 1);
@@ -199,7 +299,12 @@ export default function GalacticalsConcept() {
 
     const registerButton = (e: ClubEvent) => {
         const done = registered.includes(e.id);
-        if (e.type === 'match') return <span className="text-sm" style={{ color: C.muted }}>Team members only</span>;
+        if (e.type === 'match')
+            return (
+                <span className="text-sm" style={{ color: C.muted }}>
+                    Team members only
+                </span>
+            );
         if (done)
             return (
                 <span className="inline-flex items-center gap-1.5 text-sm font-bold" style={{ color: '#4ade80' }}>
@@ -292,11 +397,20 @@ export default function GalacticalsConcept() {
                             </a>
                             {user ? (
                                 <span className="flex items-center gap-2">
-                                    <span className="flex size-9 items-center justify-center rounded-full font-black" style={{ background: C.orbit, color: C.space }}>
+                                    <span
+                                        className="flex size-9 items-center justify-center rounded-full font-black"
+                                        style={{ background: C.orbit, color: C.space }}
+                                    >
                                         {user.name.charAt(0).toUpperCase()}
                                     </span>
                                     <span className="hidden sm:inline">Hi, {user.name}</span>
-                                    <button type="button" aria-label="Sign out" onClick={() => setUser(null)} className="flex size-11 items-center justify-center" style={{ color: C.muted }}>
+                                    <button
+                                        type="button"
+                                        aria-label="Sign out"
+                                        onClick={() => setUser(null)}
+                                        className="flex size-11 items-center justify-center"
+                                        style={{ color: C.muted }}
+                                    >
                                         <LogOut className="size-4" />
                                     </button>
                                 </span>
@@ -305,7 +419,12 @@ export default function GalacticalsConcept() {
                                     <button type="button" onClick={() => setAuthOpen('signin')} className="min-h-11 px-2">
                                         Sign in
                                     </button>
-                                    <button type="button" onClick={() => setAuthOpen('signup')} className={btnGold} style={{ background: C.gold, color: C.space }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setAuthOpen('signup')}
+                                        className={btnGold}
+                                        style={{ background: C.gold, color: C.space }}
+                                    >
                                         Join the club
                                     </button>
                                 </>
@@ -317,7 +436,12 @@ export default function GalacticalsConcept() {
                 <main id="top">
                     {/* Hero */}
                     <section className="relative overflow-hidden">
-                        <svg aria-hidden="true" viewBox="0 0 1200 520" preserveAspectRatio="xMidYMid slice" className="pointer-events-none absolute inset-0 h-full w-full">
+                        <svg
+                            aria-hidden="true"
+                            viewBox="0 0 1200 520"
+                            preserveAspectRatio="xMidYMid slice"
+                            className="pointer-events-none absolute inset-0 h-full w-full"
+                        >
                             <g fill="none" stroke={C.line} strokeWidth="2">
                                 <ellipse cx="900" cy="260" rx="420" ry="140" transform="rotate(-18 900 260)" />
                                 <ellipse cx="900" cy="260" rx="300" ry="96" transform="rotate(-18 900 260)" />
@@ -349,7 +473,12 @@ export default function GalacticalsConcept() {
                                 <a href="#hub" className={btnGold} style={{ background: C.gold, color: C.space }}>
                                     See the schedule
                                 </a>
-                                <button type="button" onClick={() => setAuthOpen('signup')} className={`${btnGold} border-2`} style={{ borderColor: C.text }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setAuthOpen('signup')}
+                                    className={`${btnGold} border-2`}
+                                    style={{ borderColor: C.text }}
+                                >
                                     Join Galacticals
                                 </button>
                             </div>
@@ -367,14 +496,21 @@ export default function GalacticalsConcept() {
                             </h2>
                             <ol className="mt-10">
                                 {PROGRAMS.map(([name, age, desc], i) => (
-                                    <li key={name} className="flex flex-wrap items-baseline gap-x-8 gap-y-2 border-t py-6" style={{ borderColor: C.line }}>
+                                    <li
+                                        key={name}
+                                        className="flex flex-wrap items-baseline gap-x-8 gap-y-2 border-t py-6"
+                                        style={{ borderColor: C.line }}
+                                    >
                                         <span className="w-12 text-3xl font-black" style={{ ...display, color: C.gold }}>
                                             {String(i + 1).padStart(2, '0')}
                                         </span>
                                         <h3 className="flex-[1_1_260px] text-3xl font-extrabold uppercase" style={display}>
                                             {name}
                                         </h3>
-                                        <span className="rounded-full border px-3 py-1 text-sm font-bold" style={{ borderColor: C.orbit, color: C.orbit }}>
+                                        <span
+                                            className="rounded-full border px-3 py-1 text-sm font-bold"
+                                            style={{ borderColor: C.orbit, color: C.orbit }}
+                                        >
                                             {age}
                                         </span>
                                         <p className="flex-[999_1_320px]" style={{ color: C.muted }}>
@@ -397,7 +533,12 @@ export default function GalacticalsConcept() {
                                     Find a session, register in one tap, and manage your plan — all in one place.
                                 </p>
                             </div>
-                            <div role="tablist" aria-label="Schedule views" className="flex flex-wrap gap-1 rounded-full border p-1" style={{ borderColor: C.line, background: C.panel }}>
+                            <div
+                                role="tablist"
+                                aria-label="Schedule views"
+                                className="flex flex-wrap gap-1 rounded-full border p-1"
+                                style={{ borderColor: C.line, background: C.panel }}
+                            >
                                 {tabBtn('calendar', 'Calendar', CalendarDays)}
                                 {tabBtn('upcoming', 'Upcoming', List)}
                                 {tabBtn('payments', 'Plans & payments', Wallet)}
@@ -428,19 +569,38 @@ export default function GalacticalsConcept() {
                         {/* Calendar */}
                         {tab === 'calendar' && (
                             <div id="panel-calendar" role="tabpanel" aria-labelledby="tab-calendar" className="mt-6 flex flex-wrap gap-6">
-                                <div className="min-w-0 flex-[999_1_560px] rounded-2xl border p-4 sm:p-6" style={{ borderColor: C.line, background: C.panel }}>
+                                <div
+                                    className="min-w-0 flex-[999_1_560px] rounded-2xl border p-4 sm:p-6"
+                                    style={{ borderColor: C.line, background: C.panel }}
+                                >
                                     <div className="mb-4 flex items-center justify-between">
-                                        <button type="button" aria-label="Previous month" onClick={() => shiftMonth(-1)} className="flex size-11 items-center justify-center rounded-full border" style={{ borderColor: C.line }}>
+                                        <button
+                                            type="button"
+                                            aria-label="Previous month"
+                                            onClick={() => shiftMonth(-1)}
+                                            className="flex size-11 items-center justify-center rounded-full border"
+                                            style={{ borderColor: C.line }}
+                                        >
                                             <ChevronLeft className="size-5" />
                                         </button>
                                         <p className="text-2xl font-extrabold uppercase" style={display}>
                                             {monthLabel}
                                         </p>
-                                        <button type="button" aria-label="Next month" onClick={() => shiftMonth(1)} className="flex size-11 items-center justify-center rounded-full border" style={{ borderColor: C.line }}>
+                                        <button
+                                            type="button"
+                                            aria-label="Next month"
+                                            onClick={() => shiftMonth(1)}
+                                            className="flex size-11 items-center justify-center rounded-full border"
+                                            style={{ borderColor: C.line }}
+                                        >
                                             <ChevronRight className="size-5" />
                                         </button>
                                     </div>
-                                    <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold uppercase" style={{ color: C.muted }} aria-hidden="true">
+                                    <div
+                                        className="grid grid-cols-7 gap-1 text-center text-xs font-bold uppercase"
+                                        style={{ color: C.muted }}
+                                        aria-hidden="true"
+                                    >
                                         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
                                             <span key={d} className="py-2">
                                                 {d}
@@ -471,7 +631,11 @@ export default function GalacticalsConcept() {
                                                     {d.getDate()}
                                                     <span className="flex flex-wrap justify-center gap-0.5">
                                                         {evs.slice(0, 4).map((e) => (
-                                                            <span key={e.id} className="size-1.5 rounded-full" style={{ background: TYPES[e.type].color }} />
+                                                            <span
+                                                                key={e.id}
+                                                                className="size-1.5 rounded-full"
+                                                                style={{ background: TYPES[e.type].color }}
+                                                            />
                                                         ))}
                                                     </span>
                                                 </button>
@@ -500,7 +664,13 @@ export default function GalacticalsConcept() {
 
                         {/* Upcoming */}
                         {tab === 'upcoming' && (
-                            <div id="panel-upcoming" role="tabpanel" aria-labelledby="tab-upcoming" className="mt-6 rounded-2xl border px-6 py-2" style={{ borderColor: C.line, background: C.panel }}>
+                            <div
+                                id="panel-upcoming"
+                                role="tabpanel"
+                                aria-labelledby="tab-upcoming"
+                                className="mt-6 rounded-2xl border px-6 py-2"
+                                style={{ borderColor: C.line, background: C.panel }}
+                            >
                                 {upcoming.length ? (
                                     <ul>
                                         {upcoming.map((e) => (
@@ -519,11 +689,20 @@ export default function GalacticalsConcept() {
                         {tab === 'payments' && (
                             <div id="panel-payments" role="tabpanel" aria-labelledby="tab-payments" className="mt-6">
                                 {plan && (
-                                    <p role="status" className="mb-6 flex items-center gap-2 rounded-xl border px-4 py-3 font-bold" style={{ borderColor: '#4ade80', color: '#4ade80' }}>
+                                    <p
+                                        role="status"
+                                        className="mb-6 flex items-center gap-2 rounded-xl border px-4 py-3 font-bold"
+                                        style={{ borderColor: '#4ade80', color: '#4ade80' }}
+                                    >
                                         <CircleCheck className="size-5" /> Active plan: {plan}
                                     </p>
                                 )}
-                                <div role="radiogroup" aria-label="Plan type" className="mb-6 inline-flex gap-1 rounded-full border p-1" style={{ borderColor: C.line }}>
+                                <div
+                                    role="radiogroup"
+                                    aria-label="Plan type"
+                                    className="mb-6 inline-flex gap-1 rounded-full border p-1"
+                                    style={{ borderColor: C.line }}
+                                >
                                     {(
                                         [
                                             ['memberships', 'Monthly memberships'],
@@ -554,7 +733,10 @@ export default function GalacticalsConcept() {
                                                 <h3 className="text-3xl font-extrabold uppercase" style={display}>
                                                     {p.name}
                                                     {'featured' in p && p.featured && (
-                                                        <span className="ml-3 rounded-full px-2.5 py-0.5 align-middle text-xs font-bold" style={{ background: C.gold, color: C.space, fontFamily: 'inherit' }}>
+                                                        <span
+                                                            className="ml-3 rounded-full px-2.5 py-0.5 align-middle text-xs font-bold"
+                                                            style={{ background: C.gold, color: C.space, fontFamily: 'inherit' }}
+                                                        >
                                                             Most popular
                                                         </span>
                                                     )}
@@ -575,7 +757,13 @@ export default function GalacticalsConcept() {
                                             </p>
                                             <button
                                                 type="button"
-                                                onClick={() => start({ title: p.name, price: p.price, detail: `${p.unit === '/month' ? 'Billed monthly' : 'One-time'} · cancel anytime` })}
+                                                onClick={() =>
+                                                    start({
+                                                        title: p.name,
+                                                        price: p.price,
+                                                        detail: `${p.unit === '/month' ? 'Billed monthly' : 'One-time'} · cancel anytime`,
+                                                    })
+                                                }
                                                 className={btnGold}
                                                 style={{ background: C.text, color: C.space }}
                                             >
@@ -599,10 +787,17 @@ export default function GalacticalsConcept() {
                             </h2>
                             <div className="mt-8 border-y" style={{ borderColor: C.line }}>
                                 {FAQS.map(([q, a]) => (
-                                    <details key={q} className="group border-t first:border-t-0 [&_summary::-webkit-details-marker]:hidden" style={{ borderColor: C.line }}>
+                                    <details
+                                        key={q}
+                                        className="group border-t first:border-t-0 [&_summary::-webkit-details-marker]:hidden"
+                                        style={{ borderColor: C.line }}
+                                    >
                                         <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 py-4 text-lg font-bold">
                                             {q}
-                                            <ChevronDown className="size-5 shrink-0 transition-transform group-open:rotate-180" style={{ color: C.gold }} />
+                                            <ChevronDown
+                                                className="size-5 shrink-0 transition-transform group-open:rotate-180"
+                                                style={{ color: C.gold }}
+                                            />
                                         </summary>
                                         <p className="pb-5" style={{ color: C.muted }}>
                                             {a}
@@ -615,9 +810,19 @@ export default function GalacticalsConcept() {
                 </main>
 
                 <footer className="border-t" style={{ borderColor: C.line }}>
-                    <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm sm:px-8" style={{ color: C.muted }}>
-                        <p>Concept redesign by Timasi Werema, who built the original Galacticals SC site. Not affiliated with or endorsed by the club.</p>
-                        <Link href="/#contact" className="inline-flex min-h-11 items-center font-bold underline underline-offset-4" style={{ color: C.text }}>
+                    <div
+                        className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm sm:px-8"
+                        style={{ color: C.muted }}
+                    >
+                        <p>
+                            Concept redesign by Timasi Werema, who built the original Galacticals SC site. Not affiliated with or endorsed by the
+                            club.
+                        </p>
+                        <Link
+                            href="/#contact"
+                            className="inline-flex min-h-11 items-center font-bold underline underline-offset-4"
+                            style={{ color: C.text }}
+                        >
                             Want a site like this? Let's talk →
                         </Link>
                     </div>
@@ -633,18 +838,29 @@ export default function GalacticalsConcept() {
                             {authOpen === 'signup' ? 'Join Galacticals' : 'Welcome back'}
                         </DialogTitle>
                         <DialogDescription style={{ color: C.muted }}>
-                            {pendingAction ? `Sign in to continue with “${pendingAction.title}”.` : 'One tap with Apple or Google. No new password to remember.'}
+                            {pendingAction
+                                ? `Sign in to continue with “${pendingAction.title}”.`
+                                : 'One tap with Apple or Google. No new password to remember.'}
                         </DialogDescription>
                     </div>
                     <div className="mt-2 flex flex-col gap-3">
-                        <button type="button" onClick={() => signIn('Apple')} className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-black font-bold text-white">
+                        <button
+                            type="button"
+                            onClick={() => signIn('Apple')}
+                            className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-black font-bold text-white"
+                        >
                             <AppleLogo /> {authOpen === 'signup' ? 'Sign up' : 'Sign in'} with Apple
                         </button>
-                        <button type="button" onClick={() => signIn('Google')} className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white font-bold text-[#1f1f1f]">
+                        <button
+                            type="button"
+                            onClick={() => signIn('Google')}
+                            className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white font-bold text-[#1f1f1f]"
+                        >
                             <GoogleLogo /> {authOpen === 'signup' ? 'Sign up' : 'Sign in'} with Google
                         </button>
                         <div className="my-1 flex items-center gap-3 text-xs uppercase" style={{ color: C.muted }}>
-                            <span className="h-px flex-1" style={{ background: C.line }} /> or <span className="h-px flex-1" style={{ background: C.line }} />
+                            <span className="h-px flex-1" style={{ background: C.line }} /> or{' '}
+                            <span className="h-px flex-1" style={{ background: C.line }} />
                         </div>
                         <form
                             onSubmit={(e) => {
@@ -672,7 +888,11 @@ export default function GalacticalsConcept() {
                         <p className="text-center text-xs" style={{ color: C.muted }}>
                             Demo only — no account is created and nothing is sent.
                         </p>
-                        <button type="button" onClick={() => setAuthOpen(authOpen === 'signup' ? 'signin' : 'signup')} className="min-h-11 text-sm font-bold underline underline-offset-4">
+                        <button
+                            type="button"
+                            onClick={() => setAuthOpen(authOpen === 'signup' ? 'signin' : 'signup')}
+                            className="min-h-11 text-sm font-bold underline underline-offset-4"
+                        >
                             {authOpen === 'signup' ? 'Already a member? Sign in' : 'New here? Join the club'}
                         </button>
                     </div>
@@ -689,9 +909,15 @@ export default function GalacticalsConcept() {
                                 You're in!
                             </DialogTitle>
                             <DialogDescription style={{ color: C.muted }}>
-                                {checkout?.title} is confirmed. On the real site a receipt would go to your email. (Demo — paid with {paidStep}, nothing was charged.)
+                                {checkout?.title} is confirmed. On the real site a receipt would go to your email. (Demo — paid with {paidStep},
+                                nothing was charged.)
                             </DialogDescription>
-                            <button type="button" onClick={() => setCheckout(null)} className={`${btnGold} mt-6`} style={{ background: C.gold, color: C.space }}>
+                            <button
+                                type="button"
+                                onClick={() => setCheckout(null)}
+                                className={`${btnGold} mt-6`}
+                                style={{ background: C.gold, color: C.space }}
+                            >
                                 Done
                             </button>
                         </div>
@@ -716,13 +942,26 @@ export default function GalacticalsConcept() {
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-3">
-                                    <button type="button" onClick={() => pay('Apple Pay')} className="flex min-h-12 items-center justify-center gap-1.5 rounded-xl bg-black font-bold text-white">
+                                    <button
+                                        type="button"
+                                        onClick={() => pay('Apple Pay')}
+                                        className="flex min-h-12 items-center justify-center gap-1.5 rounded-xl bg-black font-bold text-white"
+                                    >
                                         <AppleLogo /> Pay
                                     </button>
-                                    <button type="button" onClick={() => pay('Google Pay')} className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white font-bold text-[#1f1f1f]">
+                                    <button
+                                        type="button"
+                                        onClick={() => pay('Google Pay')}
+                                        className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white font-bold text-[#1f1f1f]"
+                                    >
                                         <GoogleLogo /> Pay
                                     </button>
-                                    <button type="button" onClick={() => pay('card')} className="flex min-h-12 items-center justify-center gap-2 rounded-xl border font-bold" style={{ borderColor: C.line }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => pay('card')}
+                                        className="flex min-h-12 items-center justify-center gap-2 rounded-xl border font-bold"
+                                        style={{ borderColor: C.line }}
+                                    >
                                         <CreditCard className="size-5" /> Pay with card
                                     </button>
                                 </div>

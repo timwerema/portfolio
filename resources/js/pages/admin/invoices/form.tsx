@@ -46,9 +46,17 @@ export default function InvoiceForm({ invoice, nextNumber, clients, projects, pr
     const total = data.items.reduce((s, l) => s + lineTotal(l), 0);
     const clientProjects = projects.filter((p) => String(p.client_id) === data.client_id);
 
-    const setLine = (i: number, key: keyof Line, value: string) => setData('items', data.items.map((l, idx) => (idx === i ? { ...l, [key]: value } : l)));
+    const setLine = (i: number, key: keyof Line, value: string) =>
+        setData(
+            'items',
+            data.items.map((l, idx) => (idx === i ? { ...l, [key]: value } : l)),
+        );
     const addLine = () => setData('items', [...data.items, { description: '', quantity: 1, unit_price: '' }]);
-    const removeLine = (i: number) => setData('items', data.items.filter((_, idx) => idx !== i));
+    const removeLine = (i: number) =>
+        setData(
+            'items',
+            data.items.filter((_, idx) => idx !== i),
+        );
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
@@ -103,7 +111,12 @@ export default function InvoiceForm({ invoice, nextNumber, clients, projects, pr
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="project_id">Project (optional)</Label>
-                        <NativeSelect id="project_id" value={data.project_id} onChange={(e) => setData('project_id', e.target.value)} disabled={!clientProjects.length}>
+                        <NativeSelect
+                            id="project_id"
+                            value={data.project_id}
+                            onChange={(e) => setData('project_id', e.target.value)}
+                            disabled={!clientProjects.length}
+                        >
                             <option value="">—</option>
                             {clientProjects.map((p) => (
                                 <option key={p.id} value={p.id}>
@@ -147,15 +160,33 @@ export default function InvoiceForm({ invoice, nextNumber, clients, projects, pr
                                     <InputError message={err[`items.${i}.description`]} />
                                 </div>
                                 <div>
-                                    <Input aria-label={`Line ${i + 1} quantity`} inputMode="decimal" value={line.quantity} onChange={(e) => setLine(i, 'quantity', e.target.value)} />
+                                    <Input
+                                        aria-label={`Line ${i + 1} quantity`}
+                                        inputMode="decimal"
+                                        value={line.quantity}
+                                        onChange={(e) => setLine(i, 'quantity', e.target.value)}
+                                    />
                                     <InputError message={err[`items.${i}.quantity`]} />
                                 </div>
                                 <div>
-                                    <Input aria-label={`Line ${i + 1} unit price`} inputMode="decimal" value={line.unit_price} onChange={(e) => setLine(i, 'unit_price', e.target.value)} placeholder="1750" />
+                                    <Input
+                                        aria-label={`Line ${i + 1} unit price`}
+                                        inputMode="decimal"
+                                        value={line.unit_price}
+                                        onChange={(e) => setLine(i, 'unit_price', e.target.value)}
+                                        placeholder="1750"
+                                    />
                                     <InputError message={err[`items.${i}.unit_price`]} />
                                 </div>
                                 <p className="self-center text-right font-medium tabular-nums">{money(lineTotal(line))}</p>
-                                <Button type="button" variant="ghost" size="icon" aria-label={`Remove line ${i + 1}`} onClick={() => removeLine(i)} disabled={data.items.length === 1}>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    aria-label={`Remove line ${i + 1}`}
+                                    onClick={() => removeLine(i)}
+                                    disabled={data.items.length === 1}
+                                >
                                     <Trash2 className="size-4" />
                                 </Button>
                             </li>
@@ -179,7 +210,9 @@ export default function InvoiceForm({ invoice, nextNumber, clients, projects, pr
                         onChange={(e) => setData('payment_link', e.target.value)}
                         placeholder="https://square.link/… or https://buy.stripe.com/…"
                     />
-                    <p className="text-muted-foreground text-xs">Paste a Square, Stripe or PayPal payment link. The client sees a "Pay now" button on their invoice.</p>
+                    <p className="text-muted-foreground text-xs">
+                        Paste a Square, Stripe or PayPal payment link. The client sees a "Pay now" button on their invoice.
+                    </p>
                     <InputError message={errors.payment_link} />
                 </div>
 

@@ -66,7 +66,13 @@ export default function Dashboard({ messages, unread }: { messages: ContactMessa
                                             </a>
                                         </Button>
                                         <Button size="sm" variant="outline" asChild>
-                                            <Link href={route('admin.clients.create', { name: m.name, email: m.email, notes: `${m.service ? `Interested in: ${m.service}\n` : ''}${m.message}` })}>
+                                            <Link
+                                                href={route('admin.clients.create', {
+                                                    name: m.name,
+                                                    email: m.email,
+                                                    notes: `${m.service ? `Interested in: ${m.service}\n` : ''}${m.message}`,
+                                                })}
+                                            >
                                                 <UserPlus className="size-4" /> Add as client
                                             </Link>
                                         </Button>

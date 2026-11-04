@@ -113,7 +113,13 @@ export default function ResumePage({ portfolio, pdfAvailable }: { portfolio: Por
 
                         <Section title="Experience">
                             {experience.map((job) => (
-                                <Entry key={`${job.company}-${job.period}`} title={job.company} meta={job.role} right={job.period} bullets={job.bullets} />
+                                <Entry
+                                    key={`${job.company}-${job.period}`}
+                                    title={job.company}
+                                    meta={job.role}
+                                    right={job.period}
+                                    bullets={job.bullets}
+                                />
                             ))}
                         </Section>
 

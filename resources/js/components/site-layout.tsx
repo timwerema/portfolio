@@ -11,10 +11,22 @@ const sections = [
 ];
 
 /** Big condensed section title with a small label above it. `tone` = background it sits on. */
-export function SectionHeading({ eyebrow, title, tone = 'light', className = 'mb-12' }: { eyebrow: string; title: string; tone?: 'light' | 'dark'; className?: string }) {
+export function SectionHeading({
+    eyebrow,
+    title,
+    tone = 'light',
+    className = 'mb-12',
+}: {
+    eyebrow: string;
+    title: string;
+    tone?: 'light' | 'dark';
+    className?: string;
+}) {
     return (
         <div className={className}>
-            <p className={`font-cond mb-2 text-base font-bold tracking-[0.14em] uppercase ${tone === 'dark' ? 'text-led' : 'text-royal'}`}>{eyebrow}</p>
+            <p className={`font-cond mb-2 text-base font-bold tracking-[0.14em] uppercase ${tone === 'dark' ? 'text-led' : 'text-royal'}`}>
+                {eyebrow}
+            </p>
             <h2 className="font-display text-5xl leading-[0.95] uppercase sm:text-7xl lg:text-[88px]">{title}</h2>
         </div>
     );
@@ -63,7 +75,17 @@ export function PlayDiagram({ icon, className = '' }: { icon: Service['icon']; c
 }
 
 /** Pill-shaped button link in the Hardwood style. */
-export function PillLink({ href, children, variant = 'solid', internal = false }: { href: string; children: ReactNode; variant?: 'solid' | 'outline' | 'outline-light'; internal?: boolean }) {
+export function PillLink({
+    href,
+    children,
+    variant = 'solid',
+    internal = false,
+}: {
+    href: string;
+    children: ReactNode;
+    variant?: 'solid' | 'outline' | 'outline-light';
+    internal?: boolean;
+}) {
     const styles = {
         solid: 'bg-royal text-white hover:bg-royal-dark',
         outline: 'border-2 border-navy text-navy hover:bg-navy hover:text-maple-light',
@@ -86,7 +108,17 @@ export function PillLink({ href, children, variant = 'solid', internal = false }
  * Header + footer shared by the public pages (Hardwood theme).
  * On the home page (`home`), menu links scroll to sections; elsewhere they go back to the home page sections.
  */
-export function SiteLayout({ name, resumeUrl, home = false, children }: { name: string; resumeUrl: string | null; home?: boolean; children: ReactNode }) {
+export function SiteLayout({
+    name,
+    resumeUrl,
+    home = false,
+    children,
+}: {
+    name: string;
+    resumeUrl: string | null;
+    home?: boolean;
+    children: ReactNode;
+}) {
     const [menuOpen, setMenuOpen] = useState(false);
     const href = (id: string) => (home ? `#${id}` : `/#${id}`);
     const navLink = 'font-cond py-3 text-lg font-semibold tracking-[0.08em] uppercase text-silver hover:text-white';
@@ -122,7 +154,10 @@ export function SiteLayout({ name, resumeUrl, home = false, children }: { name: 
                                 Resume
                             </a>
                         )}
-                        <a href={href('contact')} className="font-cond border-led border-b-2 py-2 text-lg font-bold tracking-[0.08em] text-white uppercase">
+                        <a
+                            href={href('contact')}
+                            className="font-cond border-led border-b-2 py-2 text-lg font-bold tracking-[0.08em] text-white uppercase"
+                        >
                             Get in the game
                         </a>
                     </div>

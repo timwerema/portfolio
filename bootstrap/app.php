@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Support\Alerts;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -21,6 +22,6 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         // Email the site owner about real errors (throttled; 404s and validation errors are never reported).
         $exceptions->report(function (Throwable $e) {
-            App\Support\Alerts::exception($e);
+            Alerts::exception($e);
         });
     })->create();

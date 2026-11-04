@@ -5,7 +5,15 @@ import { money } from '@/lib/format';
 import { Head, Link } from '@inertiajs/react';
 import { Plus, Users } from 'lucide-react';
 
-type Row = { id: number; name: string; company: string | null; email: string | null; phone: string | null; projects_count: number; balance_cents: number };
+type Row = {
+    id: number;
+    name: string;
+    company: string | null;
+    email: string | null;
+    phone: string | null;
+    projects_count: number;
+    balance_cents: number;
+};
 
 export default function ClientsIndex({ clients }: { clients: Row[] }) {
     return (
@@ -52,7 +60,11 @@ export default function ClientsIndex({ clients }: { clients: Row[] }) {
                                             {c.phone && <span className="block text-xs">{c.phone}</span>}
                                         </td>
                                         <td className="p-3 text-right tabular-nums">{c.projects_count}</td>
-                                        <td className={`p-3 text-right font-medium tabular-nums ${c.balance_cents > 0 ? '' : 'text-muted-foreground'}`}>{money(c.balance_cents)}</td>
+                                        <td
+                                            className={`p-3 text-right font-medium tabular-nums ${c.balance_cents > 0 ? '' : 'text-muted-foreground'}`}
+                                        >
+                                            {money(c.balance_cents)}
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>

@@ -46,7 +46,13 @@ export default function PreviewForm({ preview }: { preview?: Preview }) {
             <div className="grid gap-5 sm:grid-cols-2">
                 <div className="grid gap-2">
                     <Label htmlFor="client_name">Client name</Label>
-                    <Input id="client_name" value={data.client_name} onChange={(e) => setData('client_name', e.target.value)} placeholder="Joe's Barbershop" required />
+                    <Input
+                        id="client_name"
+                        value={data.client_name}
+                        onChange={(e) => setData('client_name', e.target.value)}
+                        placeholder="Joe's Barbershop"
+                        required
+                    />
                     <InputError message={errors.client_name} />
                 </div>
                 <div className="grid gap-2">
@@ -83,24 +89,43 @@ export default function PreviewForm({ preview }: { preview?: Preview }) {
             <fieldset className="space-y-4 rounded-lg border p-4">
                 <legend className="px-1 text-sm font-medium">{editing ? 'New version (optional)' : 'The demo'}</legend>
                 <p className="text-muted-foreground text-sm">
-                    Upload a single <code>index.html</code> file (styles and scripts inside it, images linked from the web), or link to a demo hosted elsewhere.
+                    Upload a single <code>index.html</code> file (styles and scripts inside it, images linked from the web), or link to a demo hosted
+                    elsewhere.
                     {editing && ' Changing either one counts as a new version and asks the client to review again.'}
                 </p>
                 <div className="grid gap-2">
                     <Label htmlFor="html_file">Upload index.html</Label>
-                    <Input id="html_file" type="file" accept=".html,.htm,text/html" onChange={(e) => setData('html_file', e.target.files?.[0] ?? null)} />
-                    {editing && preview.has_upload && !data.html_file && <p className="text-muted-foreground text-xs">Current version uses an uploaded file.</p>}
+                    <Input
+                        id="html_file"
+                        type="file"
+                        accept=".html,.htm,text/html"
+                        onChange={(e) => setData('html_file', e.target.files?.[0] ?? null)}
+                    />
+                    {editing && preview.has_upload && !data.html_file && (
+                        <p className="text-muted-foreground text-xs">Current version uses an uploaded file.</p>
+                    )}
                     <InputError message={errors.html_file} />
                 </div>
                 <div className="grid gap-2">
                     <Label htmlFor="demo_url">…or demo link</Label>
-                    <Input id="demo_url" type="url" value={data.demo_url} onChange={(e) => setData('demo_url', e.target.value)} placeholder="https://joes-barbershop-demo.netlify.app" />
+                    <Input
+                        id="demo_url"
+                        type="url"
+                        value={data.demo_url}
+                        onChange={(e) => setData('demo_url', e.target.value)}
+                        placeholder="https://joes-barbershop-demo.netlify.app"
+                    />
                     <InputError message={errors.demo_url} />
                 </div>
             </fieldset>
 
             <div className="flex items-center gap-2">
-                <Checkbox id="send_now" checked={data.send_now} onCheckedChange={(v) => setData('send_now', v === true)} disabled={!data.client_email} />
+                <Checkbox
+                    id="send_now"
+                    checked={data.send_now}
+                    onCheckedChange={(v) => setData('send_now', v === true)}
+                    disabled={!data.client_email}
+                />
                 <Label htmlFor="send_now" className={!data.client_email ? 'text-muted-foreground' : ''}>
                     Email the review link to the client when I save
                 </Label>

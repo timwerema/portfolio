@@ -125,7 +125,10 @@ export default function InvoiceShow({ invoice }: { invoice: Invoice }) {
 
                     <div className="flex flex-col gap-2 rounded-xl border p-4">
                         {['draft', 'sent'].includes(invoice.status) && (
-                            <Button onClick={() => router.post(route('admin.invoices.send', invoice.id), {}, { preserveScroll: true })} disabled={!invoice.client?.email}>
+                            <Button
+                                onClick={() => router.post(route('admin.invoices.send', invoice.id), {}, { preserveScroll: true })}
+                                disabled={!invoice.client?.email}
+                            >
                                 <Send className="size-4" /> {invoice.status === 'sent' ? 'Resend to client' : 'Email to client'}
                             </Button>
                         )}
@@ -141,7 +144,18 @@ export default function InvoiceShow({ invoice }: { invoice: Invoice }) {
                                     <div className="grid gap-1.5">
                                         <Label htmlFor="method">Paid via</Label>
                                         <NativeSelect id="method" value={method} onChange={(e) => setMethod(e.target.value)}>
-                                            {['Square', 'Stripe', 'Zelle', 'Venmo', 'Cash App', 'PayPal', 'Cash', 'Check', 'Bank transfer', 'Other'].map((m) => (
+                                            {[
+                                                'Square',
+                                                'Stripe',
+                                                'Zelle',
+                                                'Venmo',
+                                                'Cash App',
+                                                'PayPal',
+                                                'Cash',
+                                                'Check',
+                                                'Bank transfer',
+                                                'Other',
+                                            ].map((m) => (
                                                 <option key={m}>{m}</option>
                                             ))}
                                         </NativeSelect>
@@ -172,7 +186,10 @@ export default function InvoiceShow({ invoice }: { invoice: Invoice }) {
                             </Button>
                         )}
                         {['draft', 'sent'].includes(invoice.status) && (
-                            <Button variant="ghost" onClick={() => window.confirm('Void this invoice? It will no longer count as owed.') && setStatus('void')}>
+                            <Button
+                                variant="ghost"
+                                onClick={() => window.confirm('Void this invoice? It will no longer count as owed.') && setStatus('void')}
+                            >
                                 <Ban className="size-4" /> Void
                             </Button>
                         )}
@@ -184,7 +201,9 @@ export default function InvoiceShow({ invoice }: { invoice: Invoice }) {
                         <Button
                             variant="ghost"
                             className="text-red-600"
-                            onClick={() => window.confirm(`Delete ${invoice.number} permanently?`) && router.delete(route('admin.invoices.destroy', invoice.id))}
+                            onClick={() =>
+                                window.confirm(`Delete ${invoice.number} permanently?`) && router.delete(route('admin.invoices.destroy', invoice.id))
+                            }
                         >
                             <Trash2 className="size-4" /> Delete
                         </Button>

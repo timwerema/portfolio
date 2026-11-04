@@ -11,7 +11,13 @@ import { Head, Link, router, useForm } from '@inertiajs/react';
 import { LoaderCircle, Trash2 } from 'lucide-react';
 import { type FormEvent } from 'react';
 
-type Props = { project: Project | null; clientId: number | null; clients: { id: number; name: string }[]; statuses: ProjectStatus[]; packages: string[] };
+type Props = {
+    project: Project | null;
+    clientId: number | null;
+    clients: { id: number; name: string }[];
+    statuses: ProjectStatus[];
+    packages: string[];
+};
 
 export default function ProjectForm({ project, clientId, clients, statuses, packages }: Props) {
     const { data, setData, post, put, processing, errors } = useForm({
@@ -98,7 +104,13 @@ export default function ProjectForm({ project, clientId, clients, statuses, pack
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="budget">Budget ($)</Label>
-                        <Input id="budget" inputMode="decimal" value={data.budget} onChange={(e) => setData('budget', e.target.value)} placeholder="1750" />
+                        <Input
+                            id="budget"
+                            inputMode="decimal"
+                            value={data.budget}
+                            onChange={(e) => setData('budget', e.target.value)}
+                            placeholder="1750"
+                        />
                         <InputError message={errors.budget} />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
@@ -116,7 +128,13 @@ export default function ProjectForm({ project, clientId, clients, statuses, pack
                 </div>
                 <div className="grid gap-2">
                     <Label htmlFor="notes">Notes</Label>
-                    <Textarea id="notes" rows={5} value={data.notes} onChange={(e) => setData('notes', e.target.value)} placeholder="Scope, pages, logins, things the client asked for…" />
+                    <Textarea
+                        id="notes"
+                        rows={5}
+                        value={data.notes}
+                        onChange={(e) => setData('notes', e.target.value)}
+                        placeholder="Scope, pages, logins, things the client asked for…"
+                    />
                     <InputError message={errors.notes} />
                 </div>
                 <div className="flex flex-wrap items-center gap-3">

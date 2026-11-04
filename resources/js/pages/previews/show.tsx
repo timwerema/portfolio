@@ -56,7 +56,10 @@ export default function PreviewsShow({ preview }: { preview: Preview }) {
                     </div>
 
                     {flash?.status && (
-                        <p role="status" className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm text-emerald-900 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200">
+                        <p
+                            role="status"
+                            className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm text-emerald-900 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200"
+                        >
                             {flash.status}
                         </p>
                     )}
@@ -78,7 +81,9 @@ export default function PreviewsShow({ preview }: { preview: Preview }) {
                                 <Send className="size-4" /> Email to client
                             </Button>
                         </div>
-                        {!preview.client_email && <p className="text-muted-foreground mt-2 text-xs">Add the client's email below to send the link from here.</p>}
+                        {!preview.client_email && (
+                            <p className="text-muted-foreground mt-2 text-xs">Add the client's email below to send the link from here.</p>
+                        )}
                     </div>
 
                     <div>
