@@ -53,6 +53,10 @@ class Seo
                 $meta['title'] = 'Clearcoat Detailing (demo site)';
                 $meta['description'] = "A demo website for a fictional car detailing business, built by {$name}.";
                 break;
+            case 'demos/fourth-quarter':
+                $meta['title'] = '4th Quarter Performance (demo site)';
+                $meta['description'] = "A demo website for a fictional gym and athletic training studio, built by {$name}.";
+                break;
             case 'demos/galacticals':
                 $meta['title'] = 'Galacticals SC · concept redesign';
                 $meta['description'] = "A concept redesign of a youth soccer academy website by {$name}.";
