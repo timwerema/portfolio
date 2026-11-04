@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // Nightly backup at 3:10am server time (needs the scheduler cron line - see DEPLOY.md).
 Schedule::command('backup:run')->dailyAt('03:10')->withoutOverlapping()->onOneServer();
+
+// Every 5 minutes: heartbeat + email alert when a health check fails or recovers.
+Schedule::command('health:check')->everyFiveMinutes()->withoutOverlapping();
