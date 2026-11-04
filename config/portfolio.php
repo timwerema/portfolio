@@ -307,6 +307,13 @@ return [
             'package' => 'Business',
         ],
         [
+            'title' => '4th Quarter Performance',
+            'type' => 'Gym & athletic training',
+            'description' => 'A gym site built to fill classes: expandable programs, a weekly class schedule with reservations, monthly/annual pricing and a 3-step free-session booking.',
+            'url' => '/demos/fourth-quarter',
+            'package' => 'Business',
+        ],
+        [
             'title' => 'Galacticals SC - v3 concept',
             'type' => 'Youth soccer academy',
             'description' => 'A redesign of the club site I built: Apple/Google sign-in, a schedule hub with calendar, upcoming and payment tabs, and one-tap registration.',
