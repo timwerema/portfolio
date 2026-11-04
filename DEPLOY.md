@@ -81,6 +81,26 @@ and the uploaded client demos. The last 14 days are kept.
   somewhere else every so often, for example download one to your Mac:
   `scp timasi@sterango.com:/var/www/portfolio/storage/backups/<file>.tar.gz ~/Downloads/`
 
+## Monitoring & alerts
+
+The site watches itself and emails you (once email is set up with Resend):
+
+- **Errors:** if a page crashes (a 500 error), you get an email with what broke and where.
+  The same error emails at most once an hour. 404s don't count.
+- **Health:** every 5 minutes it checks the database, storage, disk space, backups and
+  scheduler. You get one email when something starts failing and one when it recovers.
+- **Health page:** `https://yourdomain.com/health` shows the same checks as JSON.
+
+A server that is completely off can't email anyone, so also add a free outside monitor:
+
+1. Sign up at https://uptimerobot.com (free plan).
+2. **Add New Monitor** → type **HTTP(s)** → URL `https://yourdomain.com/health` → every 5 minutes.
+3. Add your email (and the phone app, if you want push alerts).
+
+It alerts you if the site is unreachable **or** `/health` reports a failure (it returns 503).
+
+Alerts go to `ALERT_EMAIL` in `.env`, or your contact email if that's empty.
+
 ## Updating the site later
 
 Push changes to GitHub, then on the server:

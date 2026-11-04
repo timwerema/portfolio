@@ -30,6 +30,18 @@ Route::get('/services/{slug}', function (string $slug) {
     ]);
 })->name('services.show');
 
+// Health check for an outside uptime monitor (e.g. UptimeRobot): 200 when healthy, 503 when not.
+Route::get('/health', function () {
+    $checks = \App\Support\HealthChecks::run();
+    $healthy = \App\Support\HealthChecks::healthy($checks);
+
+    return response()->json([
+        'status' => $healthy ? 'ok' : 'fail',
+        'checks' => $checks,
+        'time' => now()->toIso8601String(),
+    ], $healthy ? 200 : 503, ['Cache-Control' => 'no-store', 'X-Robots-Tag' => 'noindex']);
+})->middleware('throttle:30,1')->name('health');
+
 // Search engines: generated from config so they stay current.
 Route::get('/robots.txt', function () {
     $lines = [

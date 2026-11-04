@@ -51,6 +51,13 @@ return [
         'notify_email' => env('CONTACT_NOTIFY_EMAIL'),
     ],
 
+    'alerts' => [
+        // Where site problem alerts go. Defaults to contact.notify_email, then links.email.
+        'email' => env('ALERT_EMAIL'),
+        // Email you when the site crashes (500 errors). On by default in production only.
+        'errors' => env('ALERT_ON_ERRORS', env('APP_ENV') === 'production'),
+    ],
+
     // Public sign-up stays off. Create your login with: php artisan user:create
     'allow_registration' => false,
 
