@@ -79,6 +79,7 @@ Route::get('/sitemap.xml', function () {
 Route::get('/demos/clearcoat', fn () => Inertia::render('demos/clearcoat'))->name('demos.clearcoat');
 Route::get('/demos/galacticals', fn () => Inertia::render('demos/galacticals'))->name('demos.galacticals');
 Route::get('/demos/fourth-quarter', fn () => Inertia::render('demos/fourth-quarter'))->name('demos.fourth-quarter');
+Route::get('/demos/lateshift', fn () => Inertia::render('demos/lateshift'))->name('demos.lateshift');
 
 Route::get('/resume', function () {
     return Inertia::render('resume', [

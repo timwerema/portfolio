@@ -325,6 +325,13 @@ return [
             'package' => 'Business',
         ],
         [
+            'title' => 'LATESHIFT',
+            'type' => 'Streetwear online store',
+            'description' => 'A drop-based clothing store: countdown to the next drop, quick view with colours and sizes, a bag with a free-shipping meter, and checkout.',
+            'url' => '/demos/lateshift',
+            'package' => 'Custom',
+        ],
+        [
             'title' => 'Galacticals SC - v3 concept',
             'type' => 'Youth soccer academy',
             'description' => 'A redesign of the club site I built: Apple/Google sign-in, a schedule hub with calendar, upcoming and payment tabs, and one-tap registration.',
