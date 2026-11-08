@@ -7,11 +7,11 @@ use App\Mail\InvoiceSent;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Project;
+use App\Support\ClientMail;
 use App\Support\Money;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -100,7 +100,9 @@ class InvoiceController extends Controller
             throw ValidationException::withMessages(['status' => 'This invoice is already '.$invoice->status.'.']);
         }
 
-        Mail::to($invoice->client->email, $invoice->client->name)->send(new InvoiceSent($invoice));
+        if ($error = ClientMail::send($invoice->client->email, $invoice->client->name, new InvoiceSent($invoice))) {
+            throw ValidationException::withMessages(['status' => $error]);
+        }
         $invoice->forceFill(['status' => Invoice::SENT, 'sent_at' => now()])->save();
 
         return back()->with('status', "Invoice emailed to {$invoice->client->email}.");

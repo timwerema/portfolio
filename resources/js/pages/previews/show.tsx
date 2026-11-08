@@ -64,6 +64,14 @@ export default function PreviewsShow({ preview }: { preview: Preview }) {
                         </p>
                     )}
                     {errors?.client_email && <p className="text-sm text-red-600">{errors.client_email}</p>}
+                    {errors?.send && (
+                        <p
+                            role="alert"
+                            className="rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-sm text-red-900 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200"
+                        >
+                            {errors.send}
+                        </p>
+                    )}
 
                     <div className="rounded-xl border p-4">
                         <p className="mb-2 text-sm font-medium">Client review link</p>
