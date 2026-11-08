@@ -61,6 +61,10 @@ class Seo
                 $meta['title'] = 'LATESHIFT (demo store)';
                 $meta['description'] = "A demo online store for a fictional streetwear brand, built by {$name}.";
                 break;
+            case 'demos/studyloop':
+                $meta['title'] = 'StudyLoop (demo app)';
+                $meta['description'] = "A demo study app that turns notes into flashcards and quizzes, built by {$name}.";
+                break;
             case 'demos/galacticals':
                 $meta['title'] = 'Galacticals SC · concept redesign';
                 $meta['description'] = "A concept redesign of a youth soccer academy website by {$name}.";
