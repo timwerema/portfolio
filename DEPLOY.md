@@ -27,10 +27,16 @@ It's already set up and live at **https://timasi.sterango.com**.
 | `~/websites/<name>.timasi.sterango.com/` | Anything in here is **live right away** at `https://<name>.timasi.sterango.com`. |
 | `~/projects/` | Where you work: `portfolio/`, `clients/`, `demos/`, `bots/`. Open it in VS Code with Remote - SSH. |
 
-In the commands below, `APP` is the folder the live portfolio runs from. To
-find it, check the Apache site for timasi.sterango.com
-(`grep -ril timasi.sterango.com /etc/apache2/sites-enabled/`) and look for its
-`DocumentRoot`, which is `APP/public`.
+In the commands below, **`APP` means `~/apps/portfolio`**, the folder the live
+site runs from (Apache serves `APP/public`). Run every `php artisan` command from
+there:
+
+```bash
+cd ~/apps/portfolio
+```
+
+If you see `Could not open input file: artisan`, you're in the wrong folder.
+Your prompt should read `timasi@timasi-box:~/apps/portfolio$`.
 
 ## Adding a site or a custom domain
 
@@ -49,27 +55,56 @@ When the portfolio gets its own domain, update `APP_URL` in `APP/.env` and run
 
 ## Email (Resend)
 
-1. Sign up at https://resend.com **using the email you want enquiries sent to**.
-2. Go to **API Keys**, then **Create API Key** (Sending access), and copy the `re_...` key.
-3. In `APP/.env`, set:
-   ```
-   MAIL_MAILER=smtp
-   MAIL_HOST=smtp.resend.com
-   MAIL_PORT=587
-   MAIL_USERNAME=resend
-   MAIL_PASSWORD=re_your_key_here
-   MAIL_ENCRYPTION=tls
-   MAIL_FROM_ADDRESS="onboarding@resend.dev"
-   ```
-   Type the key in yourself, and don't paste it into a chat.
-   `CONTACT_NOTIFY_EMAIL` and `ALERT_EMAIL` set where contact-form messages and
-   alerts go.
-4. Run `php artisan optimize`.
-5. Later, verify your domain in Resend (under **Domains**), then switch to
-   `MAIL_FROM_ADDRESS="hello@yourdomain.com"` and run `php artisan optimize` again.
+**Connected** (November 2026) using Resend's test sender `onboarding@resend.dev`.
 
-Also check that `APP/.env` has `APP_ENV=production`, `APP_DEBUG=false` and
-`APP_URL=https://timasi.sterango.com`.
+> **Limit until your domain is verified:** the test sender can only deliver to the
+> email you signed up to Resend with (timasiwerema@gmail.com). Emails to clients
+> (invoices, demo links, payment reminders) are refused. The dashboard shows a
+> clear message instead of sending; use **Copy link** and send it yourself.
+
+To verify a domain (once you own one):
+
+1. In Resend, go to **Domains**, then **Add Domain**, and add the DNS records it shows at your registrar.
+2. When Resend shows the domain as verified, in `APP` run:
+   ```bash
+   sed -i 's/^MAIL_FROM_ADDRESS=.*/MAIL_FROM_ADDRESS="hello@yourdomain.com"/' .env && php artisan optimize
+   ```
+
+To set it up from scratch (a new server, or a new API key), from `APP`:
+
+```bash
+sed -i 's/^MAIL_MAILER=.*/MAIL_MAILER=smtp/; s/^MAIL_HOST=.*/MAIL_HOST=smtp.resend.com/; s/^MAIL_PORT=.*/MAIL_PORT=587/; s/^MAIL_USERNAME=.*/MAIL_USERNAME=resend/; s/^MAIL_ENCRYPTION=.*/MAIL_ENCRYPTION=tls/; s/^MAIL_FROM_ADDRESS=.*/MAIL_FROM_ADDRESS="onboarding@resend.dev"/' .env
+```
+
+```bash
+read -rsp "Resend key: " K && sed -i "s|^MAIL_PASSWORD=.*|MAIL_PASSWORD=$K|" .env && unset K && echo " saved"
+```
+
+```bash
+php artisan optimize
+```
+
+The second command hides the key as you paste it and keeps it out of your shell
+history. Never paste the key into a chat.
+
+Check and test:
+
+```bash
+php artisan tinker --execute='echo config("mail.default"), " | ", config("mail.mailers.smtp.host"), PHP_EOL;'
+```
+
+That should print `smtp | smtp.resend.com`. If it prints `log`, `.env` still has
+the old lines; check with `grep -n "^MAIL_" .env | grep -v PASSWORD`, where each
+setting should appear once.
+
+```bash
+php artisan tinker --execute='Mail::raw("Resend works", fn ($m) => $m->to("timasiwerema@gmail.com")->subject("Test from my site"));'
+```
+
+Use single quotes as shown: a `!` inside double quotes confuses bash. Also check
+that `APP/.env` has `APP_ENV=production`, `APP_DEBUG=false` and
+`APP_URL=https://timasi.sterango.com`. `CONTACT_NOTIFY_EMAIL` and `ALERT_EMAIL`
+set where contact-form messages and alerts go.
 
 ## Scheduler (backups, alerts, reminders)
 

@@ -11,7 +11,8 @@ Context for Claude sessions working on this repository. Read this first.
   public portfolio, service pages, resume, demo sites for fictional clients, plus an
   admin dashboard (clients, projects, invoices, expenses, client demo approvals).
 - **Live:** https://timasi.sterango.com, running on **timasi-box**, a Docker container
-  on his friend Collin's Sterango server. See `DEPLOY.md` for the box.
+  on his friend Collin's Sterango server. The live app folder is **`~/apps/portfolio`**
+  (Apache serves its `public/`). Run `php artisan` from there. See `DEPLOY.md`.
 - **Business model:** packages Starter $750 / Business $1,750 / Custom $3,500+, optional
   care plan $79-$149/month. Services: Websites, Software, Growth, AI Agents (task bots).
   Clients may pay with Square, Stripe or PayPal (invoices take any payment link).
@@ -53,6 +54,7 @@ SQLite · Vite. Fonts are bundled with `@fontsource` (no external font CDNs).
 | Client demo approvals (`/p/{token}`) | `PreviewReviewController`, `resources/js/pages/previews/*`. Uploaded HTML is served sandboxed. |
 | Client invoice page (`/i/{token}`) | `PublicInvoiceController`, `resources/js/pages/invoices/public.tsx` |
 | Server-rendered SEO and link previews | `app/Support/Seo.php`, `resources/views/app.blade.php` |
+| Client emails (friendly failure messages) | `app/Support/ClientMail.php` |
 | Health checks and alert emails | `app/Support/HealthChecks.php`, `app/Support/Alerts.php`, `GET /health` |
 | Scheduled jobs | `routes/console.php` (times are **UTC**, the box's clock) |
 | Routes | `routes/web.php` |
@@ -84,10 +86,10 @@ npm run brand:assets                  # regenerate og-image.png and favicons fro
 
 ## Deploying an update
 
-On timasi-box, from the live app folder (`APP`, see DEPLOY.md for how to find it):
+On timasi-box:
 
 ```bash
-APP/deploy/deploy.sh
+cd ~/apps/portfolio && deploy/deploy.sh
 ```
 
 It pulls `main`, installs, builds, migrates and rebuilds caches. Then check
@@ -95,9 +97,13 @@ It pulls `main`, installs, builds, migrates and rebuilds caches. Then check
 
 ## Open items (as of Nov 2026)
 
-- Email: Resend not connected yet, so all emails (contact, invoices, approvals, alerts,
-  reminders) only go to the log until `MAIL_*` is set in `.env`.
+- Email: **Resend connected** (Nov 2026) with the test sender `onboarding@resend.dev`,
+  which only delivers to timasiwerema@gmail.com. Contact-form messages, alerts and the
+  weekly summary work. Client emails (invoices, demo links, reminders) are refused until
+  a domain is verified in Resend; the dashboard shows a friendly message
+  (`app/Support/ClientMail.php`).
 - UptimeRobot monitor on `/health` not set up yet.
 - Own domain not bought yet (GitHub Student Developer Pack may include one).
-- Ideas queued: more demos (clothing store, concerts-near-me, slides-to-learning,
-  sports stats).
+- Demos built: Clearcoat (car detailing), 4th Quarter (gym), Galacticals v3 (club concept),
+  LATESHIFT (streetwear store). Ideas queued: concerts-near-me, slides-to-learning,
+  sports stats.

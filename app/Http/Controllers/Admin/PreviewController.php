@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\PreviewReadyForReview;
 use App\Models\Preview;
+use App\Support\ClientMail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -38,11 +38,11 @@ class PreviewController extends Controller
             $preview->save();
         }
 
-        if ($request->boolean('send_now') && $preview->client_email) {
-            $this->sendToClient($preview);
-        }
+        $error = $request->boolean('send_now') && $preview->client_email ? $this->sendToClient($preview) : null;
 
-        return to_route('admin.previews.show', $preview)->with('status', 'Preview created.');
+        $response = to_route('admin.previews.show', $preview)->with('status', 'Preview created.');
+
+        return $error ? $response->withErrors(['send' => $error]) : $response;
     }
 
     public function show(Preview $preview): Response
@@ -72,11 +72,11 @@ class PreviewController extends Controller
 
         $preview->save();
 
-        if ($request->boolean('send_now') && $preview->client_email) {
-            $this->sendToClient($preview);
-        }
+        $error = $request->boolean('send_now') && $preview->client_email ? $this->sendToClient($preview) : null;
 
-        return back()->with('status', $newVersion ? "Version {$preview->version} saved." : 'Details saved.');
+        $response = back()->with('status', $newVersion ? "Version {$preview->version} saved." : 'Details saved.');
+
+        return $error ? $response->withErrors(['send' => $error]) : $response;
     }
 
     public function send(Preview $preview): RedirectResponse
@@ -85,7 +85,9 @@ class PreviewController extends Controller
             throw ValidationException::withMessages(['client_email' => 'Add the client\'s email address first.']);
         }
 
-        $this->sendToClient($preview);
+        if ($error = $this->sendToClient($preview)) {
+            throw ValidationException::withMessages(['send' => $error]);
+        }
 
         return back()->with('status', 'Link emailed to '.$preview->client_email.'.');
     }
@@ -97,10 +99,15 @@ class PreviewController extends Controller
         return to_route('admin.previews.index');
     }
 
-    private function sendToClient(Preview $preview): void
+    /** @return string|null an explanation when the email couldn't be sent */
+    private function sendToClient(Preview $preview): ?string
     {
-        Mail::to($preview->client_email, $preview->client_name)->send(new PreviewReadyForReview($preview));
+        if ($error = ClientMail::send($preview->client_email, $preview->client_name, new PreviewReadyForReview($preview))) {
+            return $error;
+        }
         $preview->forceFill(['sent_at' => now()])->save();
+
+        return null;
     }
 
     private function validated(Request $request, bool $creating): array
