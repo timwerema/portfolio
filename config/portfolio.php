@@ -332,6 +332,13 @@ return [
             'package' => 'Custom',
         ],
         [
+            'title' => 'StudyLoop',
+            'type' => 'AI study tool',
+            'description' => 'Turns lecture notes into flashcards, a multiple-choice quiz and typed practice, all in the browser. A preview of the AI Agents service.',
+            'url' => '/demos/studyloop',
+            'package' => 'Custom',
+        ],
+        [
             'title' => 'Galacticals SC - v3 concept',
             'type' => 'Youth soccer academy',
             'description' => 'A redesign of the club site I built: Apple/Google sign-in, a schedule hub with calendar, upcoming and payment tabs, and one-tap registration.',
