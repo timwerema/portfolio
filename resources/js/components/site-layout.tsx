@@ -88,8 +88,8 @@ export function PillLink({
 }) {
     const styles = {
         solid: 'bg-royal text-white hover:bg-royal-dark',
-        outline: 'border-2 border-navy text-navy hover:bg-navy hover:text-maple-light',
-        'outline-light': 'border-2 border-silver text-maple-light hover:bg-maple-light hover:text-navy',
+        outline: 'border-2 border-rule text-strong hover:bg-navy hover:text-on-navy',
+        'outline-light': 'border-2 border-silver text-on-navy hover:bg-on-navy hover:text-navy',
     }[variant];
     const className = `font-cond inline-flex min-h-[54px] items-center gap-2 rounded-full px-7 text-xl font-bold tracking-[0.06em] uppercase transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-royal ${styles}`;
 
@@ -132,7 +132,7 @@ export function SiteLayout({
 
     return (
         <div className="hardwood bg-maple text-ink font-body min-h-screen text-[17px] leading-relaxed">
-            <header className="bg-navy text-maple-light sticky top-0 z-40">
+            <header className="bg-navy text-on-navy sticky top-0 z-40">
                 <nav className="mx-auto flex max-w-[1240px] items-center justify-between gap-6 px-5 py-3 sm:px-10 lg:px-16">
                     {home ? (
                         <a href="#top" className="flex items-center gap-3">

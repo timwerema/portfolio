@@ -21,7 +21,7 @@ export default function ServicePage({ portfolio, service }: { portfolio: Portfol
             <SiteLayout name={name} resumeUrl={resume_url}>
                 <main>
                     {/* Hero */}
-                    <section className="border-navy border-b-[3px]">
+                    <section className="border-rule border-b-[3px]">
                         <div className={`${wrap} py-14 sm:py-20`}>
                             <Link
                                 href="/#services"
@@ -45,8 +45,8 @@ export default function ServicePage({ portfolio, service }: { portfolio: Portfol
                                         </PillLink>
                                     </div>
                                 </div>
-                                <div className="bg-navy text-maple-light flex-[1_1_260px] rounded-md p-6 shadow-[8px_8px_0_var(--color-royal)]">
-                                    <PlayDiagram icon={service.icon} className="text-maple-light h-28 w-full" />
+                                <div className="bg-navy text-on-navy flex-[1_1_260px] rounded-md p-6 shadow-[8px_8px_0_var(--color-royal)]">
+                                    <PlayDiagram icon={service.icon} className="text-on-navy h-28 w-full" />
                                     {service.for.length > 0 && (
                                         <>
                                             <p className="font-cond text-silver mt-5 mb-2 text-[15px] font-bold tracking-[0.12em] uppercase">
@@ -70,7 +70,7 @@ export default function ServicePage({ portfolio, service }: { portfolio: Portfol
                     {/* What's included */}
                     <section className={`${wrap} py-20 lg:py-24`}>
                         <SectionHeading eyebrow="What's included" title="What you get" />
-                        <ul className="border-navy border-y-[3px]">
+                        <ul className="border-rule border-y-[3px]">
                             {service.deliverables.map((d) => (
                                 <li
                                     key={d.title}
@@ -86,7 +86,7 @@ export default function ServicePage({ portfolio, service }: { portfolio: Portfol
                     </section>
 
                     {/* Process */}
-                    <section id="process" className="bg-navy text-maple-light scroll-mt-20">
+                    <section id="process" className="bg-navy text-on-navy scroll-mt-20">
                         <div className={`${wrap} py-20 lg:py-24`}>
                             <SectionHeading eyebrow="Process" title="How it works" tone="dark" />
                             <ol className="flex flex-wrap gap-x-10 gap-y-10">
@@ -105,7 +105,7 @@ export default function ServicePage({ portfolio, service }: { portfolio: Portfol
                     {related.length > 0 && (
                         <section className={`${wrap} py-20 lg:py-24`}>
                             <SectionHeading eyebrow="Related work" title="Game tape" />
-                            <div className="border-navy border-y-[3px]">
+                            <div className="border-rule border-y-[3px]">
                                 {related.map((p) => (
                                     <article
                                         key={p.title}
@@ -150,7 +150,7 @@ export default function ServicePage({ portfolio, service }: { portfolio: Portfol
                     {service.faq.length > 0 && (
                         <section className={`${wrap} pb-20 lg:pb-24 ${related.length > 0 ? '' : 'pt-20 lg:pt-24'}`}>
                             <SectionHeading eyebrow="FAQ" title="Common questions" />
-                            <div className="border-navy bg-maple-light divide-maple-line divide-y rounded-md border-2">
+                            <div className="border-rule bg-maple-light divide-maple-line divide-y rounded-md border-2">
                                 {service.faq.map((item) => (
                                     <details key={item.q} className="group px-6 [&_summary::-webkit-details-marker]:hidden">
                                         <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 py-5 text-lg font-semibold">
@@ -165,7 +165,7 @@ export default function ServicePage({ portfolio, service }: { portfolio: Portfol
                     )}
 
                     {/* Contact */}
-                    <section id="start" className="bg-maple-light border-navy scroll-mt-20 border-y-[3px]">
+                    <section id="start" className="bg-maple-light border-rule scroll-mt-20 border-y-[3px]">
                         <div className={`${wrap} flex flex-wrap gap-x-20 gap-y-12 py-20 lg:py-24`}>
                             <div className="min-w-0 flex-[1_1_340px]">
                                 <h2 className="font-display text-6xl leading-[0.95] uppercase sm:text-7xl">
@@ -186,14 +186,14 @@ export default function ServicePage({ portfolio, service }: { portfolio: Portfol
                     {/* Other plays */}
                     <section className={`${wrap} py-20 lg:py-24`}>
                         <SectionHeading eyebrow="More from the playbook" title="Other plays" />
-                        <div className="border-navy border-y-[3px]">
+                        <div className="border-rule border-y-[3px]">
                             {otherServices.map((s) => (
                                 <Link
                                     key={s.slug}
                                     href={route('services.show', s.slug)}
                                     className="group border-maple-line hover:bg-maple-light -mx-4 flex flex-wrap items-center gap-x-8 gap-y-3 border-t px-4 py-6 transition-colors first:border-t-0"
                                 >
-                                    <PlayDiagram icon={s.icon} className="text-navy h-14 w-[84px] flex-none [--play-run:var(--color-royal)]" />
+                                    <PlayDiagram icon={s.icon} className="text-strong h-14 w-[84px] flex-none [--play-run:var(--color-royal)]" />
                                     <h3 className="font-display flex-[1_1_180px] text-3xl uppercase">{s.title}</h3>
                                     <p className="text-ink-soft flex-[999_1_360px]">{s.description}</p>
                                     <ArrowUpRight className="text-royal size-6 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

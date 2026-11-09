@@ -11,7 +11,7 @@ function CourtLines() {
             aria-hidden="true"
             viewBox="0 0 600 600"
             preserveAspectRatio="xMaxYMid slice"
-            className="text-navy pointer-events-none absolute top-0 -right-32 hidden h-full w-[720px] opacity-40 md:block"
+            className="text-strong pointer-events-none absolute top-0 -right-32 hidden h-full w-[720px] opacity-40 md:block"
         >
             <g fill="none" stroke="currentColor" strokeWidth="3">
                 <rect x="200" y="160" width="400" height="280" />
@@ -55,7 +55,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
             <SiteLayout name={name} resumeUrl={resume_url} home>
                 <main id="top">
                     {/* Hero */}
-                    <section className="border-navy relative overflow-hidden border-b-[3px]">
+                    <section className="border-rule relative overflow-hidden border-b-[3px]">
                         <CourtLines />
                         <div className="relative mx-auto flex max-w-[1240px] flex-wrap items-end gap-12 px-5 py-16 sm:px-10 sm:py-24 lg:px-16 lg:py-28">
                             <div className="min-w-0 flex-[999_1_540px]">
@@ -85,7 +85,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                             </div>
 
                             {/* Player card */}
-                            <div className="bg-navy text-maple-light w-full max-w-[360px] flex-[1_1_300px] rounded-md p-7 shadow-[10px_10px_0_var(--color-royal)]">
+                            <div className="bg-navy text-on-navy w-full max-w-[360px] flex-[1_1_300px] rounded-md p-7 shadow-[10px_10px_0_var(--color-royal)]">
                                 <div className="flex items-start justify-between">
                                     <span className="font-cond text-silver text-[15px] font-bold tracking-[0.12em] uppercase">Player card</span>
                                     {classYear && <span className="font-display text-led text-6xl leading-[0.8]">{classYear}</span>}
@@ -109,7 +109,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                     </section>
 
                     {/* Scoreboard */}
-                    <section aria-label="Career stats" className="bg-navy-deep text-maple-light">
+                    <section aria-label="Career stats" className="bg-navy-deep text-on-navy">
                         <dl className="mx-auto flex max-w-[1240px] flex-wrap gap-y-8 px-5 py-10 sm:px-10 lg:px-16">
                             {stats.map((s) => (
                                 <div key={s.label} className="border-navy-line flex-[1_1_220px] border-l-2 px-6">
@@ -125,7 +125,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                     <section id="work" className="scroll-mt-20">
                         <div className="mx-auto max-w-[1240px] px-5 py-20 sm:px-10 lg:px-16 lg:py-28">
                             <SectionHeading eyebrow="Selected work" title="Season highlights" />
-                            <div className="border-navy border-y-[3px]">
+                            <div className="border-rule border-y-[3px]">
                                 {projects.map((p, i) => (
                                     <article
                                         key={p.title}
@@ -133,7 +133,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                     >
                                         <span
                                             aria-hidden="true"
-                                            className="font-display flex-[0_0_140px] text-[112px] leading-[0.85] text-transparent [-webkit-text-stroke:2px_var(--color-navy)]"
+                                            className="font-display flex-[0_0_140px] text-[112px] leading-[0.85] text-transparent [-webkit-text-stroke:2px_var(--color-strong)]"
                                         >
                                             {String(i + 1).padStart(2, '0')}
                                         </span>
@@ -184,7 +184,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                             <Link
                                                 key={d.url}
                                                 href={d.url}
-                                                className="group border-navy bg-maple-light hover:bg-navy hover:text-maple-light flex flex-wrap items-center gap-x-8 gap-y-2 rounded-md border-2 px-6 py-5 transition-colors"
+                                                className="group border-rule bg-maple-light hover:bg-navy hover:text-on-navy flex flex-wrap items-center gap-x-8 gap-y-2 rounded-md border-2 px-6 py-5 transition-colors"
                                             >
                                                 <div className="min-w-0 flex-[999_1_360px]">
                                                     <p className="font-cond text-royal group-hover:text-led text-[15px] font-bold tracking-[0.12em] uppercase">
@@ -205,7 +205,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                     </section>
 
                     {/* Services */}
-                    <section id="services" className="bg-navy text-maple-light scroll-mt-20">
+                    <section id="services" className="bg-navy text-on-navy scroll-mt-20">
                         <div className="mx-auto max-w-[1240px] px-5 py-20 sm:px-10 lg:px-16 lg:py-28">
                             <SectionHeading eyebrow="What I build" title="The playbook" tone="dark" className="mb-4" />
                             <p className="text-silver mb-12 max-w-xl text-lg">
@@ -218,7 +218,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                         href={route('services.show', s.slug)}
                                         className="group border-navy-line hover:bg-navy-deep/60 -mx-4 flex flex-wrap items-center gap-x-10 gap-y-4 rounded-sm border-t px-4 py-7 transition-colors first:border-t-0"
                                     >
-                                        <PlayDiagram icon={s.icon} className="text-maple-light h-20 w-[120px] flex-none" />
+                                        <PlayDiagram icon={s.icon} className="text-on-navy h-20 w-[120px] flex-none" />
                                         <h3 className="font-display flex-[1_1_200px] text-4xl uppercase">{s.title}</h3>
                                         <p className="text-silver flex-[999_1_380px]">{s.description}</p>
                                         <span className="font-cond text-led inline-flex items-center gap-1 text-lg font-bold tracking-[0.06em] uppercase">
@@ -232,13 +232,13 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                     </section>
 
                     {/* How I work */}
-                    <section id="process" className="bg-maple-light border-navy scroll-mt-20 border-b-[3px]">
+                    <section id="process" className="bg-maple-light border-rule scroll-mt-20 border-b-[3px]">
                         <div className="mx-auto max-w-[1240px] px-5 py-20 sm:px-10 lg:px-16 lg:py-28">
                             <SectionHeading eyebrow="How I work" title="Game plan" className="mb-4" />
                             <p className="text-ink-soft mb-12 max-w-xl text-lg">
                                 Simple, honest and fast. You see your new homepage before you pay a thing.
                             </p>
-                            <ol className="border-navy border-y-[3px]">
+                            <ol className="border-rule border-y-[3px]">
                                 {[
                                     [
                                         'Quick call',
@@ -293,8 +293,8 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                 {packages.map((pkg) => (
                                     <div
                                         key={pkg.name}
-                                        className={`border-navy flex flex-wrap items-baseline gap-x-8 gap-y-2 rounded-md border-2 px-6 py-7 sm:px-8 ${
-                                            pkg.featured ? 'bg-navy text-maple-light shadow-[8px_8px_0_var(--color-royal)]' : 'bg-maple-light'
+                                        className={`border-rule flex flex-wrap items-baseline gap-x-8 gap-y-2 rounded-md border-2 px-6 py-7 sm:px-8 ${
+                                            pkg.featured ? 'bg-navy text-on-navy shadow-[8px_8px_0_var(--color-royal)]' : 'bg-maple-light'
                                         }`}
                                     >
                                         <h3 className="font-display flex-[1_1_200px] text-4xl uppercase">
@@ -323,7 +323,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                     </section>
 
                     {/* About */}
-                    <section id="about" className="bg-maple-light border-navy scroll-mt-20 border-y-[3px]">
+                    <section id="about" className="bg-maple-light border-rule scroll-mt-20 border-y-[3px]">
                         <div className="mx-auto max-w-[1240px] px-5 py-20 sm:px-10 lg:px-16 lg:py-28">
                             <SectionHeading eyebrow="About me" title="Scouting report" />
                             <div className="flex flex-wrap gap-x-20 gap-y-12">
@@ -338,7 +338,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                 <div className="flex-[1_1_320px] space-y-8">
                                     <div>
                                         <h3 className="font-cond text-royal mb-3 text-lg font-bold tracking-[0.12em] uppercase">Career</h3>
-                                        <ol className="border-navy space-y-5 border-l-2 pl-5">
+                                        <ol className="border-rule space-y-5 border-l-2 pl-5">
                                             {experience.map((job) => (
                                                 <li key={`${job.company}-${job.period}`}>
                                                     <p className="font-semibold">

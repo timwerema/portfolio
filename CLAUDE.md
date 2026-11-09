@@ -29,6 +29,11 @@ Context for Claude sessions working on this repository. Read this first.
   plus a check-only linter; keep both green.
 - Composer is pinned to `platform.php = 8.2` so the lock file installs on 8.2+.
   Keep it that way.
+- Public pages and demos are **dark by default** and switch to their light look only when
+  the visitor's device is in light mode (`prefers-color-scheme: light`). Hardwood tokens
+  live in `resources/css/app.css`; use `border-rule`, `text-strong` and `text-on-navy`
+  (not `border-navy`/`text-navy`/`text-maple-light`) so both modes work. Light demos keep
+  colours as CSS variables in a `THEME` string on `:root:has(.<demo>)`.
 - Public pages must not use AI-looking repeated card grids. Timasi dislikes them.
   Prefer rows, lists, tables and editorial layouts.
 - Demo sites are for **fictional** businesses: label them as demos, keep them `noindex`,

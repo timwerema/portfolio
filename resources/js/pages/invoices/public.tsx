@@ -29,7 +29,7 @@ export default function PublicInvoicePage({
                 <meta name="robots" content="noindex, nofollow" />
             </Head>
             <div className="hardwood bg-maple text-ink font-body min-h-screen px-4 py-10 print:bg-white print:p-0">
-                <article className="bg-maple-light border-navy mx-auto max-w-3xl rounded-md border-2 p-6 sm:p-10 print:border-0 print:p-0">
+                <article className="bg-maple-light border-rule mx-auto max-w-3xl rounded-md border-2 p-6 sm:p-10 print:border-0 print:p-0">
                     <header className="flex flex-wrap items-start justify-between gap-6">
                         <div className="flex items-center gap-3">
                             <span className="bg-royal font-display flex size-12 items-center justify-center rounded-full text-lg text-white print:border print:border-black">
@@ -59,13 +59,13 @@ export default function PublicInvoicePage({
                             <dt className="text-ink-muted">Issued</dt>
                             <dd className="text-right">{date(invoice.issue_date)}</dd>
                             <dt className="text-ink-muted">Due</dt>
-                            <dd className={`text-right ${invoice.is_overdue ? 'font-semibold text-red-700' : ''}`}>{date(invoice.due_date)}</dd>
+                            <dd className={`text-right ${invoice.is_overdue ? 'text-danger font-semibold' : ''}`}>{date(invoice.due_date)}</dd>
                         </dl>
                     </div>
 
                     <div className="mt-8 overflow-x-auto">
                         <table className="w-full min-w-[460px] text-left">
-                            <thead className="border-navy border-b-2">
+                            <thead className="border-rule border-b-2">
                                 <tr className="font-cond text-sm tracking-[0.08em] uppercase">
                                     <th className="py-2">Description</th>
                                     <th className="py-2 text-right">Qty</th>
@@ -84,7 +84,7 @@ export default function PublicInvoicePage({
                                 ))}
                             </tbody>
                             <tfoot>
-                                <tr className="border-navy border-t-2">
+                                <tr className="border-rule border-t-2">
                                     <td colSpan={3} className="font-cond pt-4 text-right text-lg font-bold tracking-[0.06em] uppercase">
                                         Total due
                                     </td>
@@ -120,7 +120,7 @@ export default function PublicInvoicePage({
                         <button
                             type="button"
                             onClick={() => window.print()}
-                            className="border-navy text-navy font-cond inline-flex min-h-[54px] items-center gap-2 rounded-full border-2 px-6 text-lg font-bold tracking-[0.06em] uppercase"
+                            className="border-rule text-strong font-cond inline-flex min-h-[54px] items-center gap-2 rounded-full border-2 px-6 text-lg font-bold tracking-[0.06em] uppercase"
                         >
                             <Printer className="size-5" /> Print / save PDF
                         </button>

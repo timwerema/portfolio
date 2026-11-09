@@ -48,7 +48,7 @@ export default function PreviewReview({ preview, studio }: { preview: ReviewPrev
 
             <div className="hardwood bg-maple text-ink font-body flex h-dvh flex-col">
                 {/* Top bar */}
-                <header className="bg-navy text-maple-light flex flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-3 sm:px-6">
+                <header className="bg-navy text-on-navy flex flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-3 sm:px-6">
                     <div className="flex min-w-0 items-center gap-3">
                         <span className="bg-royal font-display flex size-10 shrink-0 items-center justify-center rounded-full text-base text-white">
                             TW
@@ -74,7 +74,7 @@ export default function PreviewReview({ preview, studio }: { preview: ReviewPrev
 
                 {/* Note from the studio */}
                 {preview.note && noteOpen && (
-                    <div className="border-navy bg-maple-light flex items-start gap-3 border-b-2 px-4 py-3 sm:px-6">
+                    <div className="border-rule bg-maple-light flex items-start gap-3 border-b-2 px-4 py-3 sm:px-6">
                         <MessageSquare className="text-royal mt-0.5 size-5 shrink-0" />
                         <p className="flex-1 whitespace-pre-line">{preview.note}</p>
                         <button
@@ -108,7 +108,7 @@ export default function PreviewReview({ preview, studio }: { preview: ReviewPrev
                 </main>
 
                 {/* Decision bar */}
-                <footer className="bg-navy text-maple-light border-royal border-t-4 px-4 py-4 sm:px-6">
+                <footer className="bg-navy text-on-navy border-royal border-t-4 px-4 py-4 sm:px-6">
                     {mode === 'changes' ? (
                         <form onSubmit={submit('changes_requested')} className="mx-auto flex max-w-3xl flex-col gap-3">
                             <label htmlFor="comment" className="font-semibold">
@@ -170,7 +170,7 @@ export default function PreviewReview({ preview, studio }: { preview: ReviewPrev
                                 <button
                                     type="button"
                                     onClick={() => setMode('changes')}
-                                    className="border-silver hover:bg-maple-light hover:text-navy inline-flex min-h-11 items-center rounded-full border-2 px-6 font-bold"
+                                    className="border-silver hover:bg-maple-light hover:text-strong inline-flex min-h-11 items-center rounded-full border-2 px-6 font-bold"
                                 >
                                     Request changes
                                 </button>
