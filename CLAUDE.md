@@ -104,6 +104,9 @@ It pulls `main`, installs, builds, migrates and rebuilds caches. Then check
   (`app/Support/ClientMail.php`).
 - UptimeRobot monitor on `/health` not set up yet.
 - Own domain not bought yet (GitHub Student Developer Pack may include one).
-- Demos built: Clearcoat (car detailing), 4th Quarter (gym), Galacticals v3 (club concept),
-  LATESHIFT (streetwear store). Ideas queued: concerts-near-me, slides-to-learning,
-  sports stats.
+- Demos built: Clearcoat (detailing, PPF & wraps), 4th Quarter (gym), Galacticals v3
+  (club concept), LATESHIFT (streetwear store), StudyLoop (slides-to-learning),
+  Encore (concert finder). Ideas queued: sports stats.
+- "Look official" pages live in code: `/start` project questionnaire
+  (`ProjectRequestController`, saved as a message with `source = start`), `/privacy`,
+  `/terms` (`resources/js/pages/legal.tsx`). Needs a deploy to reach the box.

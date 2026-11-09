@@ -9,6 +9,9 @@ import '@fontsource/barlow/400.css';
 import '@fontsource/barlow/500.css';
 import '@fontsource/barlow/600.css';
 import '@fontsource/barlow/700.css';
+import '@fontsource/instrument-sans/400.css';
+import '@fontsource/instrument-sans/500.css';
+import '@fontsource/instrument-sans/600.css';
 import '@fontsource/share-tech-mono/400.css';
 
 import { createInertiaApp } from '@inertiajs/react';
