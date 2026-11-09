@@ -54,13 +54,13 @@ const binom = (n: number, p: number, r: () => number) => {
 
 type Team = { id: string; name: string; short: string; color: string; boost: number };
 const TEAMS: Team[] = [
-    { id: 'DEN', name: 'Deep Ellum Night Owls', short: 'Night Owls', color: '#8b5cf6', boost: 1.06 },
+    { id: 'DEN', name: 'Deep Ellum Night Owls', short: 'Night Owls', color: '#8b5cf6', boost: 1.04 },
     { id: 'BAB', name: 'Bishop Arts Bandits', short: 'Bandits', color: '#ef4444', boost: 1.03 },
     { id: 'OCO', name: 'Oak Cliff Overtime', short: 'Overtime', color: '#f59e0b', boost: 1.0 },
     { id: 'TRG', name: 'Trinity Groove', short: 'Groove', color: '#14b8a6', boost: 1.04 },
-    { id: 'LKW', name: 'Lakewood Lanterns', short: 'Lanterns', color: '#eab308', boost: 0.96 },
+    { id: 'LKW', name: 'Lakewood Lanterns', short: 'Lanterns', color: '#eab308', boost: 0.97 },
     { id: 'CED', name: 'Cedars Cyclones', short: 'Cyclones', color: '#3b82f6', boost: 0.99 },
-    { id: 'UPT', name: 'Uptown Alley-Oops', short: 'Alley-Oops', color: '#ec4899', boost: 0.94 },
+    { id: 'UPT', name: 'Uptown Alley-Oops', short: 'Alley-Oops', color: '#ec4899', boost: 0.97 },
     { id: 'DDD', name: 'Design District Drafters', short: 'Drafters', color: '#22c55e', boost: 1.01 },
 ];
 const teamById = Object.fromEntries(TEAMS.map((t) => [t.id, t])) as Record<string, Team>;
@@ -192,13 +192,14 @@ function buildLeague() {
             const [a, b] = w % 2 ? [rot[g], rot[7 - g]] : [rot[7 - g], rot[g]];
             const lines: Record<string, Line[]> = {};
             const score: Record<string, number> = {};
+            // Both teams play at the same pace, which keeps most games within ~15 points.
+            const teamFga = 56 + Math.floor(r() * 8);
             for (const tid of [a, b]) {
                 const boost = teamById[tid].boost;
-                const teamFga = 54 + Math.floor(r() * 10);
                 lines[tid] = players
                     .filter((p) => p.team === tid)
                     .map((p) => {
-                        const fga = Math.max(0, Math.round(p.usage * teamFga * (0.7 + r() * 0.6)));
+                        const fga = Math.max(0, Math.round(p.usage * teamFga * (0.82 + r() * 0.36)));
                         const tpa = Math.round(fga * p.threeRate);
                         const tpm = binom(tpa, p.p3 * boost, r);
                         const twm = binom(fga - tpa, Math.min(0.75, p.p2 * boost), r);
@@ -454,6 +455,152 @@ function ShotChart({ a }: { a: Avg }) {
     );
 }
 
+/* ---------------------------------------------------------------- playoffs */
+
+function headToHead(x: string, y: string) {
+    const g = GAMES.find((q) => (q.home === x && q.away === y) || (q.home === y && q.away === x));
+    if (!g) return null;
+    const xs = g.home === x ? g.hs : g.as;
+    const ys = g.home === x ? g.as : g.hs;
+    return { game: g, winner: xs > ys ? x : y, score: `${Math.max(xs, ys)}-${Math.min(xs, ys)}` };
+}
+
+function recordOf(id: string) {
+    const s = STANDINGS.find((x) => x.team.id === id)!;
+    return `${s.w}-${s.l}`;
+}
+
+function Slot({ id, seed, picked, onPick, label }: { id: string | null; seed?: number; picked: boolean; onPick?: () => void; label: string }) {
+    return (
+        <button
+            type="button"
+            disabled={!id || !onPick}
+            onClick={onPick}
+            aria-pressed={picked}
+            aria-label={id ? `${label}: pick ${teamById[id].name}` : `${label}: to be decided`}
+            className="flex min-h-12 w-full items-center gap-2.5 rounded-lg border px-3 text-left font-semibold transition-colors disabled:cursor-default"
+            style={{
+                borderColor: picked ? C.hot : C.line,
+                background: picked ? `color-mix(in srgb, ${C.hot} 14%, ${C.panel})` : C.panel,
+                opacity: id ? 1 : 0.55,
+            }}
+        >
+            {seed && (
+                <span className="w-4 text-xs" style={{ color: C.soft }}>
+                    {seed}
+                </span>
+            )}
+            {id ? <TeamDot id={id} /> : <span className="size-2.5 rounded-full border" style={{ borderColor: C.soft }} />}
+            <span className="min-w-0 flex-1 truncate">{id ? teamById[id].name : 'TBD'}</span>
+            {id && (
+                <span className="text-xs tabular-nums" style={{ color: C.soft }}>
+                    {recordOf(id)}
+                </span>
+            )}
+        </button>
+    );
+}
+
+function Bracket({ onBox }: { onBox: (id: string) => void }) {
+    const seeds = STANDINGS.slice(0, 4).map((s) => s.team.id);
+    const [semi1, setSemi1] = useState<string | null>(null);
+    const [semi2, setSemi2] = useState<string | null>(null);
+    const [champ, setChamp] = useState<string | null>(null);
+
+    const pick = (slot: 1 | 2, id: string) => {
+        (slot === 1 ? setSemi1 : setSemi2)(id);
+        setChamp(null);
+    };
+
+    const semi = (slot: 1 | 2, hi: number, lo: number, value: string | null) => {
+        const h2h = headToHead(seeds[hi - 1], seeds[lo - 1]);
+        return (
+            <div className="min-w-0 space-y-1.5">
+                <p className="text-xs font-bold tracking-wider uppercase" style={{ color: C.soft }}>
+                    Semifinal {slot} · Sun, Nov 1
+                </p>
+                <Slot
+                    id={seeds[hi - 1]}
+                    seed={hi}
+                    picked={value === seeds[hi - 1]}
+                    onPick={() => pick(slot, seeds[hi - 1])}
+                    label={`Semifinal ${slot}`}
+                />
+                <Slot
+                    id={seeds[lo - 1]}
+                    seed={lo}
+                    picked={value === seeds[lo - 1]}
+                    onPick={() => pick(slot, seeds[lo - 1])}
+                    label={`Semifinal ${slot}`}
+                />
+                {h2h && (
+                    <button
+                        type="button"
+                        onClick={() => onBox(h2h.game.id)}
+                        className="min-h-8 text-left text-xs underline-offset-2 hover:underline"
+                        style={{ color: C.soft }}
+                    >
+                        Season meeting: {teamById[h2h.winner].short} won {h2h.score} (week {h2h.game.week}) →
+                    </button>
+                )}
+            </div>
+        );
+    };
+
+    return (
+        <div>
+            <div className="flex flex-col gap-6 md:flex-row md:items-center">
+                <div className="min-w-0 flex-1 space-y-8">
+                    {semi(1, 1, 4, semi1)}
+                    {semi(2, 2, 3, semi2)}
+                </div>
+                <svg aria-hidden="true" viewBox="0 0 40 200" className="hidden h-56 w-10 shrink-0 md:block" preserveAspectRatio="none">
+                    <path
+                        d="M0 50 H20 V150 H0 M20 100 H40"
+                        fill="none"
+                        style={{ stroke: C.line }}
+                        strokeWidth="2"
+                        vectorEffect="non-scaling-stroke"
+                    />
+                </svg>
+                <div className="min-w-0 flex-1 space-y-1.5">
+                    <p className="text-xs font-bold tracking-wider uppercase" style={{ color: C.soft }}>
+                        Final · Sun, Nov 8
+                    </p>
+                    <Slot id={semi1} picked={!!semi1 && champ === semi1} onPick={semi1 && semi2 ? () => setChamp(semi1) : undefined} label="Final" />
+                    <Slot id={semi2} picked={!!semi2 && champ === semi2} onPick={semi1 && semi2 ? () => setChamp(semi2) : undefined} label="Final" />
+                </div>
+                <div className="min-w-0 flex-1 md:pl-4">
+                    <p className="text-xs font-bold tracking-wider uppercase" style={{ color: C.soft }}>
+                        Champion
+                    </p>
+                    <p className="mt-2 flex items-center gap-3 text-4xl" style={{ ...display, color: champ ? C.hot : C.soft }} aria-live="polite">
+                        <Trophy className="size-8 shrink-0" />
+                        {champ ? teamById[champ].short : 'Your pick'}
+                    </p>
+                </div>
+            </div>
+            <div className="mt-6 flex flex-wrap items-center gap-4 text-sm" style={{ color: C.soft }}>
+                <p>Tap a team to pick the winner of each game. Just for fun: picks are not saved.</p>
+                {(semi1 || semi2) && (
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setSemi1(null);
+                            setSemi2(null);
+                            setChamp(null);
+                        }}
+                        className="min-h-10 font-bold underline underline-offset-4"
+                        style={{ color: C.text }}
+                    >
+                        Reset bracket
+                    </button>
+                )}
+            </div>
+        </div>
+    );
+}
+
 /* ---------------------------------------------------------------- page */
 
 type PKey = 'name' | 'team' | 'gp' | 'pts' | 'reb' | 'ast' | 'stl' | 'blk' | 'tpm' | 'fgp' | 'tpp' | 'ftp';
@@ -587,6 +734,7 @@ export default function Rundown() {
                             {[
                                 ['scores', 'Scores'],
                                 ['standings', 'Standings'],
+                                ['playoffs', 'Playoffs'],
                                 ['leaders', 'Leaders'],
                                 ['players', 'Players'],
                                 ['compare', 'Compare'],
@@ -783,8 +931,14 @@ export default function Rundown() {
                             </table>
                         </div>
                         <p className="mt-3 text-sm" style={{ color: C.soft }}>
-                            Tap a team to see its roster stats. The orange line marks the playoff cut.
+                            Tap a team to see its roster stats. The orange line marks the playoff cut; ties are broken by point differential.
                         </p>
+                    </section>
+
+                    {/* Playoffs */}
+                    <section aria-labelledby="playoffs" className="scroll-mt-20 py-10">
+                        <SectionTitle id="playoffs" kicker="Make your picks" title="Playoffs" />
+                        <Bracket onBox={setBoxId} />
                     </section>
 
                     {/* Leaders */}
