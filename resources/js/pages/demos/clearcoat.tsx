@@ -110,21 +110,63 @@ const shade = (hex: string, amt: number) => {
     return `#${[c(n >> 16), c((n >> 8) & 255), c(n & 255)].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
 };
 
-/** Side-profile sports car. Body colour/finish apply to the wrapped panels per coverage. */
+type Body = 'coupe' | 'suv' | 'truck';
+
+/** Side-profile outlines. Wheels sit at the same spots so every body shares the same rig. */
+const SHAPES: Record<
+    Body,
+    { body: string; roof: string; glass: string[]; pillars: string; lines: string; mirror: string; trim: string; wheelR: number }
+> = {
+    coupe: {
+        body: 'M36 168 C 54 164, 82 146, 132 136 L 236 92 C 268 80, 330 74, 388 76 C 440 78, 478 96, 516 122 L 588 136 C 608 140, 618 152, 614 168 L 608 180 L 36 180 Z',
+        roof: 'M246 96 C 276 84, 330 79, 384 80 C 426 82, 456 96, 486 116 L 258 118 Z',
+        glass: ['M262 100 L 302 88 C 340 82, 378 84, 404 90 L 452 116 L 270 118 Z'],
+        pillars: 'M356 84 L 362 118',
+        lines: 'M120 150 C 260 132, 430 128, 590 146 M300 120 L 296 176 M 430 120 L 438 172',
+        mirror: 'M462 116 l 18 -4 l 2 10 z',
+        trim: 'M40 166 h 36 M 586 150 h 24',
+        wheelR: 36,
+    },
+    suv: {
+        body: 'M34 172 C 38 150, 60 136, 104 132 L 168 128 L 214 80 C 222 72, 234 68, 252 68 L 476 68 C 494 68, 504 74, 512 86 L 548 126 L 594 132 C 612 136, 618 150, 614 172 L 608 182 L 34 182 Z',
+        roof: 'M222 76 C 230 70, 240 68, 254 68 L 474 68 C 490 68, 500 74, 506 82 L 230 82 Z',
+        glass: ['M224 86 L 236 76 L 344 76 L 344 124 L 180 126 Z', 'M356 76 L 470 76 C 482 76, 490 80, 496 88 L 528 124 L 356 124 Z'],
+        pillars: 'M350 72 L 350 126',
+        lines: 'M110 150 L 600 150 M350 126 L 350 178',
+        mirror: 'M520 126 l 16 -6 l 2 12 z',
+        trim: 'M36 168 h 30 M 588 146 h 24 M 230 72 h 270',
+        wheelR: 40,
+    },
+    truck: {
+        body: 'M34 172 C 40 152, 62 140, 100 136 L 196 132 L 232 84 C 240 74, 252 70, 268 70 L 368 70 C 382 70, 388 78, 390 92 L 394 132 L 606 132 L 610 172 L 606 182 L 34 182 Z',
+        roof: 'M240 78 C 246 72, 256 70, 268 70 L 368 70 C 378 70, 384 74, 386 80 L 244 82 Z',
+        glass: ['M244 90 L 256 80 L 300 80 L 300 126 L 218 128 Z', 'M310 80 L 370 80 C 378 80, 382 84, 383 92 L 386 126 L 310 126 Z'],
+        pillars: 'M305 76 L 305 128',
+        lines: 'M104 150 L 392 150 M394 132 L 394 182 M400 140 L 600 140',
+        mirror: 'M210 128 l -16 -6 l -2 12 z',
+        trim: 'M36 168 h 30 M 394 132 h 212',
+        wheelR: 40,
+    },
+};
+
+/** Side-profile vehicle. Body colour/finish apply to the wrapped panels per coverage. */
 function Car({
     colour,
     finish,
     coverage = 'full',
+    body = 'coupe',
     base = '#2a2a31',
     sheen = true,
 }: {
     colour: string;
     finish: Finish;
     coverage?: Coverage;
+    body?: Body;
     base?: string;
     sheen?: boolean;
 }) {
     const id = useId().replace(/:/g, '');
+    const shape = SHAPES[body];
     const bodyFill = coverage === 'full' ? `url(#body-${id})` : base;
     const roofFill = coverage === 'full' || coverage === 'roof' || coverage === 'accents' ? `url(#body-${id})` : base;
     const accent = coverage === 'accents' ? `url(#body-${id})` : '#0d0d10';
@@ -136,8 +178,9 @@ function Car({
               : finish === 'Satin'
                 ? [shade(colour, 0.1), colour, colour, colour, shade(colour, -0.1)]
                 : [colour, colour, colour, colour, shade(colour, -0.05)];
+    const label = body === 'coupe' ? 'Coupe' : body === 'suv' ? 'SUV' : 'Pickup truck';
     return (
-        <svg viewBox="0 0 640 230" className="h-auto w-full" role="img" aria-label={`Car with ${finish.toLowerCase()} wrap`}>
+        <svg viewBox="0 0 640 230" className="h-auto w-full" role="img" aria-label={`${label} with ${finish.toLowerCase()} wrap`}>
             <defs>
                 <linearGradient id={`body-${id}`} x1="0" y1="0" x2="0" y2="1">
                     {stops.map((s, i) => (
@@ -149,26 +192,19 @@ function Car({
                     <stop offset="100%" stopColor="#0e1015" />
                 </linearGradient>
                 <clipPath id={`clip-${id}`}>
-                    <path d="M36 168 C 54 164, 82 146, 132 136 L 236 92 C 268 80, 330 74, 388 76 C 440 78, 478 96, 516 122 L 588 136 C 608 140, 618 152, 614 168 L 608 180 L 36 180 Z" />
+                    <path d={shape.body} />
                 </clipPath>
             </defs>
-            <ellipse cx="322" cy="198" rx="300" ry="14" fill="#000" opacity=".55" />
-            {/* body */}
-            <path
-                d="M36 168 C 54 164, 82 146, 132 136 L 236 92 C 268 80, 330 74, 388 76 C 440 78, 478 96, 516 122 L 588 136 C 608 140, 618 152, 614 168 L 608 180 L 36 180 Z"
-                fill={bodyFill}
-            />
-            {/* roof + pillars */}
-            <path d="M246 96 C 276 84, 330 79, 384 80 C 426 82, 456 96, 486 116 L 258 118 Z" fill={roofFill} />
-            {/* glass */}
-            <path d="M262 100 L 302 88 C 340 82, 378 84, 404 90 L 452 116 L 270 118 Z" fill={`url(#glass-${id})`} />
-            <path d="M356 84 L 362 118" stroke={roofFill} strokeWidth="6" />
-            {/* side line, door, mirror, accents */}
-            <path d="M120 150 C 260 132, 430 128, 590 146" fill="none" stroke="#000" strokeOpacity=".28" strokeWidth="3" />
-            <path d="M300 120 L 296 176 M 430 120 L 438 172" stroke="#000" strokeOpacity=".25" strokeWidth="2" />
-            <path d="M462 116 l 18 -4 l 2 10 z" fill={accent} />
-            <path d="M40 166 h 36 M 586 150 h 24" stroke={accent} strokeWidth="6" strokeLinecap="round" />
-            {/* sheen */}
+            <ellipse cx="322" cy="200" rx="300" ry="14" fill="#000" opacity=".55" />
+            <path d={shape.body} fill={bodyFill} />
+            <path d={shape.roof} fill={roofFill} />
+            {shape.glass.map((g) => (
+                <path key={g} d={g} fill={`url(#glass-${id})`} />
+            ))}
+            <path d={shape.pillars} stroke={roofFill} strokeWidth="6" />
+            <path d={shape.lines} fill="none" stroke="#000" strokeOpacity=".28" strokeWidth="2.5" />
+            <path d={shape.mirror} fill={accent} />
+            <path d={shape.trim} stroke={accent} strokeWidth="6" strokeLinecap="round" />
             {sheen && finish !== 'Matte' && (
                 <g clipPath={`url(#clip-${id})`}>
                     <rect
@@ -182,26 +218,27 @@ function Car({
                     />
                 </g>
             )}
-            {/* wheels */}
             {[160, 500].map((x) => (
                 <g key={x}>
-                    <circle cx={x} cy="178" r="36" fill="#060608" />
-                    <circle cx={x} cy="178" r="24" fill="#2c2c33" stroke="#9a9aa3" strokeWidth="2" />
+                    <circle cx={x} cy="180" r={shape.wheelR} fill="#060608" />
+                    <circle cx={x} cy="180" r={shape.wheelR - 12} fill="#2c2c33" stroke="#9a9aa3" strokeWidth="2" />
                     {[0, 72, 144, 216, 288].map((a) => (
                         <path
                             key={a}
-                            d={`M${x} 178 L ${x + 22 * Math.cos((a * Math.PI) / 180)} ${178 + 22 * Math.sin((a * Math.PI) / 180)}`}
+                            d={`M${x} 180 L ${x + (shape.wheelR - 14) * Math.cos((a * Math.PI) / 180)} ${180 + (shape.wheelR - 14) * Math.sin((a * Math.PI) / 180)}`}
                             stroke="#b7b7c0"
                             strokeWidth="4"
                             strokeLinecap="round"
                         />
                     ))}
-                    <circle cx={x} cy="178" r="5" fill="#d0d0d6" />
+                    <circle cx={x} cy="180" r="5" fill="#d0d0d6" />
                 </g>
             ))}
         </svg>
     );
 }
+
+const bodyFor = (type: string): Body => (type === 'SUV' ? 'suv' : type === 'Truck' ? 'truck' : 'coupe');
 
 // ---------------------------------------------------------------- work log (sample jobs, fictional)
 const JOBS = [
@@ -316,6 +353,7 @@ export default function ClearcoatDemo() {
     const [wrapColour, setWrapColour] = useState(WRAP_COLOURS[2]);
     const [finish, setFinish] = useState<Finish>('Satin');
     const [coverage, setCoverage] = useState<Coverage>('full');
+    const [body, setBody] = useState<Body>('coupe');
     // work log
     const [svc, setSvc] = useState('All');
     const [vtype, setVtype] = useState('All');
@@ -329,7 +367,9 @@ export default function ClearcoatDemo() {
     const [vehicle, setVehicle] = useState('');
 
     const coverageInfo = COVERAGE.find((c) => c.id === coverage)!;
-    const wrapPrice = coverageInfo.price + (finish === 'Chrome' ? (coverage === 'full' ? 2400 : 300) : 0);
+    const bodyFactor = body === 'coupe' ? 1 : body === 'suv' ? 1.2 : 1.25;
+    const wrapBase = coverageInfo.price + (finish === 'Chrome' ? (coverage === 'full' ? 2400 : 300) : 0);
+    const wrapPrice = Math.round(wrapBase * bodyFactor); // shown in the visualizer for the chosen vehicle
 
     const inQuote = (id: string) => quote.some((q) => q.id === id);
     const toggle = (item: QuoteItem) => setQuote((q) => (q.some((x) => x.id === item.id) ? q.filter((x) => x.id !== item.id) : [...q, item]));
@@ -337,8 +377,9 @@ export default function ClearcoatDemo() {
         const item = {
             id: `wrap-vis-${wrapColour.name}-${finish}-${coverage}`,
             label: `${coverageInfo.label}: ${finish} ${wrapColour.name}`,
-            price: wrapPrice,
+            price: wrapBase, // the quote drawer applies the vehicle-size factor
         };
+        if (body !== 'coupe') setSize(body === 'suv' ? 'SUV' : 'Truck');
         setQuote((q) => [...q.filter((x) => !x.id.startsWith('wrap-vis-')), item]);
         setSent(false);
         setQuoteOpen(true);
@@ -548,12 +589,36 @@ export default function ClearcoatDemo() {
                             </h2>
                             <div className="mt-8 flex flex-wrap items-center gap-x-12 gap-y-8">
                                 <div className="min-w-0 flex-[999_1_520px]">
-                                    <Car colour={wrapColour.hex} finish={finish} coverage={coverage} />
+                                    <Car colour={wrapColour.hex} finish={finish} coverage={coverage} body={body} />
                                     <p className="mt-2 text-center text-sm" style={{ color: C.muted }} aria-live="polite">
                                         {coverageInfo.label} · {finish} {wrapColour.name}
                                     </p>
                                 </div>
                                 <div className="min-w-0 flex-[1_1_320px] space-y-6">
+                                    <fieldset>
+                                        <legend className="text-xs tracking-[0.25em] uppercase" style={{ color: C.muted }}>
+                                            Vehicle
+                                        </legend>
+                                        <div className="mt-3 flex flex-wrap gap-2">
+                                            {(
+                                                [
+                                                    ['coupe', 'Car / coupe'],
+                                                    ['suv', 'SUV'],
+                                                    ['truck', 'Truck'],
+                                                ] as const
+                                            ).map(([b, label]) => (
+                                                <button
+                                                    key={b}
+                                                    type="button"
+                                                    aria-pressed={body === b}
+                                                    onClick={() => setBody(b)}
+                                                    className={chip(body === b)}
+                                                >
+                                                    {label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </fieldset>
                                     <fieldset>
                                         <legend className="text-xs tracking-[0.25em] uppercase" style={{ color: C.muted }}>
                                             Colour · {wrapColour.name}
@@ -684,7 +749,7 @@ export default function ClearcoatDemo() {
                                         style={{ borderColor: C.line }}
                                     >
                                         <div className="w-[180px] shrink-0">
-                                            <Car colour={j.colour} finish={j.finish} sheen={false} />
+                                            <Car colour={j.colour} finish={j.finish} body={bodyFor(j.type)} sheen={false} />
                                         </div>
                                         <div className="min-w-0 flex-[1_1_240px]">
                                             <p className="text-2xl font-semibold" style={serif}>
