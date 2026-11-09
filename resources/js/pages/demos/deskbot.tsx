@@ -176,12 +176,15 @@ type Step =
     | { kind: 'output'; item: Output }
     | { kind: 'done'; text: string };
 
-type TaskId = 'invoices' | 'booking' | 'summary' | 'questions';
+type TaskId = 'invoices' | 'booking' | 'summary' | 'questions' | 'supplies' | 'reviews' | 'reschedule';
 const TASKS: { id: TaskId; label: string; prompt: string }[] = [
     { id: 'invoices', label: 'Chase overdue invoices', prompt: 'Find overdue invoices and send friendly reminders.' },
     { id: 'booking', label: 'Book new job requests', prompt: "Book this week's new service requests." },
     { id: 'summary', label: 'Weekly summary', prompt: 'Write my weekly summary.' },
     { id: 'questions', label: 'Answer customer emails', prompt: 'Answer the customer questions in the inbox.' },
+    { id: 'supplies', label: 'Order supplies', prompt: "Reorder whatever parts we're running low on." },
+    { id: 'reviews', label: 'Ask for reviews', prompt: "Ask this week's happy customers to leave us a review." },
+    { id: 'reschedule', label: 'Tech called in sick', prompt: "Marco called in sick. Sort out today's jobs." },
 ];
 
 function script(id: TaskId): Step[] {
@@ -315,6 +318,252 @@ function script(id: TaskId): Step[] {
             },
             { kind: 'go', to: 'dock' },
             { kind: 'done', text: 'Done: requests sorted by urgency, matched to open slots, and confirmed (if you approved).' },
+        ];
+    }
+    if (id === 'supplies') {
+        const low = [
+            { part: '1/2" copper elbows', have: 6, min: 25, order: 50, a: 1.1, b: 0.95 },
+            { part: 'Wax toilet rings', have: 2, min: 10, order: 20, a: 3.4, b: 3.9 },
+            { part: '40-gal water heater', have: 0, min: 1, order: 2, a: 589, b: 612 },
+        ];
+        const pick = low.map((l) => ({ ...l, supplier: l.a <= l.b ? 'Trinity Supply' : 'Metro Plumbing Parts', price: Math.min(l.a, l.b) }));
+        const total = pick.reduce((s, l) => s + l.price * l.order, 0);
+        const usd = (n: number) => `$${n.toFixed(2)}`;
+        return [
+            { kind: 'think', text: 'Goal: restock anything below its minimum, at the best price, without overspending.' },
+            { kind: 'go', to: 'sheet' },
+            {
+                kind: 'tool',
+                at: 'sheet',
+                action: 'Check the inventory sheet against minimums',
+                result: `${low.length} items below minimum`,
+                screen: {
+                    title: 'inventory.xlsx',
+                    rows: [
+                        ...low.map((l) => ({ text: `${l.part.padEnd(22)} have ${String(l.have).padStart(2)} / min ${l.min}`, tone: 'hot' as Tone })),
+                        { text: `${'PEX tubing, 100 ft'.padEnd(22)} have 12 / min 4`, tone: 'muted' },
+                    ],
+                },
+            },
+            { kind: 'go', to: 'files' },
+            {
+                kind: 'tool',
+                at: 'files',
+                action: 'Compare prices from our two suppliers',
+                result: `Cheapest picked per item · ${usd(total)} total`,
+                screen: {
+                    title: 'supplier-prices.pdf',
+                    rows: pick.map((l) => ({
+                        text: `${l.part.padEnd(22)} ${usd(l.a).padStart(8)} vs ${usd(l.b).padStart(8)}  → ${l.supplier}`,
+                        tone: 'ok' as Tone,
+                    })),
+                },
+            },
+            { kind: 'think', text: `Total is ${usd(total)}. Anything over $500 needs the owner's OK, so I'll ask first.` },
+            {
+                kind: 'approve',
+                question: `Place orders for ${usd(total)}?`,
+                yes: 'Place orders',
+                no: 'Hold off',
+                onYes: [
+                    { kind: 'go', to: 'email' },
+                    {
+                        kind: 'tool',
+                        at: 'email',
+                        action: 'Email purchase orders to each supplier',
+                        result: '2 purchase orders sent',
+                        screen: { title: 'Sent', rows: pick.map((l) => ({ text: `PO → ${l.supplier}: ${l.order} × ${l.part}`, tone: 'ok' })) },
+                    },
+                    ...['Trinity Supply', 'Metro Plumbing Parts'].map(
+                        (sup): Step => ({
+                            kind: 'output',
+                            item: {
+                                kind: 'Email',
+                                title: `Purchase order to ${sup}`,
+                                body: pick
+                                    .filter((l) => l.supplier === sup)
+                                    .map((l) => `${l.order} × ${l.part} @ ${usd(l.price)}`)
+                                    .join('; '),
+                            },
+                        }),
+                    ),
+                    { kind: 'go', to: 'calendar' },
+                    {
+                        kind: 'tool',
+                        at: 'calendar',
+                        action: 'Add the expected delivery',
+                        result: `Delivery expected ${dateIn(3)}`,
+                        screen: { title: 'Calendar', rows: [{ text: `${dateIn(3)}  Parts delivery (2 boxes)`, tone: 'ok' }] },
+                    },
+                    {
+                        kind: 'output',
+                        item: { kind: 'Calendar', title: dateIn(3), body: 'Parts delivery from Trinity Supply and Metro Plumbing Parts.' },
+                    },
+                ],
+                onNo: [{ kind: 'think', text: 'No orders placed. I saved the list so you can review it.' }],
+            },
+            { kind: 'go', to: 'dock' },
+            { kind: 'done', text: 'Done: low stock found, cheapest supplier picked for each part, orders placed only with your OK.' },
+        ];
+    }
+    if (id === 'reviews') {
+        const jobs = [
+            { who: 'Alvarez', note: 'Replied "Thank you, fast work!"', happy: true },
+            { who: 'Brooks', note: 'Paid, no issues', happy: true },
+            { who: 'Okafor', note: 'Complained about a late arrival', happy: false },
+            { who: 'Nguyen', note: 'Paid, no issues', happy: true },
+        ];
+        const happy = jobs.filter((j) => j.happy);
+        return [
+            { kind: 'think', text: "Goal: ask this week's satisfied customers for an honest review. Never ask someone with an open complaint." },
+            { kind: 'go', to: 'calendar' },
+            {
+                kind: 'tool',
+                at: 'calendar',
+                action: 'List jobs finished this week',
+                result: `${jobs.length} finished jobs`,
+                screen: { title: 'Calendar · completed', rows: jobs.map((j) => ({ text: `${j.who}: job complete` })) },
+            },
+            { kind: 'go', to: 'inbox' },
+            {
+                kind: 'tool',
+                at: 'inbox',
+                action: 'Check each customer for complaints',
+                result: `${happy.length} happy · 1 open complaint (Okafor)`,
+                screen: { title: 'Inbox · by customer', rows: jobs.map((j) => ({ text: `${j.who}: ${j.note}`, tone: j.happy ? 'ok' : 'hot' })) },
+            },
+            { kind: 'think', text: 'Skip Okafor. Fix the complaint first: I will flag it for the owner instead.' },
+            { kind: 'go', to: 'email' },
+            {
+                kind: 'tool',
+                at: 'email',
+                action: `Draft ${happy.length} short review requests`,
+                result: `${happy.length} drafts ready`,
+                screen: { title: 'Drafts', rows: happy.map((j) => ({ text: `To ${j.who}: "Mind sharing a quick review?"` })) },
+            },
+            {
+                kind: 'approve',
+                question: `Send ${happy.length} review requests?`,
+                yes: 'Send',
+                no: 'Keep as drafts',
+                onYes: happy.map(
+                    (j): Step => ({
+                        kind: 'output',
+                        item: {
+                            kind: 'Email',
+                            title: `To ${j.who}: How did we do?`,
+                            body: 'Thanks for choosing Pecan Street Plumbing! If you have a minute, an honest review helps other neighbors find us: [review link]. Any problems? Just reply and we will make it right.',
+                        },
+                    }),
+                ),
+                onNo: [{ kind: 'think', text: 'Okay, the requests stay in Drafts.' }],
+            },
+            { kind: 'go', to: 'owner' },
+            {
+                kind: 'tool',
+                at: 'owner',
+                action: 'Flag the Okafor complaint',
+                result: "Complaint is on the owner's desk",
+                screen: { title: 'Needs you', rows: [{ text: 'Okafor: late arrival. Call to apologize?', tone: 'hot' }] },
+            },
+            {
+                kind: 'output',
+                item: {
+                    kind: 'Note',
+                    title: 'Follow up: Okafor',
+                    body: 'Customer was unhappy about a late arrival. A quick call or a small discount would help.',
+                },
+            },
+            { kind: 'go', to: 'dock' },
+            { kind: 'done', text: 'Done: review requests only went to happy customers; the complaint went to a human.' },
+        ];
+    }
+    if (id === 'reschedule') {
+        const today2 = [
+            { time: '9-11 AM', who: 'Garcia', what: 'Clogged drain', urgent: false },
+            { time: '12-2 PM', who: 'Lee', what: 'Burst pipe under sink', urgent: true },
+            { time: '3-5 PM', who: 'Shah', what: 'Install dishwasher line', urgent: false },
+        ];
+        return [
+            { kind: 'think', text: "Goal: cover Marco's jobs today. Emergencies stay today; routine jobs can move." },
+            { kind: 'go', to: 'calendar' },
+            {
+                kind: 'tool',
+                at: 'calendar',
+                action: "Open Marco's schedule and Dee's open time",
+                result: '3 jobs for Marco · Dee is free 12-2 PM',
+                screen: {
+                    title: 'Calendar · today',
+                    rows: [
+                        ...today2.map((j) => ({ text: `Marco ${j.time}  ${j.who}: ${j.what}`, tone: (j.urgent ? 'hot' : undefined) as Tone })),
+                        { text: 'Dee   12-2 PM  open', tone: 'ok' },
+                    ],
+                },
+            },
+            { kind: 'think', text: "Lee's burst pipe can't wait: give it to Dee at noon. Move Garcia and Shah to tomorrow." },
+            {
+                kind: 'approve',
+                question: 'Give Lee to Dee today, and move Garcia + Shah to tomorrow?',
+                yes: 'Do it',
+                no: 'I will handle it',
+                onYes: [
+                    {
+                        kind: 'tool',
+                        at: 'calendar',
+                        action: 'Update the schedule',
+                        result: 'Schedule updated',
+                        screen: {
+                            title: 'Calendar · updated',
+                            rows: [
+                                { text: 'Dee   today 12-2 PM  Lee: Burst pipe', tone: 'hot' },
+                                { text: `Marco ${dateIn(1)} 9-11 AM  Garcia`, tone: 'ok' },
+                                { text: `Marco ${dateIn(1)} 3-5 PM  Shah`, tone: 'ok' },
+                            ],
+                        },
+                    },
+                    { kind: 'go', to: 'email' },
+                    {
+                        kind: 'tool',
+                        at: 'email',
+                        action: 'Text and email the 3 customers',
+                        result: '3 customers told',
+                        screen: {
+                            title: 'Sent',
+                            rows: [
+                                { text: 'Lee: "Dee is on the way, noon to 2."', tone: 'ok' },
+                                { text: `Garcia: "Moved to ${dateIn(1)}, 9-11. Sorry!"`, tone: 'ok' },
+                                { text: `Shah: "Moved to ${dateIn(1)}, 3-5. Sorry!"`, tone: 'ok' },
+                            ],
+                        },
+                    },
+                    ...[...today2]
+                        .sort((x, y) => Number(y.urgent) - Number(x.urgent))
+                        .map(
+                            (j): Step => ({
+                                kind: 'output',
+                                item: j.urgent
+                                    ? { kind: 'Calendar', title: 'Today, 12-2 PM (Dee)', body: `${j.who}: ${j.what}` }
+                                    : {
+                                          kind: 'Calendar',
+                                          title: `${dateIn(1)}, ${j.time} (Marco)`,
+                                          body: `${j.who}: ${j.what} (moved, customer told)`,
+                                      },
+                            }),
+                        ),
+                ],
+                onNo: [{ kind: 'think', text: 'Okay, I left the schedule as it is.' }],
+            },
+            { kind: 'go', to: 'owner' },
+            {
+                kind: 'output',
+                item: {
+                    kind: 'Note',
+                    title: 'Marco out sick',
+                    body: 'Emergency covered by Dee today; 2 routine jobs moved to tomorrow and customers notified.',
+                },
+            },
+            { kind: 'go', to: 'dock' },
+            { kind: 'done', text: 'Done: the emergency is still covered today and nobody is left waiting without a heads-up.' },
         ];
     }
     if (id === 'summary') {
@@ -467,6 +716,9 @@ function script(id: TaskId): Step[] {
 function matchTask(text: string): TaskId | null {
     const s = text.toLowerCase();
     if (/invoice|overdue|unpaid|owe|payment|collect/.test(s)) return 'invoices';
+    if (/sick|resched|call(ed)? (in|out)|cover|cancel/.test(s)) return 'reschedule';
+    if (/suppl|stock|inventory|parts|reorder|order /.test(s)) return 'supplies';
+    if (/review|rating|testimonial/.test(s)) return 'reviews';
     if (/book|schedul|appointment|request|job/.test(s)) return 'booking';
     if (/summar|report|week|numbers|how.*(doing|going)/.test(s)) return 'summary';
     if (/question|repl|answer|customer|faq|email/.test(s)) return 'questions';
@@ -600,9 +852,9 @@ export default function Deskbot() {
             if (!taskId) {
                 add(
                     'think',
-                    "I'm a demo bot, so I only know four jobs so far. Try one of the buttons, or ask about invoices, bookings, a summary or customer emails.",
+                    "I'm a demo bot, so I only know a few jobs so far. Try one of the buttons, or ask about invoices, bookings, supplies, reviews, a sick tech, a summary or customer emails.",
                 );
-                setBubble('I only know 4 jobs in this demo. Try a button!');
+                setBubble('I only know a few jobs in this demo. Try a button!');
                 setStatus('done');
                 return;
             }
@@ -1048,6 +1300,8 @@ export default function Deskbot() {
                                 <li>Booking requests into your calendar</li>
                                 <li>Answering the same five customer questions</li>
                                 <li>A Monday-morning summary of your numbers</li>
+                                <li>Reordering parts before you run out</li>
+                                <li>Review requests, sent only to happy customers</li>
                             </ul>
                             <Link
                                 href="/services/ai-agents"
