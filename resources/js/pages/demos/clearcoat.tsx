@@ -1,461 +1,955 @@
-import '@fontsource-variable/archivo/wdth.css';
+import '@fontsource-variable/outfit/wght';
+import '@fontsource/cormorant-garamond/500';
+import '@fontsource/cormorant-garamond/500-italic';
+import '@fontsource/cormorant-garamond/600';
+import '@fontsource/cormorant-garamond/700';
 
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Calendar, Check, ChevronDown, Droplets, MapPin, ShieldCheck, Sparkles, Truck } from 'lucide-react';
-import { type FormEvent, useState } from 'react';
+import { ArrowLeft, ArrowRight, Check, ChevronDown, CircleCheck, ClipboardList, MapPin, Plus, Search, ShieldCheck, Trash2 } from 'lucide-react';
+import { type FormEvent, useId, useMemo, useState } from 'react';
 
 /*
- * DEMO SITE for a fictional business ("Clearcoat Detailing").
- * Built to show prospective clients what a Business-package site can look like.
- * Nothing here is a real company; the booking form does not send anything.
+ * DEMO SITE for a fictional business ("Clearcoat", ceramic / PPF / wraps, Dallas-Fort Worth).
+ * Chrome-luxury design: layered blacks, chrome wordmark, serif + sans.
+ * Wrap visualizer, filterable work log and a quote list. The quote form is
+ * simulated: nothing is sent. No real reviews, photos or customers.
  */
 
-const packages = [
-    {
-        id: 'express',
-        name: 'Express Wash',
-        price: 59,
-        time: '45 min',
-        tagline: 'A fast, thorough refresh between details.',
-        items: ['Foam hand wash & dry', 'Wheels, tires & tire shine', 'Windows inside & out', 'Quick interior vacuum'],
-    },
-    {
-        id: 'signature',
-        name: 'Signature Detail',
-        price: 179,
-        time: '3 hrs',
-        tagline: 'Our most-booked package: deep clean, inside and out.',
-        items: [
-            'Everything in Express',
-            'Clay bar decontamination',
-            'Hand-applied wax (3-month protection)',
-            'Full interior shampoo & steam',
-            'Leather clean & condition',
-        ],
-    },
+const C = {
+    black: '#050507',
+    dark: '#0b0b0f',
+    dark2: '#111116',
+    dark3: '#18181e',
+    line: 'rgba(255,255,255,0.08)',
+    lineStrong: 'rgba(255,255,255,0.16)',
+    text: '#ececf0',
+    muted: '#a4a4ae',
+    gold: '#d4a838',
+};
+const serif = { fontFamily: "'Cormorant Garamond', Georgia, serif" };
+
+const CSS = `
+.cc-chrome{background:linear-gradient(110deg,#8c8c95 0%,#f4f4f7 22%,#9b9ba4 38%,#ffffff 50%,#8f8f98 62%,#e9e9ee 80%,#8c8c95 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:cc-sweep 6s linear infinite}
+@keyframes cc-sweep{0%{background-position:100% 0}100%{background-position:-150% 0}}
+.cc-sheen{animation:cc-sheen 5s ease-in-out infinite}
+@keyframes cc-sheen{0%,60%{transform:translateX(-120%) skewX(-20deg)}100%{transform:translateX(220%) skewX(-20deg)}}
+@media (prefers-reduced-motion:reduce){.cc-chrome,.cc-sheen{animation:none}}
+`;
+
+// ---------------------------------------------------------------- services & pricing
+type Size = 'Sedan / coupe' | 'SUV' | 'Truck' | 'Exotic';
+const SIZE_FACTOR: Record<Size, number> = { 'Sedan / coupe': 1, SUV: 1.2, Truck: 1.25, Exotic: 1.4 };
+
+const SERVICES = [
     {
         id: 'ceramic',
-        name: 'Ceramic Shield',
-        price: 699,
-        time: '1–2 days',
-        tagline: 'Paint correction plus a long-lasting ceramic coating.',
-        items: [
-            'Everything in Signature',
-            'One-step paint correction',
-            'Ceramic coating (multi-year protection)',
-            'Glass & wheel coating',
-            'Aftercare kit',
+        name: 'Ceramic coating',
+        tag: '01',
+        blurb: 'A hard, glassy layer bonded to your paint. Water beads off, dirt rinses away and the gloss lasts for years.',
+        options: [
+            { id: 'ceramic-2', label: '2-year coating + one-step polish', price: 699, time: '1 day' },
+            { id: 'ceramic-5', label: '5-year coating + paint correction', price: 1199, time: '2 days' },
+        ],
+    },
+    {
+        id: 'ppf',
+        name: 'Paint protection film',
+        tag: '02',
+        blurb: 'Clear, self-healing film that takes the rock chips and scratches so your paint does not. Nearly invisible.',
+        options: [
+            { id: 'ppf-front', label: 'Front end: bumper, hood, fenders, mirrors', price: 1499, time: '1–2 days' },
+            { id: 'ppf-full', label: 'Full body', price: 5500, time: '4–5 days' },
+        ],
+    },
+    {
+        id: 'wrap',
+        name: 'Colour wraps',
+        tag: '03',
+        blurb: 'Change the colour and finish without touching the paint, and peel it off when you want a change. Try it below.',
+        options: [
+            { id: 'wrap-roof', label: 'Roof wrap', price: 450, time: '½ day' },
+            { id: 'wrap-chrome-delete', label: 'Chrome delete (trim and badges)', price: 650, time: '1 day' },
+            { id: 'wrap-full', label: 'Full colour change', price: 3200, time: '4–5 days' },
+        ],
+    },
+    {
+        id: 'detail',
+        name: 'Detailing',
+        tag: '04',
+        blurb: 'Hand wash, decontamination, interior deep clean. The right prep before any coating, or a reset on its own.',
+        options: [
+            { id: 'detail-signature', label: 'Signature detail (inside & out)', price: 179, time: '3 hrs' },
+            { id: 'detail-interior', label: 'Interior deep clean & steam', price: 149, time: '3 hrs' },
         ],
     },
 ];
 
-const addOns = [
-    ['Pet hair removal', '$35'],
-    ['Engine bay detail', '$45'],
-    ['Headlight restoration', '$60'],
-    ['Odor treatment', '$50'],
+// ---------------------------------------------------------------- wrap visualizer
+type Finish = 'Gloss' | 'Satin' | 'Matte' | 'Chrome';
+const WRAP_COLOURS = [
+    { name: 'Satin Black', hex: '#1b1b1f' },
+    { name: 'Nardo Grey', hex: '#7c7f84' },
+    { name: 'Midnight Purple', hex: '#3b2257' },
+    { name: 'Racing Green', hex: '#1f4a36' },
+    { name: 'Deep Blue', hex: '#183a7a' },
+    { name: 'Candy Red', hex: '#9b1424' },
+    { name: 'Desert Sand', hex: '#b59a74' },
+    { name: 'Gold', hex: '#b8892c' },
 ];
+const COVERAGE = [
+    { id: 'full', label: 'Full wrap', price: 3200 },
+    { id: 'roof', label: 'Roof only', price: 450 },
+    { id: 'accents', label: 'Accents (mirrors, roof, trim)', price: 900 },
+] as const;
+type Coverage = (typeof COVERAGE)[number]['id'];
 
-const faqs = [
-    [
-        'Do you need water or power at my place?',
-        'No. Our van carries its own water and power, so we can work in a driveway, office lot or apartment garage.',
-    ],
-    [
-        'How long does a ceramic coating last?',
-        'With basic upkeep, our coating keeps its gloss and water beading for years. We’ll walk you through aftercare when we finish.',
-    ],
-    ['What if it rains on my appointment day?', 'We’ll text you the day before to reschedule for free if the forecast looks bad.'],
-];
+const shade = (hex: string, amt: number) => {
+    const n = parseInt(hex.slice(1), 16);
+    const c = (v: number) => Math.max(0, Math.min(255, Math.round(v + amt * 255)));
+    return `#${[c(n >> 16), c((n >> 8) & 255), c(n & 255)].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+};
 
-/** Stylised side profile of a sports car, drawn in line art. */
-function CarProfile() {
+/** Side-profile sports car. Body colour/finish apply to the wrapped panels per coverage. */
+function Car({
+    colour,
+    finish,
+    coverage = 'full',
+    base = '#2a2a31',
+    sheen = true,
+}: {
+    colour: string;
+    finish: Finish;
+    coverage?: Coverage;
+    base?: string;
+    sheen?: boolean;
+}) {
+    const id = useId().replace(/:/g, '');
+    const bodyFill = coverage === 'full' ? `url(#body-${id})` : base;
+    const roofFill = coverage === 'full' || coverage === 'roof' || coverage === 'accents' ? `url(#body-${id})` : base;
+    const accent = coverage === 'accents' ? `url(#body-${id})` : '#0d0d10';
+    const stops =
+        finish === 'Chrome'
+            ? [shade(colour, 0.45), shade(colour, -0.15), shade(colour, 0.55), shade(colour, -0.25), shade(colour, 0.3)]
+            : finish === 'Gloss'
+              ? [shade(colour, 0.22), colour, colour, shade(colour, -0.12), shade(colour, -0.2)]
+              : finish === 'Satin'
+                ? [shade(colour, 0.1), colour, colour, colour, shade(colour, -0.1)]
+                : [colour, colour, colour, colour, shade(colour, -0.05)];
     return (
-        <svg role="img" aria-label="Line drawing of a sports car" viewBox="0 0 640 240" className="h-auto w-full">
+        <svg viewBox="0 0 640 230" className="h-auto w-full" role="img" aria-label={`Car with ${finish.toLowerCase()} wrap`}>
+            <defs>
+                <linearGradient id={`body-${id}`} x1="0" y1="0" x2="0" y2="1">
+                    {stops.map((s, i) => (
+                        <stop key={i} offset={`${i * 25}%`} stopColor={s} />
+                    ))}
+                </linearGradient>
+                <linearGradient id={`glass-${id}`} x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="#3a3f4a" />
+                    <stop offset="100%" stopColor="#0e1015" />
+                </linearGradient>
+                <clipPath id={`clip-${id}`}>
+                    <path d="M36 168 C 54 164, 82 146, 132 136 L 236 92 C 268 80, 330 74, 388 76 C 440 78, 478 96, 516 122 L 588 136 C 608 140, 618 152, 614 168 L 608 180 L 36 180 Z" />
+                </clipPath>
+            </defs>
+            <ellipse cx="322" cy="198" rx="300" ry="14" fill="#000" opacity=".55" />
+            {/* body */}
             <path
-                d="M40 170 C 60 168, 80 150, 130 140 L 230 96 C 260 84, 320 78, 380 80 C 430 82, 470 100, 510 128 L 580 140 C 600 144, 610 156, 606 172 L 600 182 L 40 182 Z"
-                fill="#12161C"
-                stroke="#C9D2DC"
-                strokeWidth="2.5"
-                strokeLinejoin="round"
+                d="M36 168 C 54 164, 82 146, 132 136 L 236 92 C 268 80, 330 74, 388 76 C 440 78, 478 96, 516 122 L 588 136 C 608 140, 618 152, 614 168 L 608 180 L 36 180 Z"
+                fill={bodyFill}
             />
-            <path d="M250 104 L 300 90 C 340 84, 380 86, 410 92 L 452 118 L 262 122 Z" fill="#0B0D10" stroke="#5E6B78" strokeWidth="2" />
-            <path d="M140 150 C 260 132, 420 128, 560 146" fill="none" stroke="#29D3E0" strokeWidth="3" strokeLinecap="round" />
-            <circle cx="160" cy="182" r="34" fill="#0B0D10" stroke="#C9D2DC" strokeWidth="2.5" />
-            <circle cx="160" cy="182" r="16" fill="none" stroke="#5E6B78" strokeWidth="2" />
-            <circle cx="500" cy="182" r="34" fill="#0B0D10" stroke="#C9D2DC" strokeWidth="2.5" />
-            <circle cx="500" cy="182" r="16" fill="none" stroke="#5E6B78" strokeWidth="2" />
-            <path d="M20 222 L 620 222" stroke="#2A323C" strokeWidth="2" />
-            <path d="M330 60 l10 -22 M352 64 l18 -18 M308 64 l-4 -24" stroke="#29D3E0" strokeWidth="2.5" strokeLinecap="round" />
+            {/* roof + pillars */}
+            <path d="M246 96 C 276 84, 330 79, 384 80 C 426 82, 456 96, 486 116 L 258 118 Z" fill={roofFill} />
+            {/* glass */}
+            <path d="M262 100 L 302 88 C 340 82, 378 84, 404 90 L 452 116 L 270 118 Z" fill={`url(#glass-${id})`} />
+            <path d="M356 84 L 362 118" stroke={roofFill} strokeWidth="6" />
+            {/* side line, door, mirror, accents */}
+            <path d="M120 150 C 260 132, 430 128, 590 146" fill="none" stroke="#000" strokeOpacity=".28" strokeWidth="3" />
+            <path d="M300 120 L 296 176 M 430 120 L 438 172" stroke="#000" strokeOpacity=".25" strokeWidth="2" />
+            <path d="M462 116 l 18 -4 l 2 10 z" fill={accent} />
+            <path d="M40 166 h 36 M 586 150 h 24" stroke={accent} strokeWidth="6" strokeLinecap="round" />
+            {/* sheen */}
+            {sheen && finish !== 'Matte' && (
+                <g clipPath={`url(#clip-${id})`}>
+                    <rect
+                        className="cc-sheen"
+                        x="0"
+                        y="60"
+                        width="90"
+                        height="140"
+                        fill="#fff"
+                        opacity={finish === 'Chrome' ? 0.35 : finish === 'Gloss' ? 0.18 : 0.08}
+                    />
+                </g>
+            )}
+            {/* wheels */}
+            {[160, 500].map((x) => (
+                <g key={x}>
+                    <circle cx={x} cy="178" r="36" fill="#060608" />
+                    <circle cx={x} cy="178" r="24" fill="#2c2c33" stroke="#9a9aa3" strokeWidth="2" />
+                    {[0, 72, 144, 216, 288].map((a) => (
+                        <path
+                            key={a}
+                            d={`M${x} 178 L ${x + 22 * Math.cos((a * Math.PI) / 180)} ${178 + 22 * Math.sin((a * Math.PI) / 180)}`}
+                            stroke="#b7b7c0"
+                            strokeWidth="4"
+                            strokeLinecap="round"
+                        />
+                    ))}
+                    <circle cx={x} cy="178" r="5" fill="#d0d0d6" />
+                </g>
+            ))}
         </svg>
     );
 }
 
-/** Before/after paint comparison: drag the slider to reveal the corrected finish. */
-function BeforeAfter() {
-    const [pos, setPos] = useState(50);
+// ---------------------------------------------------------------- work log (sample jobs, fictional)
+const JOBS = [
+    {
+        car: '2023 Tesla Model Y',
+        type: 'SUV',
+        service: 'PPF',
+        detail: 'Front-end PPF + ceramic on wheels',
+        colour: '#d9d9de',
+        finish: 'Gloss' as Finish,
+        city: 'Frisco',
+    },
+    {
+        car: '2021 BMW M4',
+        type: 'Exotic',
+        service: 'Wrap',
+        detail: 'Full wrap, Satin Nardo Grey',
+        colour: '#7c7f84',
+        finish: 'Satin' as Finish,
+        city: 'Dallas',
+    },
+    {
+        car: '2022 Ford F-150',
+        type: 'Truck',
+        service: 'Ceramic',
+        detail: '5-year ceramic + paint correction',
+        colour: '#152a4d',
+        finish: 'Gloss' as Finish,
+        city: 'Plano',
+    },
+    {
+        car: '2020 Porsche 911',
+        type: 'Exotic',
+        service: 'PPF',
+        detail: 'Full-body PPF, matte finish film',
+        colour: '#c9c9cd',
+        finish: 'Matte' as Finish,
+        city: 'Highland Park',
+    },
+    {
+        car: '2024 Honda Accord',
+        type: 'Sedan',
+        service: 'Detail',
+        detail: 'Signature detail + interior steam',
+        colour: '#5b0f19',
+        finish: 'Gloss' as Finish,
+        city: 'Irving',
+    },
+    {
+        car: '2019 Dodge Challenger',
+        type: 'Sedan',
+        service: 'Wrap',
+        detail: 'Full wrap, Gloss Midnight Purple',
+        colour: '#3b2257',
+        finish: 'Gloss' as Finish,
+        city: 'Arlington',
+    },
+    {
+        car: '2023 Range Rover Sport',
+        type: 'SUV',
+        service: 'Wrap',
+        detail: 'Chrome delete + roof in gloss black',
+        colour: '#e7e7ea',
+        finish: 'Gloss' as Finish,
+        city: 'Southlake',
+    },
+    {
+        car: '2022 Toyota Tacoma',
+        type: 'Truck',
+        service: 'Detail',
+        detail: 'Interior deep clean after a lake weekend',
+        colour: '#4a4f45',
+        finish: 'Satin' as Finish,
+        city: 'Fort Worth',
+    },
+    {
+        car: '2024 Mercedes-AMG C63',
+        type: 'Sedan',
+        service: 'Ceramic',
+        detail: '2-year ceramic + one-step polish',
+        colour: '#1b1b1f',
+        finish: 'Gloss' as Finish,
+        city: 'Dallas',
+    },
+    {
+        car: '2021 Chevrolet Corvette',
+        type: 'Exotic',
+        service: 'Wrap',
+        detail: 'Full wrap, Gold chrome',
+        colour: '#b8892c',
+        finish: 'Chrome' as Finish,
+        city: 'Plano',
+    },
+];
+const JOB_SERVICES = ['All', 'Ceramic', 'PPF', 'Wrap', 'Detail'];
+const JOB_TYPES = ['All', 'Sedan', 'SUV', 'Truck', 'Exotic'];
 
-    return (
-        <div>
-            <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-[#2A323C]" aria-hidden="true">
-                {/* After: deep, glossy paint */}
-                <div className="absolute inset-0 bg-[#0E2A47]">
-                    <div className="absolute -top-1/4 left-[8%] h-[150%] w-[18%] rotate-[24deg] bg-white/10" />
-                    <div className="absolute -top-1/4 left-[30%] h-[150%] w-[5%] rotate-[24deg] bg-white/15" />
-                    <span className="absolute right-5 bottom-4 rounded-full bg-black/40 px-3 py-1 text-sm font-semibold text-white">After</span>
-                </div>
-                {/* Before: dull paint with swirl marks */}
-                <div className="absolute inset-0 overflow-hidden bg-[#3B4552]" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
-                    <svg viewBox="0 0 400 225" className="absolute inset-0 h-full w-full opacity-50">
-                        <g fill="none" stroke="#8D98A5" strokeWidth="0.8">
-                            {[20, 34, 48, 62, 76].map((r) => (
-                                <circle key={r} cx="120" cy="100" r={r} />
-                            ))}
-                            {[16, 30, 44, 58].map((r) => (
-                                <circle key={r} cx="290" cy="150" r={r} />
-                            ))}
-                            <path d="M10 40 L 140 10 M 200 210 L 390 120 M 40 200 L 120 160" />
-                        </g>
-                    </svg>
-                    <span className="absolute bottom-4 left-5 rounded-full bg-black/40 px-3 py-1 text-sm font-semibold text-white">Before</span>
-                </div>
-                <div className="absolute inset-y-0 w-0.5 bg-white" style={{ left: `${pos}%` }} />
-            </div>
-            <label className="mt-4 flex flex-col gap-2 text-sm text-[#AEB8C4]">
-                Drag to compare the paint before and after correction
-                <input
-                    type="range"
-                    min={0}
-                    max={100}
-                    value={pos}
-                    onChange={(e) => setPos(Number(e.target.value))}
-                    className="w-full accent-[#29D3E0]"
-                />
-            </label>
-        </div>
-    );
-}
+const POLICIES = [
+    ['Deposit', '20% to book. It comes off your final bill.'],
+    ['Prep', 'Cars arrive washed for PPF and wraps; we handle the decontamination.'],
+    ['Weather', 'Mobile jobs move for free if rain is forecast. We text you the day before.'],
+    ['Changes', 'Reschedule or cancel free up to 48 hours before your slot.'],
+    ['Warranty', 'Films and coatings are covered by the manufacturer warranty; we register it for you.'],
+    ['Aftercare', 'Every job comes with a care guide and a free check-up after 30 days.'],
+];
+const CITIES = ['Dallas', 'Plano', 'Frisco', 'Irving', 'Arlington', 'Fort Worth', 'Southlake', 'Highland Park'];
+
+type QuoteItem = { id: string; label: string; price: number };
 
 export default function ClearcoatDemo() {
-    const [picked, setPicked] = useState('signature');
-    const [booked, setBooked] = useState(false);
-    const active = packages.find((p) => p.id === picked)!;
+    // visualizer
+    const [wrapColour, setWrapColour] = useState(WRAP_COLOURS[2]);
+    const [finish, setFinish] = useState<Finish>('Satin');
+    const [coverage, setCoverage] = useState<Coverage>('full');
+    // work log
+    const [svc, setSvc] = useState('All');
+    const [vtype, setVtype] = useState('All');
+    const [query, setQuery] = useState('');
+    const [showAll, setShowAll] = useState(false);
+    // quote
+    const [quote, setQuote] = useState<QuoteItem[]>([]);
+    const [quoteOpen, setQuoteOpen] = useState(false);
+    const [size, setSize] = useState<Size>('Sedan / coupe');
+    const [sent, setSent] = useState(false);
+    const [vehicle, setVehicle] = useState('');
+
+    const coverageInfo = COVERAGE.find((c) => c.id === coverage)!;
+    const wrapPrice = coverageInfo.price + (finish === 'Chrome' ? (coverage === 'full' ? 2400 : 300) : 0);
+
+    const inQuote = (id: string) => quote.some((q) => q.id === id);
+    const toggle = (item: QuoteItem) => setQuote((q) => (q.some((x) => x.id === item.id) ? q.filter((x) => x.id !== item.id) : [...q, item]));
+    const addWrap = () => {
+        const item = {
+            id: `wrap-vis-${wrapColour.name}-${finish}-${coverage}`,
+            label: `${coverageInfo.label}: ${finish} ${wrapColour.name}`,
+            price: wrapPrice,
+        };
+        setQuote((q) => [...q.filter((x) => !x.id.startsWith('wrap-vis-')), item]);
+        setSent(false);
+        setQuoteOpen(true);
+    };
+
+    const factor = SIZE_FACTOR[size];
+    const estimate = Math.round(quote.reduce((s, q) => s + q.price, 0) * factor);
+
+    const jobs = useMemo(() => {
+        const q = query.trim().toLowerCase();
+        return JOBS.filter(
+            (j) =>
+                (svc === 'All' || j.service === svc) &&
+                (vtype === 'All' || j.type === vtype) &&
+                (!q || `${j.car} ${j.detail} ${j.city}`.toLowerCase().includes(q)),
+        );
+    }, [svc, vtype, query]);
+    const visible = showAll ? jobs : jobs.slice(0, 5);
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
-        setBooked(true);
+        setSent(true);
     };
 
-    const field =
-        'min-h-12 w-full rounded-lg border border-[#2A323C] bg-[#12161C] px-4 text-base text-white placeholder:text-[#6F7B88] focus:border-[#29D3E0] focus:outline-none';
+    const chip = (active: boolean) =>
+        `inline-flex min-h-10 items-center rounded-full border px-4 text-sm tracking-wide transition-colors ${active ? 'border-white bg-white text-black' : 'border-white/15 text-[#a4a4ae] hover:border-white/40 hover:text-white'}`;
+    const btnLight =
+        'inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-7 text-sm font-semibold tracking-[0.12em] text-black uppercase transition hover:bg-[#d8d8de]';
+    const btnGhost =
+        'inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/25 px-7 text-sm font-semibold tracking-[0.12em] uppercase transition hover:border-white';
+    const eyebrow = 'text-xs font-medium tracking-[0.35em] uppercase';
 
     return (
         <>
-            <Head title="Clearcoat Detailing (demo site)">
+            <Head title="Clearcoat (demo site)">
                 <meta name="robots" content="noindex, nofollow" />
-                <meta name="description" content="Demo website for a fictional mobile car detailing business, built by Timasi Werema." />
             </Head>
+            <style>{CSS}</style>
 
-            <div className="min-h-screen bg-[#0B0D10] text-[#E9EEF3]" style={{ fontFamily: "'Archivo Variable', system-ui, sans-serif" }}>
+            <div className="min-h-screen" style={{ background: C.black, color: C.text, fontFamily: "'Outfit Variable', system-ui, sans-serif" }}>
                 {/* Demo banner */}
-                <div className="bg-[#29D3E0] text-[#0B0D10]">
-                    <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-x-6 gap-y-1 px-5 py-2.5 text-sm font-semibold sm:px-10">
+                <div className="border-b text-sm" style={{ borderColor: C.line, background: C.dark2, color: C.muted }}>
+                    <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-x-6 gap-y-1 px-5 py-2.5 sm:px-8">
                         <p>Demo site for a fictional business, designed &amp; built by Timasi Werema.</p>
-                        <Link href="/#work" className="inline-flex min-h-8 items-center gap-1 underline underline-offset-4">
+                        <Link href="/#work" className="inline-flex min-h-8 items-center gap-1 text-white underline underline-offset-4">
                             <ArrowLeft className="size-4" /> Back to portfolio
                         </Link>
                     </div>
                 </div>
 
                 {/* Nav */}
-                <header className="border-b border-[#1C2229]">
-                    <nav className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-10">
-                        <a href="#top" className="flex items-center gap-2 text-xl font-black tracking-wide uppercase" style={{ fontStretch: '125%' }}>
-                            <Droplets className="size-6 text-[#29D3E0]" /> Clearcoat
+                <header className="sticky top-0 z-30 border-b backdrop-blur-md" style={{ borderColor: C.line, background: 'rgba(5,5,7,0.78)' }}>
+                    <nav className="mx-auto flex max-w-[1240px] items-center justify-between gap-4 px-5 py-4 sm:px-8">
+                        <a href="#top" className="cc-chrome text-2xl font-bold tracking-[0.3em]" style={serif}>
+                            CLEARCOAT
                         </a>
-                        <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm font-semibold text-[#AEB8C4]">
-                            <a href="#packages" className="py-2 hover:text-white">
-                                Packages
+                        <div className="flex items-center gap-6 text-xs font-medium tracking-[0.25em] uppercase" style={{ color: C.muted }}>
+                            <a href="#services" className="hidden py-2 hover:text-white md:inline">
+                                Services
                             </a>
-                            <a href="#results" className="py-2 hover:text-white">
-                                Results
+                            <a href="#visualizer" className="hidden py-2 hover:text-white md:inline">
+                                Visualizer
                             </a>
-                            <a href="#faq" className="py-2 hover:text-white">
-                                FAQ
+                            <a href="#work" className="hidden py-2 hover:text-white md:inline">
+                                Work
                             </a>
-                            <a
-                                href="#book"
-                                className="inline-flex min-h-11 items-center rounded-full bg-white px-5 font-bold text-[#0B0D10] hover:bg-[#29D3E0]"
+                            <a href="#good-to-know" className="hidden py-2 hover:text-white lg:inline">
+                                Good to know
+                            </a>
+                            <button
+                                type="button"
+                                onClick={() => setQuoteOpen(true)}
+                                className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/25 px-4 text-white"
                             >
-                                Book now
-                            </a>
+                                <ClipboardList className="size-4" /> Quote
+                                {quote.length > 0 && (
+                                    <span
+                                        className="flex size-5 items-center justify-center rounded-full text-[11px] text-black"
+                                        style={{ background: C.gold }}
+                                    >
+                                        {quote.length}
+                                    </span>
+                                )}
+                            </button>
                         </div>
                     </nav>
                 </header>
 
                 <main id="top">
                     {/* Hero */}
-                    <section className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-12 gap-y-10 px-5 py-16 sm:px-10 lg:py-24">
-                        <div className="min-w-0 flex-[999_1_480px]">
-                            <p className="mb-4 flex items-center gap-2 text-sm font-semibold tracking-[0.14em] text-[#29D3E0] uppercase">
-                                <MapPin className="size-4" /> Mobile detailing · Dallas, TX
-                            </p>
-                            <h1 className="text-[38px] leading-[0.95] font-black uppercase sm:text-5xl xl:text-7xl" style={{ fontStretch: '125%' }}>
-                                Showroom shine.
-                                <br />
-                                <span className="text-[#29D3E0]">In your driveway.</span>
-                            </h1>
-                            <p className="mt-6 max-w-xl text-lg text-[#AEB8C4]">
-                                We bring the wash bay to you — hand washes, deep interior details and ceramic coatings, booked online in under a
-                                minute.
-                            </p>
-                            <div className="mt-8 flex flex-wrap gap-3">
-                                <a
-                                    href="#book"
-                                    className="inline-flex min-h-12 items-center rounded-full bg-[#29D3E0] px-7 font-bold text-[#0B0D10] hover:bg-white"
-                                >
-                                    Book a detail
-                                </a>
-                                <a
-                                    href="#packages"
-                                    className="inline-flex min-h-12 items-center rounded-full border border-[#5E6B78] px-7 font-bold hover:border-white"
-                                >
-                                    See packages
-                                </a>
+                    <section
+                        className="relative overflow-hidden border-b"
+                        style={{ borderColor: C.line, background: `radial-gradient(ellipse at 70% 40%, ${C.dark3} 0%, ${C.black} 65%)` }}
+                    >
+                        <div className="mx-auto flex max-w-[1240px] flex-wrap items-center gap-x-10 gap-y-8 px-5 py-16 sm:px-8 lg:py-24">
+                            <div className="min-w-0 flex-[999_1_460px]">
+                                <p className={eyebrow} style={{ color: C.gold }}>
+                                    Ceramic · PPF · Wraps — Dallas–Fort Worth
+                                </p>
+                                <h1 className="mt-5 text-[52px] leading-[0.95] font-medium sm:text-7xl lg:text-[96px]" style={serif}>
+                                    Protection that
+                                    <br />
+                                    <em className="cc-chrome font-semibold not-italic">looks like art.</em>
+                                </h1>
+                                <p className="mt-6 max-w-lg text-lg font-light" style={{ color: C.muted }}>
+                                    Studio-grade coatings, paint protection film and colour-change wraps — in our Dallas studio or at your driveway.
+                                </p>
+                                <div className="mt-9 flex flex-wrap gap-3">
+                                    <a href="#services" className={btnLight}>
+                                        Build your quote <ArrowRight className="size-4" />
+                                    </a>
+                                    <a href="#visualizer" className={btnGhost}>
+                                        Try the wrap visualizer
+                                    </a>
+                                </div>
+                            </div>
+                            <div className="min-w-0 flex-[1_1_420px]">
+                                <Car colour="#c9c9d0" finish="Chrome" />
                             </div>
                         </div>
-                        <div className="min-w-0 flex-[1_1_380px]">
-                            <CarProfile />
-                        </div>
-                    </section>
-
-                    {/* Why us */}
-                    <section className="border-y border-[#1C2229] bg-[#0F1216]">
-                        <ul className="mx-auto flex max-w-[1200px] flex-wrap gap-x-12 gap-y-6 px-5 py-8 sm:px-10">
-                            {[
-                                [Truck, 'We come to you', 'Home, office or apartment garage'],
-                                [Droplets, 'Self-contained van', 'Our own water and power'],
-                                [ShieldCheck, 'Pro-grade products', 'Safe on paint, leather and trim'],
-                                [Calendar, 'Book online', 'Pick a time that works for you'],
-                            ].map(([Icon, title, note]) => {
-                                const I = Icon as typeof Truck;
-                                return (
-                                    <li key={title as string} className="flex flex-[1_1_220px] items-start gap-3">
-                                        <I className="mt-0.5 size-6 shrink-0 text-[#29D3E0]" />
-                                        <div>
-                                            <p className="font-bold">{title as string}</p>
-                                            <p className="text-sm text-[#AEB8C4]">{note as string}</p>
-                                        </div>
-                                    </li>
-                                );
-                            })}
+                        <ul
+                            className="mx-auto flex max-w-[1240px] flex-wrap gap-x-10 gap-y-3 border-t px-5 py-6 text-sm sm:px-8"
+                            style={{ borderColor: C.line, color: C.muted }}
+                        >
+                            {['Studio or mobile', 'Manufacturer-warrantied films', 'Fully insured', 'Text updates on every job'].map((t) => (
+                                <li key={t} className="flex items-center gap-2">
+                                    <ShieldCheck className="size-4" style={{ color: C.gold }} /> {t}
+                                </li>
+                            ))}
                         </ul>
                     </section>
 
-                    {/* Packages */}
-                    <section id="packages" className="mx-auto max-w-[1200px] scroll-mt-6 px-5 py-20 sm:px-10">
-                        <h2 className="text-4xl font-black uppercase sm:text-6xl" style={{ fontStretch: '125%' }}>
-                            Pick your package
-                        </h2>
-                        <p className="mt-3 max-w-xl text-[#AEB8C4]">
-                            Prices for sedans and coupes. SUVs and trucks add $20–$100 depending on the package.
-                        </p>
-                        <div className="mt-10 flex flex-wrap gap-8">
-                            <div role="tablist" aria-label="Packages" className="flex flex-[1_1_300px] flex-col gap-3">
-                                {packages.map((p) => {
-                                    const selected = p.id === picked;
-                                    return (
-                                        <button
-                                            key={p.id}
-                                            type="button"
-                                            role="tab"
-                                            aria-selected={selected}
-                                            onClick={() => setPicked(p.id)}
-                                            className={`flex min-h-20 items-center justify-between gap-4 rounded-2xl border px-6 text-left transition-colors ${
-                                                selected ? 'border-[#29D3E0] bg-[#12161C]' : 'border-[#2A323C] hover:border-[#5E6B78]'
-                                            }`}
-                                        >
-                                            <span>
-                                                <span className="block text-xl font-black uppercase" style={{ fontStretch: '112%' }}>
-                                                    {p.name}
-                                                </span>
-                                                <span className="block text-sm text-[#AEB8C4]">{p.time}</span>
-                                            </span>
-                                            <span className={`text-3xl font-black ${selected ? 'text-[#29D3E0]' : ''}`}>${p.price}</span>
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                            <div role="tabpanel" className="min-w-0 flex-[999_1_420px] rounded-2xl border border-[#2A323C] bg-[#12161C] p-8">
-                                <p className="flex items-center gap-2 text-sm font-semibold tracking-[0.12em] text-[#29D3E0] uppercase">
-                                    <Sparkles className="size-4" /> {active.name}
-                                </p>
-                                <p className="mt-3 text-2xl font-bold">{active.tagline}</p>
-                                <ul className="mt-6 divide-y divide-[#2A323C] border-y border-[#2A323C]">
-                                    {active.items.map((item) => (
-                                        <li key={item} className="flex items-center gap-3 py-3">
-                                            <Check className="size-5 shrink-0 text-[#29D3E0]" /> {item}
-                                        </li>
-                                    ))}
-                                </ul>
-                                <a
-                                    href="#book"
-                                    className="mt-6 inline-flex min-h-12 items-center rounded-full bg-white px-7 font-bold text-[#0B0D10] hover:bg-[#29D3E0]"
-                                >
-                                    Book {active.name} — ${active.price}
-                                </a>
+                    {/* Services */}
+                    <section id="services" className="scroll-mt-20" style={{ background: C.dark }}>
+                        <div className="mx-auto max-w-[1240px] px-5 py-20 sm:px-8">
+                            <p className={eyebrow} style={{ color: C.muted }}>
+                                Services
+                            </p>
+                            <h2 className="mt-3 text-5xl font-medium sm:text-6xl" style={serif}>
+                                Choose your protection
+                            </h2>
+                            <p className="mt-3 max-w-xl" style={{ color: C.muted }}>
+                                Add anything to your quote. Prices are starting points for a sedan; your final quote adjusts for vehicle size and
+                                condition.
+                            </p>
+                            <div className="mt-10 border-t" style={{ borderColor: C.lineStrong }}>
+                                {SERVICES.map((s) => (
+                                    <article key={s.id} className="flex flex-wrap gap-x-12 gap-y-5 border-b py-10" style={{ borderColor: C.line }}>
+                                        <div className="min-w-0 flex-[1_1_320px]">
+                                            <p className="text-sm tracking-[0.3em]" style={{ color: C.gold }}>
+                                                {s.tag}
+                                            </p>
+                                            <h3 className="mt-1 text-4xl font-semibold" style={serif}>
+                                                {s.name}
+                                            </h3>
+                                            <p className="mt-3 max-w-md font-light" style={{ color: C.muted }}>
+                                                {s.blurb}
+                                            </p>
+                                        </div>
+                                        <ul className="min-w-0 flex-[1_1_420px] divide-y" style={{ borderColor: C.line }}>
+                                            {s.options.map((o) => {
+                                                const added = inQuote(o.id);
+                                                return (
+                                                    <li
+                                                        key={o.id}
+                                                        className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-4"
+                                                        style={{ borderColor: C.line }}
+                                                    >
+                                                        <div>
+                                                            <p>{o.label}</p>
+                                                            <p className="text-sm" style={{ color: C.muted }}>
+                                                                from ${o.price.toLocaleString()} · {o.time}
+                                                            </p>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            aria-pressed={added}
+                                                            onClick={() => toggle({ id: o.id, label: `${s.name}: ${o.label}`, price: o.price })}
+                                                            className={`inline-flex min-h-10 items-center gap-1.5 rounded-full border px-4 text-sm transition ${added ? 'border-transparent text-black' : 'border-white/25 hover:border-white'}`}
+                                                            style={added ? { background: C.gold } : undefined}
+                                                        >
+                                                            {added ? <Check className="size-4" /> : <Plus className="size-4" />}
+                                                            {added ? 'In quote' : 'Add to quote'}
+                                                        </button>
+                                                    </li>
+                                                );
+                                            })}
+                                        </ul>
+                                    </article>
+                                ))}
                             </div>
                         </div>
-                        <div className="mt-10">
-                            <h3 className="text-sm font-semibold tracking-[0.12em] text-[#AEB8C4] uppercase">Add-ons</h3>
-                            <ul className="mt-3 flex flex-wrap gap-3">
-                                {addOns.map(([name, price]) => (
-                                    <li key={name} className="rounded-full border border-[#2A323C] px-4 py-2 text-sm">
-                                        {name} <span className="font-bold text-[#29D3E0]">{price}</span>
+                    </section>
+
+                    {/* Wrap visualizer */}
+                    <section
+                        id="visualizer"
+                        className="scroll-mt-20 border-y"
+                        style={{ borderColor: C.line, background: `linear-gradient(180deg, ${C.black}, ${C.dark2})` }}
+                    >
+                        <div className="mx-auto max-w-[1240px] px-5 py-20 sm:px-8">
+                            <p className={eyebrow} style={{ color: C.muted }}>
+                                Wrap visualizer
+                            </p>
+                            <h2 className="mt-3 text-5xl font-medium sm:text-6xl" style={serif}>
+                                See it before we wrap it
+                            </h2>
+                            <div className="mt-8 flex flex-wrap items-center gap-x-12 gap-y-8">
+                                <div className="min-w-0 flex-[999_1_520px]">
+                                    <Car colour={wrapColour.hex} finish={finish} coverage={coverage} />
+                                    <p className="mt-2 text-center text-sm" style={{ color: C.muted }} aria-live="polite">
+                                        {coverageInfo.label} · {finish} {wrapColour.name}
+                                    </p>
+                                </div>
+                                <div className="min-w-0 flex-[1_1_320px] space-y-6">
+                                    <fieldset>
+                                        <legend className="text-xs tracking-[0.25em] uppercase" style={{ color: C.muted }}>
+                                            Colour · {wrapColour.name}
+                                        </legend>
+                                        <div className="mt-3 flex flex-wrap gap-2">
+                                            {WRAP_COLOURS.map((c) => (
+                                                <button
+                                                    key={c.name}
+                                                    type="button"
+                                                    aria-label={c.name}
+                                                    aria-pressed={c.name === wrapColour.name}
+                                                    onClick={() => setWrapColour(c)}
+                                                    className="flex size-11 items-center justify-center rounded-full border-2"
+                                                    style={{ borderColor: c.name === wrapColour.name ? '#fff' : 'transparent' }}
+                                                >
+                                                    <span className="size-8 rounded-full border border-white/20" style={{ background: c.hex }} />
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </fieldset>
+                                    <fieldset>
+                                        <legend className="text-xs tracking-[0.25em] uppercase" style={{ color: C.muted }}>
+                                            Finish
+                                        </legend>
+                                        <div className="mt-3 flex flex-wrap gap-2">
+                                            {(['Gloss', 'Satin', 'Matte', 'Chrome'] as Finish[]).map((f) => (
+                                                <button
+                                                    key={f}
+                                                    type="button"
+                                                    aria-pressed={finish === f}
+                                                    onClick={() => setFinish(f)}
+                                                    className={chip(finish === f)}
+                                                >
+                                                    {f}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </fieldset>
+                                    <fieldset>
+                                        <legend className="text-xs tracking-[0.25em] uppercase" style={{ color: C.muted }}>
+                                            Coverage
+                                        </legend>
+                                        <div className="mt-3 flex flex-wrap gap-2">
+                                            {COVERAGE.map((c) => (
+                                                <button
+                                                    key={c.id}
+                                                    type="button"
+                                                    aria-pressed={coverage === c.id}
+                                                    onClick={() => setCoverage(c.id)}
+                                                    className={chip(coverage === c.id)}
+                                                >
+                                                    {c.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </fieldset>
+                                    <div className="flex flex-wrap items-center gap-4 border-t pt-5" style={{ borderColor: C.line }}>
+                                        <p>
+                                            <span className="text-sm" style={{ color: C.muted }}>
+                                                Estimated from
+                                            </span>
+                                            <br />
+                                            <span className="text-4xl font-semibold" style={serif}>
+                                                ${wrapPrice.toLocaleString()}
+                                            </span>
+                                        </p>
+                                        <button type="button" onClick={addWrap} className={btnLight}>
+                                            Add to quote
+                                        </button>
+                                    </div>
+                                    {finish === 'Chrome' && (
+                                        <p className="text-sm" style={{ color: C.muted }}>
+                                            Chrome films cost more and take longer to install.
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Work log */}
+                    <section id="work" className="scroll-mt-20" style={{ background: C.dark }}>
+                        <div className="mx-auto max-w-[1240px] px-5 py-20 sm:px-8">
+                            <p className={eyebrow} style={{ color: C.muted }}>
+                                Recent work
+                            </p>
+                            <h2 className="mt-3 text-5xl font-medium sm:text-6xl" style={serif}>
+                                The work log
+                            </h2>
+                            <div className="mt-8 flex flex-wrap items-center gap-3">
+                                <div role="group" aria-label="Filter by service" className="flex flex-wrap gap-2">
+                                    {JOB_SERVICES.map((s) => (
+                                        <button key={s} type="button" aria-pressed={svc === s} onClick={() => setSvc(s)} className={chip(svc === s)}>
+                                            {s}
+                                        </button>
+                                    ))}
+                                </div>
+                                <label className="relative ml-auto min-w-[220px] flex-[0_1_300px]">
+                                    <span className="sr-only">Search work</span>
+                                    <Search className="absolute top-1/2 left-4 size-4 -translate-y-1/2" style={{ color: C.muted }} />
+                                    <input
+                                        value={query}
+                                        onChange={(e) => setQuery(e.target.value)}
+                                        placeholder="Search make, model or city"
+                                        className="min-h-11 w-full rounded-full border bg-transparent pr-4 pl-11 text-sm placeholder:text-[#7d7d88]"
+                                        style={{ borderColor: C.lineStrong }}
+                                    />
+                                </label>
+                            </div>
+                            <div role="group" aria-label="Filter by vehicle type" className="mt-3 flex flex-wrap gap-2">
+                                {JOB_TYPES.map((t) => (
+                                    <button
+                                        key={t}
+                                        type="button"
+                                        aria-pressed={vtype === t}
+                                        onClick={() => setVtype(t)}
+                                        className={chip(vtype === t)}
+                                    >
+                                        {t === 'All' ? 'All vehicles' : t}
+                                    </button>
+                                ))}
+                            </div>
+                            <ul className="mt-8 border-t" style={{ borderColor: C.lineStrong }} aria-live="polite">
+                                {visible.map((j) => (
+                                    <li
+                                        key={j.car}
+                                        className="flex flex-wrap items-center gap-x-8 gap-y-3 border-b py-5"
+                                        style={{ borderColor: C.line }}
+                                    >
+                                        <div className="w-[180px] shrink-0">
+                                            <Car colour={j.colour} finish={j.finish} sheen={false} />
+                                        </div>
+                                        <div className="min-w-0 flex-[1_1_240px]">
+                                            <p className="text-2xl font-semibold" style={serif}>
+                                                {j.car}
+                                            </p>
+                                            <p style={{ color: C.muted }}>{j.detail}</p>
+                                        </div>
+                                        <p className="text-sm tracking-[0.2em] uppercase" style={{ color: C.gold }}>
+                                            {j.service}
+                                        </p>
+                                        <p className="flex w-36 items-center gap-1.5 text-sm" style={{ color: C.muted }}>
+                                            <MapPin className="size-4" /> {j.city}
+                                        </p>
                                     </li>
                                 ))}
                             </ul>
-                        </div>
-                    </section>
-
-                    {/* Results */}
-                    <section id="results" className="scroll-mt-6 border-y border-[#1C2229] bg-[#0F1216]">
-                        <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-16 gap-y-10 px-5 py-20 sm:px-10">
-                            <div className="min-w-0 flex-[1_1_400px]">
-                                <h2 className="text-4xl font-black uppercase" style={{ fontStretch: '125%' }}>
-                                    See the difference
-                                </h2>
-                                <p className="mt-4 text-[#AEB8C4]">
-                                    Paint correction removes the swirl marks and haze that automatic car washes leave behind, then a coating locks in
-                                    the gloss.
+                            {jobs.length === 0 && (
+                                <p className="py-10 text-center" style={{ color: C.muted }}>
+                                    No jobs match those filters yet.
                                 </p>
-                                <ol className="mt-8 space-y-4">
-                                    {['Book online and pick a time', 'We arrive with everything we need', 'Drive away looking brand new'].map(
-                                        (step, i) => (
-                                            <li key={step} className="flex items-center gap-4">
-                                                <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-[#29D3E0] font-bold text-[#29D3E0]">
-                                                    {i + 1}
-                                                </span>
-                                                {step}
-                                            </li>
-                                        ),
-                                    )}
-                                </ol>
-                            </div>
-                            <div className="min-w-0 flex-[999_1_480px]">
-                                <BeforeAfter />
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Booking */}
-                    <section id="book" className="mx-auto flex max-w-[1200px] scroll-mt-6 flex-wrap gap-x-16 gap-y-10 px-5 py-20 sm:px-10">
-                        <div className="min-w-0 flex-[1_1_300px]">
-                            <h2 className="text-4xl font-black uppercase sm:text-6xl" style={{ fontStretch: '125%' }}>
-                                Book your detail
-                            </h2>
-                            <p className="mt-4 text-[#AEB8C4]">Pick a package and a day. We'll text to confirm your time within the hour.</p>
-                        </div>
-                        <div className="min-w-0 flex-[999_1_480px]">
-                            {booked ? (
-                                <div role="status" className="rounded-2xl border border-[#29D3E0] bg-[#12161C] p-8">
-                                    <p className="text-2xl font-bold">Request received!</p>
-                                    <p className="mt-2 text-[#AEB8C4]">
-                                        This is a demo, so no booking was actually made. On a real site, the business would get your request by email
-                                        and text.
-                                    </p>
-                                    <button
-                                        type="button"
-                                        onClick={() => setBooked(false)}
-                                        className="mt-6 min-h-11 rounded-full border border-[#5E6B78] px-6 font-bold"
-                                    >
-                                        Back to the form
+                            )}
+                            {jobs.length > 5 && (
+                                <div className="mt-6 text-center">
+                                    <button type="button" onClick={() => setShowAll((v) => !v)} className={btnGhost}>
+                                        {showAll ? 'Show less' : `View all ${jobs.length} jobs`}
                                     </button>
                                 </div>
-                            ) : (
-                                <form onSubmit={submit} className="flex flex-col gap-5 rounded-2xl border border-[#2A323C] bg-[#0F1216] p-6 sm:p-8">
-                                    <div className="flex flex-wrap gap-5">
-                                        <label className="flex flex-[1_1_200px] flex-col gap-2 text-sm font-semibold">
-                                            Name
-                                            <input required className={field} placeholder="Jordan Lee" autoComplete="name" />
-                                        </label>
-                                        <label className="flex flex-[1_1_200px] flex-col gap-2 text-sm font-semibold">
-                                            Phone
-                                            <input required type="tel" className={field} placeholder="(214) 555-0123" autoComplete="tel" />
-                                        </label>
-                                    </div>
-                                    <div className="flex flex-wrap gap-5">
-                                        <label className="flex flex-[1_1_200px] flex-col gap-2 text-sm font-semibold">
-                                            Package
-                                            <select className={field} value={picked} onChange={(e) => setPicked(e.target.value)}>
-                                                {packages.map((p) => (
-                                                    <option key={p.id} value={p.id}>
-                                                        {p.name} — ${p.price}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </label>
-                                        <label className="flex flex-[1_1_200px] flex-col gap-2 text-sm font-semibold">
-                                            Vehicle
-                                            <select className={field} defaultValue="Sedan / coupe">
-                                                <option>Sedan / coupe</option>
-                                                <option>SUV / crossover</option>
-                                                <option>Truck / van</option>
-                                            </select>
-                                        </label>
-                                    </div>
-                                    <div className="flex flex-wrap gap-5">
-                                        <label className="flex flex-[1_1_200px] flex-col gap-2 text-sm font-semibold">
-                                            Preferred date
-                                            <input required type="date" className={`${field} [color-scheme:dark]`} />
-                                        </label>
-                                        <label className="flex flex-[1_1_200px] flex-col gap-2 text-sm font-semibold">
-                                            ZIP code
-                                            <input required inputMode="numeric" className={field} placeholder="75201" autoComplete="postal-code" />
-                                        </label>
-                                    </div>
-                                    <button
-                                        type="submit"
-                                        className="min-h-12 self-start rounded-full bg-[#29D3E0] px-8 font-bold text-[#0B0D10] hover:bg-white"
-                                    >
-                                        Request booking
-                                    </button>
-                                </form>
                             )}
+                            <p className="mt-6 text-sm" style={{ color: C.muted }}>
+                                Sample jobs for this demo. A real site would show the shop's own photos here.
+                            </p>
+                        </div>
+                    </section>
+
+                    {/* Good to know */}
+                    <section id="good-to-know" className="scroll-mt-20 border-t" style={{ borderColor: C.line, background: C.black }}>
+                        <div className="mx-auto flex max-w-[1240px] flex-wrap gap-x-16 gap-y-10 px-5 py-20 sm:px-8">
+                            <div className="min-w-0 flex-[2_1_480px]">
+                                <p className={eyebrow} style={{ color: C.muted }}>
+                                    Good to know
+                                </p>
+                                <h2 className="mt-3 text-5xl font-medium" style={serif}>
+                                    How it works
+                                </h2>
+                                <dl className="mt-8 border-t" style={{ borderColor: C.lineStrong }}>
+                                    {POLICIES.map(([k, v]) => (
+                                        <div key={k} className="flex flex-wrap gap-x-8 gap-y-1 border-b py-4" style={{ borderColor: C.line }}>
+                                            <dt className="w-32 shrink-0 text-sm tracking-[0.2em] uppercase" style={{ color: C.gold }}>
+                                                {k}
+                                            </dt>
+                                            <dd className="min-w-0 flex-1 font-light">{v}</dd>
+                                        </div>
+                                    ))}
+                                </dl>
+                            </div>
+                            <div className="min-w-0 flex-[1_1_300px]">
+                                <p className={eyebrow} style={{ color: C.muted }}>
+                                    Service area
+                                </p>
+                                <p className="mt-3 text-3xl font-medium" style={serif}>
+                                    Dallas studio, mobile across DFW
+                                </p>
+                                <p className="mt-2 font-light" style={{ color: C.muted }}>
+                                    Coatings and detailing come to you within about 30 miles of Dallas. PPF and wraps are installed in our
+                                    climate-controlled studio.
+                                </p>
+                                <ul className="mt-5 flex flex-wrap gap-2">
+                                    {CITIES.map((c) => (
+                                        <li key={c} className="rounded-full border px-3 py-1.5 text-sm" style={{ borderColor: C.lineStrong }}>
+                                            {c}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
                         </div>
                     </section>
 
                     {/* FAQ */}
-                    <section id="faq" className="mx-auto max-w-[1200px] scroll-mt-6 px-5 pb-20 sm:px-10">
-                        <h2 className="text-4xl font-black uppercase sm:text-5xl" style={{ fontStretch: '125%' }}>
-                            Questions
-                        </h2>
-                        <div className="mt-8 divide-y divide-[#2A323C] border-y border-[#2A323C]">
-                            {faqs.map(([q, a]) => (
-                                <details key={q} className="group [&_summary::-webkit-details-marker]:hidden">
-                                    <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 py-4 text-lg font-bold">
-                                        {q}
-                                        <ChevronDown className="size-5 shrink-0 text-[#29D3E0] transition-transform group-open:rotate-180" />
-                                    </summary>
-                                    <p className="pb-5 text-[#AEB8C4]">{a}</p>
-                                </details>
-                            ))}
+                    <section className="border-t" style={{ borderColor: C.line, background: C.dark }}>
+                        <div className="mx-auto max-w-[1240px] px-5 py-20 sm:px-8">
+                            <h2 className="text-5xl font-medium" style={serif}>
+                                Questions
+                            </h2>
+                            <div className="mt-6 border-t" style={{ borderColor: C.lineStrong }}>
+                                {[
+                                    [
+                                        'Ceramic or PPF — which do I need?',
+                                        'Ceramic makes paint glossy and easy to clean. PPF physically stops rock chips. Many owners put PPF on the front and ceramic over everything.',
+                                    ],
+                                    [
+                                        'Will a wrap damage my paint?',
+                                        'No. Quality wrap film protects the paint underneath and removes cleanly within its rated life.',
+                                    ],
+                                    [
+                                        'How long will I be without my car?',
+                                        'From a few hours for a detail up to 5 days for full-body PPF or a colour change.',
+                                    ],
+                                ].map(([q, a]) => (
+                                    <details
+                                        key={q}
+                                        className="group border-b [&_summary::-webkit-details-marker]:hidden"
+                                        style={{ borderColor: C.line }}
+                                    >
+                                        <summary
+                                            className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 py-4 text-xl"
+                                            style={serif}
+                                        >
+                                            {q}
+                                            <ChevronDown
+                                                className="size-5 shrink-0 transition-transform group-open:rotate-180"
+                                                style={{ color: C.gold }}
+                                            />
+                                        </summary>
+                                        <p className="pb-5 font-light" style={{ color: C.muted }}>
+                                            {a}
+                                        </p>
+                                    </details>
+                                ))}
+                            </div>
                         </div>
                     </section>
                 </main>
 
-                <footer className="border-t border-[#1C2229]">
-                    <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm text-[#AEB8C4] sm:px-10">
-                        <p>Clearcoat Detailing is a fictional business. This site is a portfolio demo.</p>
-                        <Link
-                            href="/#contact"
-                            className="inline-flex min-h-11 items-center font-bold text-white underline underline-offset-4 hover:text-[#29D3E0]"
-                        >
+                <footer className="border-t" style={{ borderColor: C.line }}>
+                    <div
+                        className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm sm:px-8"
+                        style={{ color: C.muted }}
+                    >
+                        <p>Clearcoat is a fictional business. This site is a portfolio demo.</p>
+                        <Link href="/#contact" className="inline-flex min-h-11 items-center font-semibold text-white underline underline-offset-4">
                             Want a site like this? Let's talk →
                         </Link>
                     </div>
                 </footer>
             </div>
+
+            {/* Quote drawer */}
+            <Sheet open={quoteOpen} onOpenChange={setQuoteOpen}>
+                <SheetContent
+                    side="right"
+                    className="flex w-full flex-col gap-0 overflow-y-auto border-l p-0 sm:max-w-md"
+                    style={{ background: C.dark, color: C.text, borderColor: C.line }}
+                >
+                    <div className="border-b px-6 py-5" style={{ borderColor: C.line }}>
+                        <SheetTitle className="text-3xl font-semibold text-white" style={serif}>
+                            {sent ? 'Request sent' : 'Your quote'}
+                        </SheetTitle>
+                        <SheetDescription style={{ color: C.muted }}>
+                            {sent ? 'Demo only: nothing was sent.' : 'Estimates. We confirm the price after seeing the car.'}
+                        </SheetDescription>
+                    </div>
+
+                    {sent ? (
+                        <div role="status" className="flex flex-1 flex-col gap-3 p-6">
+                            <CircleCheck className="size-12" style={{ color: C.gold }} />
+                            <p className="text-3xl" style={serif}>
+                                Thanks{vehicle ? ` — we'll look at your ${vehicle}` : ''}.
+                            </p>
+                            <p style={{ color: C.muted }}>
+                                On a real site, the shop would get this request by email and text you back within a few hours. This is a demo, so
+                                nothing was sent.
+                            </p>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setSent(false);
+                                    setQuote([]);
+                                    setQuoteOpen(false);
+                                }}
+                                className={`${btnLight} mt-4`}
+                            >
+                                Start over
+                            </button>
+                        </div>
+                    ) : quote.length === 0 ? (
+                        <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center">
+                            <ClipboardList className="size-10" style={{ color: C.muted }} />
+                            <p style={{ color: C.muted }}>Nothing in your quote yet. Add services or a wrap from the visualizer.</p>
+                            <a href="#services" onClick={() => setQuoteOpen(false)} className={btnLight}>
+                                Browse services
+                            </a>
+                        </div>
+                    ) : (
+                        <form onSubmit={submit} className="flex flex-1 flex-col">
+                            <ul className="divide-y px-6" style={{ borderColor: C.line }}>
+                                {quote.map((q) => (
+                                    <li key={q.id} className="flex items-start justify-between gap-3 py-4" style={{ borderColor: C.line }}>
+                                        <span className="min-w-0">
+                                            <span className="block">{q.label}</span>
+                                            <span className="text-sm" style={{ color: C.muted }}>
+                                                from ${Math.round(q.price * factor).toLocaleString()}
+                                            </span>
+                                        </span>
+                                        <button
+                                            type="button"
+                                            aria-label={`Remove ${q.label}`}
+                                            onClick={() => toggle(q)}
+                                            className="flex size-9 shrink-0 items-center justify-center"
+                                            style={{ color: C.muted }}
+                                        >
+                                            <Trash2 className="size-4" />
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                            <div className="space-y-4 border-t p-6" style={{ borderColor: C.line }}>
+                                <label className="flex flex-col gap-1.5 text-sm">
+                                    Vehicle size
+                                    <select
+                                        value={size}
+                                        onChange={(e) => setSize(e.target.value as Size)}
+                                        className="min-h-11 rounded-lg border bg-transparent px-3"
+                                        style={{ borderColor: C.lineStrong }}
+                                    >
+                                        {Object.keys(SIZE_FACTOR).map((s) => (
+                                            <option key={s} className="text-black">
+                                                {s}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </label>
+                                <label className="flex flex-col gap-1.5 text-sm">
+                                    Year, make and model
+                                    <input
+                                        required
+                                        value={vehicle}
+                                        onChange={(e) => setVehicle(e.target.value)}
+                                        placeholder="2022 BMW M4"
+                                        className="min-h-11 rounded-lg border bg-transparent px-3"
+                                        style={{ borderColor: C.lineStrong }}
+                                    />
+                                </label>
+                                <div className="flex flex-wrap gap-3">
+                                    <label className="flex flex-[1_1_140px] flex-col gap-1.5 text-sm">
+                                        Name
+                                        <input
+                                            required
+                                            autoComplete="name"
+                                            className="min-h-11 rounded-lg border bg-transparent px-3"
+                                            style={{ borderColor: C.lineStrong }}
+                                        />
+                                    </label>
+                                    <label className="flex flex-[1_1_140px] flex-col gap-1.5 text-sm">
+                                        Phone or email
+                                        <input
+                                            required
+                                            className="min-h-11 rounded-lg border bg-transparent px-3"
+                                            style={{ borderColor: C.lineStrong }}
+                                        />
+                                    </label>
+                                </div>
+                                <div className="flex items-end justify-between border-t pt-4" style={{ borderColor: C.line }}>
+                                    <span style={{ color: C.muted }}>Estimated total</span>
+                                    <span className="text-3xl font-semibold" style={serif}>
+                                        ${estimate.toLocaleString()}
+                                    </span>
+                                </div>
+                                <button type="submit" className={`${btnLight} w-full`}>
+                                    Send quote request
+                                </button>
+                            </div>
+                        </form>
+                    )}
+                </SheetContent>
+            </Sheet>
         </>
     );
 }

@@ -311,9 +311,9 @@ return [
     // Demo sites for fictional businesses (shown under "Demo sites" on the home page).
     'demos' => [
         [
-            'title' => 'Clearcoat Detailing',
-            'type' => 'Mobile car detailing',
-            'description' => 'A booking-focused site for a mobile detailer: package picker, before/after paint slider, and an online booking form.',
+            'title' => 'Clearcoat',
+            'type' => 'Ceramic, PPF & wraps studio',
+            'description' => 'A chrome-luxury site for a protection and wrap studio: a live wrap colour visualizer, services you add to a quote, a filterable work log and clear policies.',
             'url' => '/demos/clearcoat',
             'package' => 'Business',
         ],
