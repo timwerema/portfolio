@@ -111,7 +111,8 @@ It pulls `main`, installs, builds, migrates and rebuilds caches. Then check
 - Own domain not bought yet (GitHub Student Developer Pack may include one).
 - Demos built: Clearcoat (detailing, PPF & wraps), 4th Quarter (gym), Galacticals v3
   (club concept), LATESHIFT (streetwear store), StudyLoop (slides-to-learning),
-  Encore (concert finder), Rundown (league stats). No ideas queued.
+  Encore (concert finder), Rundown (league stats), Deskbot (AI agent: pixel robot office
+  helper, scripted). No ideas queued.
 - "Look official" pages live in code: `/start` project questionnaire
   (`ProjectRequestController`, saved as a message with `source = start`), `/privacy`,
   `/terms` (`resources/js/pages/legal.tsx`). Needs a deploy to reach the box.

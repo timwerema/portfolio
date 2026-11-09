@@ -353,6 +353,13 @@ return [
             'package' => 'Custom',
         ],
         [
+            'title' => 'Deskbot',
+            'type' => 'AI agent (task bot)',
+            'description' => 'A pixel-art office robot that chases overdue invoices, books jobs and answers easy customer emails, walking to each tool and asking before anything is sent.',
+            'url' => '/demos/deskbot',
+            'package' => 'Custom',
+        ],
+        [
             'title' => 'Galacticals SC - v3 concept',
             'type' => 'Youth soccer academy',
             'description' => 'A redesign of the club site I built: Apple/Google sign-in, a schedule hub with calendar, upcoming and payment tabs, and one-tap registration.',
