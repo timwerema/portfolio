@@ -75,7 +75,9 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                 </h1>
                                 <p className="text-ink-soft mt-7 max-w-xl text-xl">{tagline}</p>
                                 <div className="mt-9 flex flex-wrap gap-3">
-                                    <PillLink href="#contact">Start a project</PillLink>
+                                    <PillLink href="/start" internal>
+                                        Start a project
+                                    </PillLink>
                                     <PillLink href="#work" variant="outline">
                                         Watch highlights
                                     </PillLink>
@@ -229,6 +231,57 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                         </div>
                     </section>
 
+                    {/* How I work */}
+                    <section id="process" className="bg-maple-light border-navy scroll-mt-20 border-b-[3px]">
+                        <div className="mx-auto max-w-[1240px] px-5 py-20 sm:px-10 lg:px-16 lg:py-28">
+                            <SectionHeading eyebrow="How I work" title="Game plan" className="mb-4" />
+                            <p className="text-ink-soft mb-12 max-w-xl text-lg">
+                                Simple, honest and fast. You see your new homepage before you pay a thing.
+                            </p>
+                            <ol className="border-navy border-y-[3px]">
+                                {[
+                                    [
+                                        'Quick call',
+                                        '15 minutes to talk through your business, your customers and what you need the site to do.',
+                                        'Free',
+                                    ],
+                                    [
+                                        'Free demo homepage',
+                                        'Within a week you get a private link to a real demo of your homepage. Approve it or tell me what to change, right on the page.',
+                                        'Free',
+                                    ],
+                                    [
+                                        'Build & launch',
+                                        'Once you approve, I send a clear quote, take a deposit and build the full site, with check-ins along the way.',
+                                        '1–4 weeks',
+                                    ],
+                                    [
+                                        'Care & grow',
+                                        'Hosting, updates, backups and small changes on a simple monthly plan, so you never have to think about it.',
+                                        'Optional',
+                                    ],
+                                ].map(([title, text, note], i) => (
+                                    <li
+                                        key={title}
+                                        className="border-maple-line flex flex-wrap items-baseline gap-x-10 gap-y-2 border-t py-7 first:border-t-0"
+                                    >
+                                        <span aria-hidden="true" className="font-display text-royal w-16 text-5xl leading-none">
+                                            {String(i + 1).padStart(2, '0')}
+                                        </span>
+                                        <h3 className="font-display flex-[1_1_220px] text-3xl uppercase">{title}</h3>
+                                        <p className="text-ink-soft flex-[999_1_380px]">{text}</p>
+                                        <span className="font-cond text-royal text-lg font-bold tracking-[0.08em] uppercase">{note}</span>
+                                    </li>
+                                ))}
+                            </ol>
+                            <div className="mt-10">
+                                <PillLink href="/start" internal>
+                                    Start a project
+                                </PillLink>
+                            </div>
+                        </div>
+                    </section>
+
                     {/* Packages */}
                     <section id="packages" className="scroll-mt-20">
                         <div className="mx-auto max-w-[1240px] px-5 py-20 sm:px-10 lg:px-16 lg:py-28">
@@ -261,6 +314,11 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                 <strong className="font-cond text-royal text-lg tracking-[0.08em] uppercase">Training staff</strong> —{' '}
                                 {care_plan.summary} <span className="font-semibold">{care_plan.price}</span>
                             </p>
+                            <div className="mt-8 flex flex-wrap gap-3">
+                                <PillLink href="/start" internal>
+                                    Get a free demo homepage
+                                </PillLink>
+                            </div>
                         </div>
                     </section>
 

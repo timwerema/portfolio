@@ -13,6 +13,13 @@ type ContactMessage = {
     message: string;
     read_at: string | null;
     created_at: string;
+    source?: string;
+    package?: string | null;
+    budget?: string | null;
+    timeline?: string | null;
+    business?: string | null;
+    business_website?: string | null;
+    phone?: string | null;
 };
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Messages', href: '/dashboard/messages' }];
@@ -49,6 +56,7 @@ export default function Dashboard({ messages, unread }: { messages: ContactMessa
                                         <p className="flex items-center gap-2 font-medium">
                                             {!m.read_at && <span className="size-2 rounded-full bg-sky-500" aria-label="Unread" />}
                                             {m.name}
+                                            {m.source === 'start' && <Badge className="font-normal">Project request</Badge>}
                                             {m.service && (
                                                 <Badge variant="secondary" className="font-normal">
                                                     {m.service}
@@ -70,7 +78,17 @@ export default function Dashboard({ messages, unread }: { messages: ContactMessa
                                                 href={route('admin.clients.create', {
                                                     name: m.name,
                                                     email: m.email,
-                                                    notes: `${m.service ? `Interested in: ${m.service}\n` : ''}${m.message}`,
+                                                    company: m.business ?? '',
+                                                    phone: m.phone ?? '',
+                                                    notes: [
+                                                        m.service && `Interested in: ${m.service}`,
+                                                        m.budget && `Budget: ${m.budget}`,
+                                                        m.timeline && `Timeline: ${m.timeline}`,
+                                                        m.business_website && `Website: ${m.business_website}`,
+                                                        m.message,
+                                                    ]
+                                                        .filter(Boolean)
+                                                        .join('\n'),
                                                 })}
                                             >
                                                 <UserPlus className="size-4" /> Add as client
@@ -82,6 +100,29 @@ export default function Dashboard({ messages, unread }: { messages: ContactMessa
                                         </Button>
                                     </div>
                                 </div>
+                                {(m.budget || m.timeline || m.package || m.business || m.phone) && (
+                                    <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+                                        {(
+                                            [
+                                                ['Budget', m.budget],
+                                                ['Timeline', m.timeline],
+                                                ['Package', m.package],
+                                                [
+                                                    'Business',
+                                                    m.business ? `${m.business}${m.business_website ? ` (${m.business_website})` : ''}` : null,
+                                                ],
+                                                ['Phone', m.phone],
+                                            ] as const
+                                        )
+                                            .filter(([, v]) => v)
+                                            .map(([k, v]) => (
+                                                <div key={k} className="flex gap-1.5">
+                                                    <dt className="text-muted-foreground">{k}:</dt>
+                                                    <dd className="font-medium">{v}</dd>
+                                                </div>
+                                            ))}
+                                    </dl>
+                                )}
                                 <p className="mt-3 text-sm leading-relaxed whitespace-pre-line">{m.message}</p>
                             </li>
                         ))}
