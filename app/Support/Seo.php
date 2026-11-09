@@ -74,6 +74,10 @@ class Seo
                 $meta['title'] = 'StudyLoop (demo app)';
                 $meta['description'] = "A demo study app that turns notes into flashcards and quizzes, built by {$name}.";
                 break;
+            case 'demos/deskbot':
+                $meta['title'] = 'Deskbot (demo AI agent)';
+                $meta['description'] = "A demo office-helper AI agent for a fictional business, built by {$name}.";
+                break;
             case 'demos/rundown':
                 $meta['title'] = 'Rundown (demo app)';
                 $meta['description'] = "A demo stats site for a fictional basketball league, built by {$name}.";

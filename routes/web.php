@@ -84,6 +84,7 @@ Route::get('/demos/lateshift', fn () => Inertia::render('demos/lateshift'))->nam
 Route::get('/demos/studyloop', fn () => Inertia::render('demos/studyloop'))->name('demos.studyloop');
 Route::get('/demos/encore', fn () => Inertia::render('demos/encore'))->name('demos.encore');
 Route::get('/demos/rundown', fn () => Inertia::render('demos/rundown'))->name('demos.rundown');
+Route::get('/demos/deskbot', fn () => Inertia::render('demos/deskbot'))->name('demos.deskbot');
 
 Route::get('/resume', function () {
     return Inertia::render('resume', [
