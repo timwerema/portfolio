@@ -339,6 +339,13 @@ return [
             'package' => 'Custom',
         ],
         [
+            'title' => 'Encore',
+            'type' => 'Concert finder app',
+            'description' => 'Finds upcoming DFW shows by the artists you actually listen to: match scores, distance and price filters, a venue map and add-to-calendar.',
+            'url' => '/demos/encore',
+            'package' => 'Custom',
+        ],
+        [
             'title' => 'Galacticals SC - v3 concept',
             'type' => 'Youth soccer academy',
             'description' => 'A redesign of the club site I built: Apple/Google sign-in, a schedule hub with calendar, upcoming and payment tabs, and one-tap registration.',
