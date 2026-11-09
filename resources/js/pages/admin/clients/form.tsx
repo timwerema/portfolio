@@ -9,12 +9,18 @@ import { Head, useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import { type FormEvent } from 'react';
 
-export default function ClientForm({ client, prefill }: { client: Client | null; prefill: Partial<Record<'name' | 'email' | 'notes', string>> }) {
+export default function ClientForm({
+    client,
+    prefill,
+}: {
+    client: Client | null;
+    prefill: Partial<Record<'name' | 'email' | 'company' | 'phone' | 'notes', string>>;
+}) {
     const { data, setData, post, put, processing, errors } = useForm({
         name: client?.name ?? prefill.name ?? '',
-        company: client?.company ?? '',
+        company: client?.company ?? prefill.company ?? '',
         email: client?.email ?? prefill.email ?? '',
-        phone: client?.phone ?? '',
+        phone: client?.phone ?? prefill.phone ?? '',
         notes: client?.notes ?? prefill.notes ?? '',
     });
 

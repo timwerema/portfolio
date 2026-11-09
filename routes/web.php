@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\PreviewController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\ContactMessageController;
 use App\Http\Controllers\PreviewReviewController;
+use App\Http\Controllers\ProjectRequestController;
 use App\Http\Controllers\PublicInvoiceController;
 use App\Models\ContactMessage;
 use App\Support\HealthChecks;
@@ -60,7 +61,7 @@ Route::get('/robots.txt', function () {
 })->name('robots');
 
 Route::get('/sitemap.xml', function () {
-    $urls = [url('/'), route('resume')];
+    $urls = [url('/'), route('start'), route('resume'), route('privacy'), route('terms')];
     foreach (config('portfolio.services') as $service) {
         $urls[] = route('services.show', $service['slug']);
     }
@@ -90,6 +91,12 @@ Route::get('/resume', function () {
 })->name('resume');
 
 Route::post('/contact', [ContactMessageController::class, 'store'])->name('contact.store');
+
+// "Start a project" questionnaire and legal pages.
+Route::get('/start', [ProjectRequestController::class, 'create'])->name('start');
+Route::post('/start', [ProjectRequestController::class, 'store'])->name('start.store');
+Route::get('/privacy', fn () => Inertia::render('legal', ['portfolio' => config('portfolio'), 'doc' => 'privacy']))->name('privacy');
+Route::get('/terms', fn () => Inertia::render('legal', ['portfolio' => config('portfolio'), 'doc' => 'terms']))->name('terms');
 
 // Client's view of an invoice (drafts stay hidden).
 Route::get('/i/{token}', [PublicInvoiceController::class, 'show'])->where('token', '[A-Za-z0-9]{40}')->name('invoices.public');

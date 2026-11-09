@@ -24,7 +24,7 @@ class ClientController extends Controller
     {
         return Inertia::render('admin/clients/form', [
             'client' => null,
-            'prefill' => $request->only('name', 'email', 'notes'),
+            'prefill' => $request->only('name', 'email', 'company', 'phone', 'notes'),
         ]);
     }
 

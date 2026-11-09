@@ -154,12 +154,9 @@ export function SiteLayout({
                                 Resume
                             </a>
                         )}
-                        <a
-                            href={href('contact')}
-                            className="font-cond border-led border-b-2 py-2 text-lg font-bold tracking-[0.08em] text-white uppercase"
-                        >
-                            Get in the game
-                        </a>
+                        <Link href="/start" className="font-cond border-led border-b-2 py-2 text-lg font-bold tracking-[0.08em] text-white uppercase">
+                            Start a project
+                        </Link>
                     </div>
                     <button
                         type="button"
@@ -173,7 +170,7 @@ export function SiteLayout({
                 </nav>
                 {menuOpen && (
                     <div className="border-navy-line border-t px-5 pb-4 md:hidden">
-                        {[...sections, { id: 'contact', label: 'Get in the game' }].map((s) => (
+                        {sections.map((s) => (
                             <a key={s.id} href={href(s.id)} onClick={() => setMenuOpen(false)} className={`${navLink} block`}>
                                 {s.label}
                             </a>
@@ -183,6 +180,9 @@ export function SiteLayout({
                                 Resume
                             </a>
                         )}
+                        <Link href="/start" className={`${navLink} block text-white`}>
+                            Start a project →
+                        </Link>
                     </div>
                 )}
             </header>
@@ -190,11 +190,21 @@ export function SiteLayout({
             {children}
 
             <footer className="bg-navy text-silver">
-                <div className="font-cond mx-auto flex max-w-[1240px] flex-col items-center justify-between gap-2 px-5 py-6 text-base font-semibold tracking-[0.08em] uppercase sm:flex-row sm:px-10 lg:px-16">
+                <div className="font-cond mx-auto flex max-w-[1240px] flex-col items-center justify-between gap-3 px-5 py-6 text-base font-semibold tracking-[0.08em] uppercase sm:flex-row sm:px-10 lg:px-16">
                     <p>
-                        © {new Date().getFullYear()} {name}
+                        © {new Date().getFullYear()} {name} · Dallas, TX
                     </p>
-                    <p>Home court: Dallas, TX</p>
+                    <nav aria-label="Footer" className="flex flex-wrap justify-center gap-x-6 gap-y-1">
+                        <Link href="/start" className="py-2 hover:text-white">
+                            Start a project
+                        </Link>
+                        <Link href="/privacy" className="py-2 hover:text-white">
+                            Privacy
+                        </Link>
+                        <Link href="/terms" className="py-2 hover:text-white">
+                            Terms
+                        </Link>
+                    </nav>
                 </div>
             </footer>
         </div>

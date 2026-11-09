@@ -45,6 +45,15 @@ class Seo
                 $meta['title'] = ($service['title'] ?? 'Services')." · {$name}";
                 $meta['description'] = $service['description'] ?? $meta['description'];
                 break;
+            case 'start':
+                $meta['title'] = "Start a project · {$name}";
+                $meta['description'] = 'Tell me what you need in about two minutes. Every website project starts with a free demo homepage you approve before paying.';
+                break;
+            case 'legal':
+                $doc = $props['doc'] ?? 'privacy';
+                $meta['title'] = ($doc === 'terms' ? 'Terms of service' : 'Privacy policy')." · {$name}";
+                $meta['description'] = $doc === 'terms' ? 'Plain-English terms for working together.' : 'What information this site collects and how it is used.';
+                break;
             case 'resume':
                 $meta['title'] = "Resume · {$name}";
                 $meta['description'] = $p['summary'] ?? $meta['description'];
