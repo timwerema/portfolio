@@ -24,7 +24,7 @@ type FormData = {
 const STEPS = ['What you need', 'Your business', 'How to reach you'];
 
 const field =
-    'border-navy bg-maple-light text-ink placeholder:text-ink-muted focus-visible:outline-royal min-h-12 w-full rounded-md border-2 px-4 text-lg focus-visible:outline-3 focus-visible:outline-offset-1';
+    'border-rule bg-maple-light text-ink placeholder:text-ink-muted focus-visible:outline-royal min-h-12 w-full rounded-md border-2 px-4 text-lg focus-visible:outline-3 focus-visible:outline-offset-1';
 
 function Choice({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: ReactNode }) {
     return (
@@ -33,7 +33,7 @@ function Choice({ selected, onClick, children }: { selected: boolean; onClick: (
             aria-pressed={selected}
             onClick={onClick}
             className={`font-cond flex min-h-12 items-center gap-2 rounded-full border-2 px-5 text-lg font-bold tracking-[0.04em] uppercase transition-colors ${
-                selected ? 'border-navy bg-navy text-maple-light' : 'border-navy/40 text-navy hover:border-navy'
+                selected ? 'border-rule bg-navy text-on-navy' : 'border-rule/40 text-strong hover:border-rule'
             }`}
         >
             {selected && <Check className="size-4" />}
@@ -100,7 +100,7 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                             <CircleCheck className="text-royal size-14" />
                             <h1 className="font-display mt-4 text-6xl uppercase sm:text-7xl">Request received.</h1>
                             <p className="text-ink-soft mt-4 text-xl">Thanks for reaching out. Here's what happens next:</p>
-                            <ol className="border-navy mt-8 border-y-[3px]">
+                            <ol className="border-rule mt-8 border-y-[3px]">
                                 {[
                                     ['Within 1 business day', 'I reply by email with a few questions, or a time for a quick call.'],
                                     ['15-minute call', 'We talk through your goals, what you like and what success looks like.'],
@@ -142,10 +142,10 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                                     <li
                                         key={s}
                                         aria-current={step === i ? 'step' : undefined}
-                                        className={`font-cond flex items-center gap-2 text-lg font-bold tracking-[0.06em] uppercase ${i <= step ? 'text-navy' : 'text-ink-muted'}`}
+                                        className={`font-cond flex items-center gap-2 text-lg font-bold tracking-[0.06em] uppercase ${i <= step ? 'text-strong' : 'text-ink-muted'}`}
                                     >
                                         <span
-                                            className={`flex size-8 items-center justify-center rounded-full border-2 ${i < step ? 'bg-royal border-royal text-white' : i === step ? 'border-navy' : 'border-maple-line'}`}
+                                            className={`flex size-8 items-center justify-center rounded-full border-2 ${i < step ? 'bg-royal border-royal text-white' : i === step ? 'border-rule' : 'border-maple-line'}`}
                                         >
                                             {i < step ? <Check className="size-4" /> : i + 1}
                                         </span>
@@ -154,7 +154,7 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                                 ))}
                             </ol>
 
-                            <form onSubmit={submit} className="border-navy bg-maple-light relative mt-6 rounded-md border-2 p-6 sm:p-10" noValidate>
+                            <form onSubmit={submit} className="border-rule bg-maple-light relative mt-6 rounded-md border-2 p-6 sm:p-10" noValidate>
                                 {step === 0 && (
                                     <div className="space-y-8">
                                         <fieldset>
@@ -313,7 +313,7 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                                 </div>
 
                                 {(stepError || err.throttle) && (
-                                    <p role="alert" className="mt-6 font-semibold text-red-700">
+                                    <p role="alert" className="text-danger mt-6 font-semibold">
                                         {stepError || err.throttle}
                                     </p>
                                 )}
@@ -323,7 +323,7 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                                         <button
                                             type="button"
                                             onClick={() => setStep((s) => s - 1)}
-                                            className="font-cond text-navy inline-flex min-h-12 items-center gap-2 text-lg font-bold tracking-[0.06em] uppercase"
+                                            className="font-cond text-strong inline-flex min-h-12 items-center gap-2 text-lg font-bold tracking-[0.06em] uppercase"
                                         >
                                             <ArrowLeft className="size-5" /> Back
                                         </button>

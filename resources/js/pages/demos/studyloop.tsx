@@ -11,19 +11,23 @@ import { type ChangeEvent, useCallback, useEffect, useState } from 'react';
  * a production version would use an AI model to read full slide decks.
  */
 
+// Dark by default; the original light look when the visitor's device is in light mode.
 const C = {
-    bg: '#f6f7fb',
-    card: '#ffffff',
-    ink: '#16163a',
-    soft: '#55577a',
-    line: '#dfe1ee',
-    brand: '#4f46e5',
-    brandDark: '#3f37c9',
-    mint: '#0f9d76',
-    mintBg: '#e3f6ef',
-    red: '#c2410c',
-    redBg: '#fdeee6',
+    bg: 'var(--sl-bg)',
+    card: 'var(--sl-card)',
+    ink: 'var(--sl-ink)',
+    soft: 'var(--sl-soft)',
+    line: 'var(--sl-line)',
+    brand: 'var(--sl-brand)',
+    brandDark: 'var(--sl-brandDark)',
+    mint: 'var(--sl-mint)',
+    mintBg: 'var(--sl-mintBg)',
+    red: 'var(--sl-red)',
+    redBg: 'var(--sl-redBg)',
+    banner: 'var(--sl-banner)',
 };
+const THEME = `:root:has(.sl){color-scheme:dark;--sl-bg:#0d0e1a;--sl-card:#161829;--sl-ink:#ecedf8;--sl-soft:#a3a6c4;--sl-line:#2a2d48;--sl-brand:#6d65f5;--sl-brandDark:#5a52e6;--sl-mint:#34d399;--sl-mintBg:#0f2e25;--sl-red:#fb923c;--sl-redBg:#3a1d10;--sl-banner:#1c1e36}
+@media (prefers-color-scheme: light){:root:has(.sl){color-scheme:light;--sl-bg:#f6f7fb;--sl-card:#ffffff;--sl-ink:#16163a;--sl-soft:#55577a;--sl-line:#dfe1ee;--sl-brand:#4f46e5;--sl-brandDark:#3f37c9;--sl-mint:#0f9d76;--sl-mintBg:#e3f6ef;--sl-red:#c2410c;--sl-redBg:#fdeee6;--sl-banner:#16163a}}`;
 
 const SAMPLE = `# Processes
 - Process: a program in execution, with its own address space, registers and open files.
@@ -236,13 +240,14 @@ export default function StudyLoopDemo() {
             <Head title="StudyLoop (demo)">
                 <meta name="robots" content="noindex, nofollow" />
             </Head>
+            <style>{THEME}</style>
 
             <div
-                className="min-h-screen"
+                className="sl min-h-screen"
                 style={{ background: C.bg, color: C.ink, fontFamily: "'Plus Jakarta Sans Variable', system-ui, sans-serif" }}
             >
                 {/* Demo banner */}
-                <div style={{ background: C.ink, color: '#fff' }}>
+                <div style={{ background: C.banner, color: '#fff' }}>
                     <div className="mx-auto flex max-w-[1100px] flex-wrap items-center justify-between gap-x-6 gap-y-1 px-5 py-2.5 text-sm font-medium sm:px-8">
                         <p>Demo app designed &amp; built by Timasi Werema. Runs entirely in your browser.</p>
                         <Link href="/#work" className="inline-flex min-h-8 items-center gap-1 underline underline-offset-4">
@@ -370,7 +375,7 @@ export default function StudyLoopDemo() {
                                     className="flex min-h-[260px] w-full flex-col items-center justify-center rounded-3xl border-2 p-8 text-center shadow-sm transition-colors"
                                     style={{
                                         background: flipped ? C.ink : C.card,
-                                        color: flipped ? '#fff' : C.ink,
+                                        color: flipped ? C.card : C.ink,
                                         borderColor: flipped ? C.ink : C.line,
                                     }}
                                 >

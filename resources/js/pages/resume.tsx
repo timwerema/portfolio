@@ -50,8 +50,6 @@ export default function ResumePage({ portfolio, pdfAvailable }: { portfolio: Por
     return (
         <>
             <Head title={`${name} · Resume`}>
-                <link rel="preconnect" href="https://fonts.bunny.net" />
-                <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
                 <style>{`@page { size: letter; margin: 0.4in 0.5in; }`}</style>
             </Head>
 

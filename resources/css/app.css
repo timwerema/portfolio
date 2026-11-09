@@ -175,6 +175,11 @@
     --color-royal-dark: #084aa3;
     --color-silver: #c4ccd3;
     --color-led: #6cb8ff;
+    /* Semantic: thick rules and strong text on maple; cream text on navy panels. */
+    --color-rule: #0b2545;
+    --color-strong: #0b2545;
+    --color-on-navy: #fbf4e6;
+    --color-danger: #b42318;
 
     --font-display: 'Anton', 'Impact', sans-serif;
     --font-cond: 'Barlow Condensed', 'Arial Narrow', sans-serif;
@@ -182,23 +187,73 @@
     --font-led: 'Share Tech Mono', ui-monospace, monospace;
 }
 
-/* Public pages always render light, whatever the visitor's system theme.
-   Set on <html> so popovers/dropdowns (portalled to <body>) match too. */
+/* Public pages: dark ("court at night") by default; the original light maple look
+   when the visitor's device is set to light mode. Set on <html> so popovers and
+   dropdowns (portalled to <body>) match too. Printing always uses the light look. */
 html:has(.hardwood) {
-    color-scheme: light;
-    --color-background: #fbf4e6;
-    --color-foreground: #17130e;
-    --color-popover: #fbf4e6;
-    --color-popover-foreground: #17130e;
-    --color-primary: #0b5fcf;
+    color-scheme: dark;
+    --color-maple: #0b0f17;
+    --color-maple-light: #131a26;
+    --color-maple-line: #2a3548;
+    --color-ink: #eef1f6;
+    --color-ink-soft: #c5ccd8;
+    --color-ink-muted: #8f9aab;
+    --color-navy: #10284a;
+    --color-navy-deep: #0a1b33;
+    --color-navy-line: #2b4a75;
+    --color-royal: #3d8bff;
+    --color-royal-dark: #2a74e6;
+    --color-rule: #3a5683;
+    --color-strong: #e6edf7;
+    --color-danger: #ff8a80;
+    --color-background: #131a26;
+    --color-foreground: #eef1f6;
+    --color-popover: #131a26;
+    --color-popover-foreground: #eef1f6;
+    --color-primary: #3d8bff;
     --color-primary-foreground: #ffffff;
-    --color-muted: #ece0c7;
-    --color-muted-foreground: #5c4f40;
-    --color-accent: #e6d7b9;
-    --color-accent-foreground: #17130e;
-    --color-border: #0b2545;
-    --color-input: #0b2545;
-    --color-ring: #0b5fcf;
-    --color-destructive: #b42318;
-    background: #f1e4cc;
+    --color-muted: #1b2433;
+    --color-muted-foreground: #a3adbd;
+    --color-accent: #1f2a3c;
+    --color-accent-foreground: #eef1f6;
+    --color-border: #3a5683;
+    --color-input: #3a5683;
+    --color-ring: #3d8bff;
+    --color-destructive: #ff8a80;
+    background: #0b0f17;
+}
+
+@media print, (prefers-color-scheme: light) {
+    html:has(.hardwood) {
+        color-scheme: light;
+        --color-maple: #f1e4cc;
+        --color-maple-light: #fbf4e6;
+        --color-maple-line: #c9b999;
+        --color-ink: #17130e;
+        --color-ink-soft: #3d3328;
+        --color-ink-muted: #6b5d4c;
+        --color-navy: #0b2545;
+        --color-navy-deep: #071a33;
+        --color-navy-line: #26426b;
+        --color-royal: #0b5fcf;
+        --color-royal-dark: #084aa3;
+        --color-rule: #0b2545;
+        --color-strong: #0b2545;
+        --color-danger: #b42318;
+        --color-background: #fbf4e6;
+        --color-foreground: #17130e;
+        --color-popover: #fbf4e6;
+        --color-popover-foreground: #17130e;
+        --color-primary: #0b5fcf;
+        --color-primary-foreground: #ffffff;
+        --color-muted: #ece0c7;
+        --color-muted-foreground: #5c4f40;
+        --color-accent: #e6d7b9;
+        --color-accent-foreground: #17130e;
+        --color-border: #0b2545;
+        --color-input: #0b2545;
+        --color-ring: #0b5fcf;
+        --color-destructive: #b42318;
+        background: #f1e4cc;
+    }
 }

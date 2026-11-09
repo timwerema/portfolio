@@ -11,7 +11,20 @@ import { type FormEvent, useState } from 'react';
  * No real people, reviews or bookings: forms only show a demo confirmation.
  */
 
-const C = { bone: '#f4f1ea', paper: '#fbfaf6', ink: '#111111', soft: '#4a4740', line: '#d9d3c4', volt: '#d4ff3a', dark: '#161616' };
+// Dark by default; the original light look when the visitor's device is in light mode.
+const C = {
+    bone: 'var(--fq-bone)',
+    paper: 'var(--fq-paper)',
+    ink: 'var(--fq-ink)',
+    soft: 'var(--fq-soft)',
+    line: 'var(--fq-line)',
+    dark: 'var(--fq-dark)',
+    volt: '#d4ff3a',
+    onDark: '#f4f1ea',
+    night: '#111111',
+};
+const THEME = `:root:has(.fq){color-scheme:dark;--fq-bone:#0e0e0d;--fq-paper:#161615;--fq-ink:#f4f1ea;--fq-soft:#b3ada1;--fq-line:#2e2c28;--fq-dark:#1d1d1b}
+@media (prefers-color-scheme: light){:root:has(.fq){color-scheme:light;--fq-bone:#f4f1ea;--fq-paper:#fbfaf6;--fq-ink:#111111;--fq-soft:#4a4740;--fq-line:#d9d3c4;--fq-dark:#161616}}`;
 const display = { fontFamily: "'Bebas Neue', Impact, sans-serif", letterSpacing: '0.01em' };
 
 const PROGRAMS = [
@@ -124,10 +137,11 @@ export default function FourthQuarterDemo() {
             <Head title="4th Quarter Performance (demo site)">
                 <meta name="robots" content="noindex, nofollow" />
             </Head>
+            <style>{THEME}</style>
 
-            <div className="min-h-screen" style={{ background: C.bone, color: C.ink, fontFamily: "'Manrope Variable', system-ui, sans-serif" }}>
+            <div className="fq min-h-screen" style={{ background: C.bone, color: C.ink, fontFamily: "'Manrope Variable', system-ui, sans-serif" }}>
                 {/* Demo banner */}
-                <div style={{ background: C.ink, color: C.bone }}>
+                <div style={{ background: C.dark, color: C.onDark }}>
                     <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-x-6 gap-y-1 px-5 py-2.5 text-sm font-semibold sm:px-8">
                         <p>Demo site for a fictional business, designed &amp; built by Timasi Werema.</p>
                         <Link href="/#work" className="inline-flex min-h-8 items-center gap-1 underline underline-offset-4">
@@ -140,19 +154,19 @@ export default function FourthQuarterDemo() {
                 <header className="border-b" style={{ borderColor: C.line }}>
                     <nav className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-8">
                         <a href="#top" className="flex items-center gap-2 text-3xl leading-none" style={display}>
-                            <span className="rounded-md px-1.5 pt-1" style={{ background: C.volt }}>
+                            <span className="rounded-md px-1.5 pt-1" style={{ background: C.volt, color: C.night }}>
                                 4Q
                             </span>
                             4th Quarter Performance
                         </a>
                         <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm font-bold" style={{ color: C.soft }}>
-                            <a href="#programs" className="py-2 hover:text-black">
+                            <a href="#programs" className="py-2 hover:opacity-70">
                                 Programs
                             </a>
-                            <a href="#schedule" className="py-2 hover:text-black">
+                            <a href="#schedule" className="py-2 hover:opacity-70">
                                 Schedule
                             </a>
-                            <a href="#pricing" className="py-2 hover:text-black">
+                            <a href="#pricing" className="py-2 hover:opacity-70">
                                 Pricing
                             </a>
                             <a href="#book" className={pill} style={{ background: C.ink, color: C.bone }}>
@@ -174,7 +188,7 @@ export default function FourthQuarterDemo() {
                                 <br />
                                 <span
                                     className="rounded-lg [box-decoration-break:clone] px-3 [-webkit-box-decoration-break:clone]"
-                                    style={{ background: C.volt }}
+                                    style={{ background: C.volt, color: C.night }}
                                 >
                                     the 4th quarter.
                                 </span>
@@ -192,11 +206,11 @@ export default function FourthQuarterDemo() {
                             </div>
                         </div>
                         {/* Coach card */}
-                        <aside className="min-w-0 flex-[1_1_300px] rounded-2xl p-6" style={{ background: C.dark, color: C.bone }}>
+                        <aside className="min-w-0 flex-[1_1_300px] rounded-2xl p-6" style={{ background: C.dark, color: C.onDark }}>
                             <div className="flex items-center gap-4">
                                 <span
                                     className="flex size-16 shrink-0 items-center justify-center rounded-full text-3xl"
-                                    style={{ ...display, background: C.volt, color: C.ink }}
+                                    style={{ ...display, background: C.volt, color: C.night }}
                                 >
                                     DM
                                 </span>
@@ -267,7 +281,7 @@ export default function FourthQuarterDemo() {
                                                             <li key={i} className="flex items-start gap-2 font-semibold">
                                                                 <span
                                                                     className="mt-1 flex size-5 shrink-0 items-center justify-center rounded-full"
-                                                                    style={{ background: C.volt }}
+                                                                    style={{ background: C.volt, color: C.night }}
                                                                 >
                                                                     <Check className="size-3.5" />
                                                                 </span>
@@ -345,7 +359,7 @@ export default function FourthQuarterDemo() {
                                                 type="button"
                                                 onClick={() => setReserved((r) => [...r, key])}
                                                 className={`${pill} min-h-10 text-sm`}
-                                                style={{ background: C.volt, color: C.ink }}
+                                                style={{ background: C.volt, color: C.night }}
                                             >
                                                 Reserve spot
                                             </button>
@@ -369,7 +383,7 @@ export default function FourthQuarterDemo() {
                     </section>
 
                     {/* Pricing */}
-                    <section id="pricing" className="scroll-mt-6" style={{ background: C.dark, color: C.bone }}>
+                    <section id="pricing" className="scroll-mt-6" style={{ background: C.dark, color: C.onDark }}>
                         <div className="mx-auto max-w-[1200px] px-5 py-20 sm:px-8">
                             <div className="flex flex-wrap items-end justify-between gap-4">
                                 <h2 className="text-6xl sm:text-7xl" style={display}>
@@ -379,7 +393,7 @@ export default function FourthQuarterDemo() {
                                     role="radiogroup"
                                     aria-label="Billing"
                                     className="flex gap-1 rounded-full border-2 p-1"
-                                    style={{ borderColor: C.bone }}
+                                    style={{ borderColor: C.onDark }}
                                 >
                                     {[
                                         [false, 'Monthly'],
@@ -392,7 +406,7 @@ export default function FourthQuarterDemo() {
                                             aria-checked={annual === val}
                                             onClick={() => setAnnual(val as boolean)}
                                             className="min-h-10 rounded-full px-4 text-sm font-bold"
-                                            style={annual === val ? { background: C.volt, color: C.ink } : undefined}
+                                            style={annual === val ? { background: C.volt, color: C.night } : undefined}
                                         >
                                             {label as string}
                                         </button>
@@ -412,7 +426,7 @@ export default function FourthQuarterDemo() {
                                                 {p.id === 'youth' && (
                                                     <span
                                                         className="ml-3 rounded-full px-2.5 py-0.5 align-middle text-xs font-bold"
-                                                        style={{ background: C.volt, color: C.ink, fontFamily: 'inherit' }}
+                                                        style={{ background: C.volt, color: C.night, fontFamily: 'inherit' }}
                                                     >
                                                         Most popular
                                                     </span>
@@ -424,7 +438,7 @@ export default function FourthQuarterDemo() {
                                             ${price(p.price, p.unit)}
                                             <span className="text-lg opacity-70">{p.unit ?? '/mo'}</span>
                                         </p>
-                                        <a href="#book" className={pill} style={{ background: C.bone, color: C.ink }}>
+                                        <a href="#book" className={pill} style={{ background: C.onDark, color: C.night }}>
                                             Start with a free session
                                         </a>
                                     </li>
@@ -509,6 +523,7 @@ export default function FourthQuarterDemo() {
                                                     style={{
                                                         borderColor: goal === g ? C.ink : C.line,
                                                         background: goal === g ? C.volt : 'transparent',
+                                                        color: goal === g ? C.night : undefined,
                                                     }}
                                                 >
                                                     {g} <ArrowRight className="size-4" />
@@ -536,6 +551,7 @@ export default function FourthQuarterDemo() {
                                                     style={{
                                                         borderColor: slot === s ? C.ink : C.line,
                                                         background: slot === s ? C.volt : 'transparent',
+                                                        color: slot === s ? C.night : undefined,
                                                     }}
                                                 >
                                                     {s}
@@ -648,7 +664,7 @@ export default function FourthQuarterDemo() {
                     </section>
                 </main>
 
-                <footer style={{ background: C.ink, color: C.bone }}>
+                <footer style={{ background: C.dark, color: C.onDark }}>
                     <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm sm:px-8">
                         <p>4th Quarter Performance is a fictional business. This site is a portfolio demo.</p>
                         <Link href="/#contact" className="inline-flex min-h-11 items-center font-bold underline underline-offset-4">

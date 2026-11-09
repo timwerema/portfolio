@@ -17,7 +17,23 @@ import { type FormEvent, useEffect, useMemo, useState } from 'react';
  * no card or account details are collected and no order is placed.
  */
 
-const C = { paper: '#efe9df', paper2: '#f7f3ec', ink: '#141210', soft: '#5b544b', line: '#d8cfc1', ox: '#6b1e2b', oxDark: '#521620' };
+// Dark by default; the original light look when the visitor's device is in light mode.
+const C = {
+    paper: 'var(--ls-paper)',
+    paper2: 'var(--ls-paper2)',
+    ink: 'var(--ls-ink)',
+    soft: 'var(--ls-soft)',
+    line: 'var(--ls-line)',
+    oxText: 'var(--ls-ox-text)',
+    band: 'var(--ls-band)',
+    glass: 'var(--ls-glass)',
+    ox: '#6b1e2b',
+    oxDark: '#521620',
+    cream: '#efe9df',
+    night: '#141210',
+};
+const THEME = `:root:has(.ls){color-scheme:dark;--ls-paper:#12100f;--ls-paper2:#3a3530;--ls-ink:#efe9df;--ls-soft:#a89f93;--ls-line:#35302b;--ls-ox-text:#e47a8a;--ls-band:#1f1b18;--ls-glass:rgba(18,16,15,0.9)}
+@media (prefers-color-scheme: light){:root:has(.ls){color-scheme:light;--ls-paper:#efe9df;--ls-paper2:#f7f3ec;--ls-ink:#141210;--ls-soft:#5b544b;--ls-line:#d8cfc1;--ls-ox-text:#6b1e2b;--ls-band:#141210;--ls-glass:rgba(239,233,223,0.9)}}`;
 const serif = { fontFamily: "'Fraunces Variable', Georgia, serif" };
 
 type Kind = 'hoodie' | 'tee' | 'crew' | 'pants' | 'cap' | 'tote';
@@ -113,7 +129,7 @@ const oneSize = (p: Product) => p.kind === 'cap' || p.kind === 'tote';
 function Garment({ kind, colour, className = '' }: { kind: Kind; colour: string; className?: string }) {
     const shade = 'rgba(0,0,0,0.18)';
     const light = colour === '#e4dccd';
-    const mark = light ? C.ink : C.paper;
+    const mark = light ? C.night : C.cream;
     return (
         <svg viewBox="0 0 240 240" className={className} role="img" aria-label={`${kind} illustration`}>
             {kind === 'hoodie' && (
@@ -171,11 +187,11 @@ function Garment({ kind, colour, className = '' }: { kind: Kind; colour: string;
             )}
             {kind === 'tote' && (
                 <g>
-                    <path d="M88 80 Q88 30 120 30 Q152 30 152 80" fill="none" stroke={C.ink} strokeWidth="8" opacity=".75" />
+                    <path d="M88 80 Q88 30 120 30 Q152 30 152 80" fill="none" style={{ stroke: C.ink }} strokeWidth="8" opacity=".75" />
                     <rect x="52" y="76" width="136" height="146" rx="6" fill={colour} />
-                    <rect x="84" y="128" width="72" height="44" rx="5" fill="none" stroke={C.ink} strokeWidth="3" />
-                    <circle cx="104" cy="150" r="7" fill="none" stroke={C.ink} strokeWidth="3" />
-                    <circle cx="136" cy="150" r="7" fill="none" stroke={C.ink} strokeWidth="3" />
+                    <rect x="84" y="128" width="72" height="44" rx="5" fill="none" stroke={mark} strokeWidth="3" />
+                    <circle cx="104" cy="150" r="7" fill="none" stroke={mark} strokeWidth="3" />
+                    <circle cx="136" cy="150" r="7" fill="none" stroke={mark} strokeWidth="3" />
                 </g>
             )}
         </svg>
@@ -318,10 +334,11 @@ export default function LateshiftDemo() {
             <Head title="LATESHIFT (demo store)">
                 <meta name="robots" content="noindex, nofollow" />
             </Head>
+            <style>{THEME}</style>
 
-            <div className="min-h-screen" style={{ background: C.paper, color: C.ink, fontFamily: "'Space Grotesk', system-ui, sans-serif" }}>
+            <div className="ls min-h-screen" style={{ background: C.paper, color: C.ink, fontFamily: "'Space Grotesk', system-ui, sans-serif" }}>
                 {/* Demo banner */}
-                <div style={{ background: C.ox, color: C.paper }}>
+                <div style={{ background: C.ox, color: C.cream }}>
                     <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-x-6 gap-y-1 px-5 py-2.5 text-sm font-medium sm:px-8">
                         <p>Demo store for a fictional brand, designed &amp; built by Timasi Werema. Nothing here is for sale.</p>
                         <Link href="/#work" className="inline-flex min-h-8 items-center gap-1 underline underline-offset-4">
@@ -331,7 +348,7 @@ export default function LateshiftDemo() {
                 </div>
 
                 {/* Header */}
-                <header className="sticky top-0 z-30 border-b backdrop-blur" style={{ borderColor: C.line, background: 'rgba(239,233,223,0.9)' }}>
+                <header className="sticky top-0 z-30 border-b backdrop-blur" style={{ borderColor: C.line, background: C.glass }}>
                     <nav className="mx-auto flex max-w-[1240px] items-center justify-between gap-4 px-5 py-4 sm:px-8">
                         <a href="#top" className="text-3xl italic" style={serif}>
                             LATESHIFT
@@ -357,7 +374,7 @@ export default function LateshiftDemo() {
                                 {count > 0 && (
                                     <span
                                         className="flex size-5 items-center justify-center rounded-full text-xs"
-                                        style={{ background: C.ox, color: C.paper }}
+                                        style={{ background: C.ox, color: C.cream }}
                                     >
                                         {count}
                                     </span>
@@ -371,11 +388,11 @@ export default function LateshiftDemo() {
                     {/* Hero */}
                     <section className="mx-auto flex max-w-[1240px] flex-wrap items-center gap-x-12 gap-y-10 px-5 py-14 sm:px-8 lg:py-20">
                         <div className="min-w-0 flex-[999_1_480px]">
-                            <p className="text-sm font-bold tracking-[0.2em] uppercase" style={{ color: C.ox }}>
+                            <p className="text-sm font-bold tracking-[0.2em] uppercase" style={{ color: C.oxText }}>
                                 Drop 04 · "After Midnight" · Dallas, TX
                             </p>
                             <h1 className="mt-4 text-[56px] leading-[0.95] sm:text-7xl lg:text-[104px]" style={serif}>
-                                Made for the <em style={{ color: C.ox }}>late shift.</em>
+                                Made for the <em style={{ color: C.oxText }}>late shift.</em>
                             </h1>
                             <p className="mt-5 max-w-lg text-lg" style={{ color: C.soft }}>
                                 Heavyweight basics for the hours after everyone else goes home. Small runs, no restocks.
@@ -448,7 +465,7 @@ export default function LateshiftDemo() {
                     </section>
 
                     {/* Lookbook */}
-                    <section id="lookbook" className="scroll-mt-20" style={{ background: C.ink, color: C.paper }}>
+                    <section id="lookbook" className="scroll-mt-20" style={{ background: C.band, color: C.cream }}>
                         <div className="mx-auto max-w-[1240px] px-5 py-20 sm:px-8">
                             <h2 className="text-5xl sm:text-6xl" style={serif}>
                                 Lookbook
@@ -661,7 +678,7 @@ export default function LateshiftDemo() {
                                         onClick={addToBag}
                                         disabled={!size}
                                         className={`${btn} flex-1 disabled:opacity-50`}
-                                        style={{ background: C.ox, color: C.paper }}
+                                        style={{ background: C.ox, color: C.cream }}
                                     >
                                         {size ? `Add to bag · $${quick.price * qty}` : 'Choose a size'}
                                     </button>
@@ -699,7 +716,7 @@ export default function LateshiftDemo() {
 
                     {stage === 'done' ? (
                         <div className="flex flex-1 flex-col items-start gap-3 p-6" role="status">
-                            <CircleCheck className="size-12" style={{ color: C.ox }} />
+                            <CircleCheck className="size-12" style={{ color: C.oxText }} />
                             <p className="text-3xl" style={serif}>
                                 Thank you!
                             </p>
@@ -807,7 +824,7 @@ export default function LateshiftDemo() {
                                     type="button"
                                     onClick={() => setStage('checkout')}
                                     className={`${btn} mt-4 w-full`}
-                                    style={{ background: C.ox, color: C.paper }}
+                                    style={{ background: C.ox, color: C.cream }}
                                 >
                                     Checkout <ArrowRight className="size-4" />
                                 </button>
@@ -863,7 +880,7 @@ export default function LateshiftDemo() {
                                 On a real store this step hands off to a secure checkout (Shopify, Square or Stripe) with Apple Pay and Google Pay.
                             </p>
                             <div className="mt-auto flex flex-col gap-2">
-                                <button type="submit" className={btn} style={{ background: C.ox, color: C.paper }}>
+                                <button type="submit" className={btn} style={{ background: C.ox, color: C.cream }}>
                                     Place demo order · ${subtotal + shipCost}
                                 </button>
                                 <button
