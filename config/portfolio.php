@@ -346,6 +346,13 @@ return [
             'package' => 'Custom',
         ],
         [
+            'title' => 'Rundown',
+            'type' => 'League stats site',
+            'description' => 'Stats hub for a rec basketball league: scores and box scores, sortable standings and player stats, league leaders, shot charts and head-to-head compare.',
+            'url' => '/demos/rundown',
+            'package' => 'Custom',
+        ],
+        [
             'title' => 'Galacticals SC - v3 concept',
             'type' => 'Youth soccer academy',
             'description' => 'A redesign of the club site I built: Apple/Google sign-in, a schedule hub with calendar, upcoming and payment tabs, and one-tap registration.',
