@@ -1,0 +1,75 @@
+@import 'tailwindcss';
+
+/* Colors and fonts come from src/site.ts (see src/lib/theme.ts), set as CSS variables on <html>. */
+@theme inline {
+    --color-brand: var(--brand);
+    --color-accent: var(--accent);
+    --color-paper: var(--paper);
+    --color-surface: var(--surface);
+    --color-ink: var(--ink);
+    --color-muted: var(--muted);
+    --color-line: var(--line);
+    --font-display: var(--font-display);
+    --font-body: var(--font-body);
+    --radius-site: var(--radius);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+}
+
+/* "bold" style: big uppercase headings */
+html[data-style='bold'] h1,
+html[data-style='bold'] h2 {
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+}
+
+/* In the components layer so Tailwind utilities (like md:hidden) can still override them. */
+@layer components {
+    .btn {
+        display: inline-flex;
+        min-height: 48px;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border-radius: var(--radius);
+        padding: 0 1.5rem;
+        font-weight: 700;
+        transition: filter 0.15s;
+    }
+    .btn:hover {
+        filter: brightness(1.08);
+    }
+    .btn-primary {
+        background: var(--brand);
+        color: #fff;
+    }
+    .btn-outline {
+        border: 2px solid currentColor;
+    }
+}
+
+:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}

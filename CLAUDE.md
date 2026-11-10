@@ -63,6 +63,7 @@ SQLite · Vite. Fonts are bundled with `@fontsource` (no external font CDNs).
 | Health checks and alert emails | `app/Support/HealthChecks.php`, `app/Support/Alerts.php`, `GET /health` |
 | Scheduled jobs | `routes/console.php` (times are **UTC**, the box's clock) |
 | Routes | `routes/web.php` |
+| **Client website baseline** (Astro starter, one content file `src/site.ts`, 3 style presets, one-file demo build) | `client-sites/_starter/`, new client: `npm run client:new -- "Name"`, workflow in `client-sites/README.md` |
 | Tests | `tests/Feature/*` (PHPUnit) |
 
 ## Commands

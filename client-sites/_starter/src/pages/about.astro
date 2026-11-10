@@ -1,0 +1,15 @@
+---
+import About from '../components/About.astro';
+import Contact from '../components/Contact.astro';
+import PageTitle from '../components/PageTitle.astro';
+import Testimonials from '../components/Testimonials.astro';
+import Base from '../layouts/Base.astro';
+import { site } from '../site';
+---
+
+<Base title="About us" path="/about/" description={`About ${site.business.name}.`}>
+    <PageTitle title={`About ${site.business.name}`} />
+    <About />
+    <Testimonials />
+    <Contact />
+</Base>

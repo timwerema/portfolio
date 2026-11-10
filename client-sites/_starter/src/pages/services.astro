@@ -1,0 +1,17 @@
+---
+import Contact from '../components/Contact.astro';
+import Faq from '../components/Faq.astro';
+import PageTitle from '../components/PageTitle.astro';
+import Services from '../components/Services.astro';
+import Steps from '../components/Steps.astro';
+import Base from '../layouts/Base.astro';
+import { site } from '../site';
+---
+
+<Base title="Services" path="/services/" description={`Services and prices from ${site.business.name}.`}>
+    <PageTitle title="Services & prices" text="Upfront pricing. You approve the price before any work starts." />
+    <Services heading="Everything we do" />
+    <Steps />
+    <Faq />
+    <Contact />
+</Base>

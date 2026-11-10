@@ -1,0 +1,28 @@
+---
+import { site } from '../site';
+---
+
+{
+    site.work.length > 0 && (
+        <section id="work" class="bg-surface scroll-mt-20">
+            <div class="mx-auto max-w-6xl px-5 py-16">
+                <h2 class="text-3xl font-semibold sm:text-4xl">Recent work</h2>
+                <div class="mt-8 grid gap-5 md:grid-cols-[2fr_1fr] md:grid-rows-2">
+                    {site.work.slice(0, 3).map((w, i) => (
+                        <figure class={i === 0 ? 'md:row-span-2' : ''}>
+                            <img
+                                src={w.image}
+                                alt={w.title}
+                                class={`w-full rounded-[var(--radius)] object-cover ${i === 0 ? 'aspect-[4/3] md:h-[calc(100%-2.5rem)]' : 'aspect-[16/9]'}`}
+                                loading="lazy"
+                            />
+                            <figcaption class="mt-2 text-sm">
+                                <span class="font-semibold">{w.title}</span> <span class="text-muted">· {w.place}</span>
+                            </figcaption>
+                        </figure>
+                    ))}
+                </div>
+            </div>
+        </section>
+    )
+}

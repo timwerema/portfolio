@@ -1,0 +1,13 @@
+---
+import Contact from '../components/Contact.astro';
+import PageTitle from '../components/PageTitle.astro';
+import Work from '../components/Work.astro';
+import Base from '../layouts/Base.astro';
+import { site } from '../site';
+---
+
+<Base title="Our work" path="/work/" description={`Recent projects by ${site.business.name}.`}>
+    <PageTitle title="Our work" text={`Recent jobs around ${site.business.serviceArea.slice(0, 3).join(', ')}.`} />
+    <Work />
+    <Contact />
+</Base>

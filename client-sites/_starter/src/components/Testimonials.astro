@@ -1,0 +1,23 @@
+---
+import { site } from '../site';
+// Real quotes only, with permission. Hidden when the list is empty.
+---
+
+{
+    site.testimonials.length > 0 && (
+        <section class="mx-auto max-w-6xl px-5 py-16">
+            <h2 class="text-3xl font-semibold sm:text-4xl">What customers say</h2>
+            <ul class="border-line mt-8 border-t">
+                {site.testimonials.map((t) => (
+                    <li class="border-line border-b py-6">
+                        <blockquote class="text-xl">“{t.quote}”</blockquote>
+                        <p class="text-muted mt-2 text-sm">
+                            {t.name}
+                            {t.detail && <> · {t.detail}</>}
+                        </p>
+                    </li>
+                ))}
+            </ul>
+        </section>
+    )
+}
