@@ -1,0 +1,163 @@
+---
+import '@fontsource-variable/inter/wght.css';
+import '@fontsource-variable/fraunces/wght.css';
+import '@fontsource-variable/archivo/wght.css';
+import '../styles/global.css';
+
+import { DEMO, href, style, themeVars } from '../lib/theme';
+import { site } from '../site';
+
+interface Props {
+    title?: string;
+    description?: string;
+    path?: string;
+}
+
+const { title, description = site.business.description, path = '/' } = Astro.props;
+const b = site.business;
+const fullTitle = title ? `${title} | ${b.name}` : `${b.name} | ${site.business.tagline}`;
+const canonical = new URL(path, site.url).toString();
+
+// Tells Google who the business is (name, phone, hours, area). Only real details: no ratings here.
+const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: b.name,
+    description: b.description,
+    url: site.url,
+    telephone: b.phone,
+    email: b.email || undefined,
+    areaServed: b.serviceArea,
+    openingHours: b.openingHoursSchema,
+    address: {
+        '@type': 'PostalAddress',
+        streetAddress: b.address.street || undefined,
+        addressLocality: b.address.city,
+        addressRegion: b.address.region,
+        postalCode: b.address.postal || undefined,
+    },
+    sameAs: Object.values(b.social).filter(Boolean),
+};
+const initials = b.name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join('');
+---
+
+<!doctype html>
+<html lang="en" data-style={style} style={themeVars()}>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{DEMO ? `${b.name} (demo)` : fullTitle}</title>
+        <meta name="description" content={description} />
+        {DEMO ? <meta name="robots" content="noindex, nofollow" /> : <link rel="canonical" href={canonical} />}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={fullTitle} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonical} />
+        <meta name="theme-color" content={site.theme.brand} />
+        <link
+            rel="icon"
+            href={`data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='${site.theme.brand}'/><text x='32' y='42' font-family='Arial' font-weight='700' font-size='28' fill='white' text-anchor='middle'>${initials}</text></svg>`)}`}
+        />
+        <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    </head>
+    <body class="min-h-screen text-[17px] leading-relaxed antialiased">
+        <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-paper focus:p-3">Skip to content</a>
+
+        {
+            DEMO && (
+                <div class="bg-black text-sm text-white">
+                    <p class="mx-auto max-w-6xl px-5 py-2">
+                        Demo homepage for {b.name}, designed by <a class="underline" href={site.demo.link}>{site.demo.by}</a>. Not live yet: forms are not
+                        connected.
+                    </p>
+                </div>
+            )
+        }
+
+        <header id="top" class="border-line bg-paper/95 sticky top-0 z-40 border-b backdrop-blur">
+            <nav class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3" aria-label="Main">
+                <a href={href('home')} class="flex items-center gap-3 font-bold">
+                    <span class="bg-brand flex size-10 items-center justify-center rounded-[var(--radius)] text-white" aria-hidden="true">{initials}</span>
+                    <span class="font-display text-lg">{b.name}</span>
+                </a>
+                <div class="hidden items-center gap-6 md:flex">
+                    {
+                        site.nav.map((n) => (
+                            <a href={href(n.page)} class="text-muted hover:text-ink py-2 font-medium">
+                                {n.label}
+                            </a>
+                        ))
+                    }
+                    <a href={href('tel')} class="btn btn-primary">Call {b.phone}</a>
+                </div>
+                <details class="relative md:hidden">
+                    <summary class="flex min-h-11 cursor-pointer list-none items-center rounded-[var(--radius)] border border-line px-4 font-semibold">Menu</summary>
+                    <div class="border-line bg-paper absolute right-0 mt-2 flex w-56 flex-col rounded-[var(--radius)] border p-2 shadow-lg">
+                        {
+                            site.nav.map((n) => (
+                                <a href={href(n.page)} class="rounded px-3 py-3 font-medium">
+                                    {n.label}
+                                </a>
+                            ))
+                        }
+                    </div>
+                </details>
+            </nav>
+        </header>
+
+        <main id="main">
+            <slot />
+        </main>
+
+        <footer class="border-line bg-surface border-t">
+            <div class="mx-auto flex max-w-6xl flex-wrap justify-between gap-8 px-5 py-10 text-sm">
+                <div class="max-w-sm">
+                    <p class="font-display text-ink text-lg font-bold">{b.name}</p>
+                    <p class="text-muted mt-2">{b.description}</p>
+                </div>
+                <div>
+                    <p class="text-ink font-semibold">Contact</p>
+                    <p class="text-muted mt-2">
+                        <a href={href('tel')} class="hover:text-ink">{b.phone}</a>
+                        {
+                            b.email && (
+                                <>
+                                    <br />
+                                    <a href={`mailto:${b.email}`} class="hover:text-ink">
+                                        {b.email}
+                                    </a>
+                                </>
+                            )
+                        }
+                        <br />
+                        {b.address.street && <>{b.address.street}, </>}
+                        {b.address.city}, {b.address.region}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-ink font-semibold">Hours</p>
+                    <ul class="text-muted mt-2">
+                        {
+                            b.hours.map((h) => (
+                                <li>
+                                    {h.days}: {h.open} - {h.close}
+                                </li>
+                            ))
+                        }
+                    </ul>
+                </div>
+            </div>
+            <p class="text-muted border-line border-t px-5 py-4 text-center text-xs">© {new Date().getFullYear()} {b.name}. All rights reserved.</p>
+        </footer>
+
+        <!-- Tap-to-call bar on phones: the #1 action for local businesses -->
+        <a href={href('tel')} class="btn btn-primary fixed right-4 bottom-4 left-4 z-40 shadow-lg md:hidden" style="border-radius:999px">
+            Call {b.phone}
+        </a>
+        <div class="h-20 md:hidden" aria-hidden="true"></div>
+    </body>
+</html>

@@ -6,6 +6,7 @@
         "build:ssr": "vite build && vite build --ssr",
         "dev": "vite",
         "format": "prettier --write resources/",
+        "client:new": "node client-sites/new-client.mjs",
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix",
         "resume:pdf": "node scripts/resume-pdf.mjs",
