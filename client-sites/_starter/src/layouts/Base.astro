@@ -4,7 +4,7 @@ import '@fontsource-variable/fraunces/wght.css';
 import '@fontsource-variable/archivo/wght.css';
 import '../styles/global.css';
 
-import { DEMO, href, style, themeVars } from '../lib/theme';
+import { DEMO, external, href, style, themeVars } from '../lib/theme';
 import { site } from '../site';
 
 interface Props {
@@ -38,6 +38,8 @@ const jsonLd = {
     },
     sameAs: Object.values(b.social).filter(Boolean),
 };
+const book = site.booking.url ? href('book') : '';
+const ann = site.announcement;
 const initials = b.name
     .split(/\s+/)
     .slice(0, 2)
@@ -78,6 +80,22 @@ const initials = b.name
             )
         }
 
+        {
+            ann.text && (
+                <div class="bg-accent text-sm font-semibold text-black">
+                    <p class="mx-auto max-w-6xl px-5 py-2 text-center">
+                        {ann.link ? (
+                            <a href={ann.link} class="underline">
+                                {ann.text}
+                            </a>
+                        ) : (
+                            ann.text
+                        )}
+                    </p>
+                </div>
+            )
+        }
+
         <header id="top" class="border-line bg-paper/95 sticky top-0 z-40 border-b backdrop-blur">
             <nav class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3" aria-label="Main">
                 <a href={href('home')} class="flex items-center gap-3 font-bold">
@@ -92,7 +110,17 @@ const initials = b.name
                             </a>
                         ))
                     }
-                    <a href={href('tel')} class="btn btn-primary">Call {b.phone}</a>
+                    {
+                        book ? (
+                            <a href={book} {...external(book)} class="btn btn-primary">
+                                {site.booking.label}
+                            </a>
+                        ) : (
+                            <a href={href('tel')} class="btn btn-primary">
+                                Call {b.phone}
+                            </a>
+                        )
+                    }
                 </div>
                 <details class="relative md:hidden">
                     <summary class="flex min-h-11 cursor-pointer list-none items-center rounded-[var(--radius)] border border-line px-4 font-semibold">Menu</summary>
@@ -154,10 +182,17 @@ const initials = b.name
             <p class="text-muted border-line border-t px-5 py-4 text-center text-xs">© {new Date().getFullYear()} {b.name}. All rights reserved.</p>
         </footer>
 
-        <!-- Tap-to-call bar on phones: the #1 action for local businesses -->
-        <a href={href('tel')} class="btn btn-primary fixed right-4 bottom-4 left-4 z-40 shadow-lg md:hidden" style="border-radius:999px">
-            Call {b.phone}
-        </a>
+        <!-- Tap-to-call (and book) bar on phones: the #1 action for local businesses -->
+        <div class="fixed right-4 bottom-4 left-4 z-40 flex gap-2 md:hidden">
+            <a href={href('tel')} class="btn btn-primary flex-1 shadow-lg" style="border-radius:999px">Call {book ? '' : b.phone}</a>
+            {
+                book && (
+                    <a href={book} {...external(book)} class="btn bg-ink text-paper flex-1 shadow-lg" style="border-radius:999px">
+                        {site.booking.label}
+                    </a>
+                )
+            }
+        </div>
         <div class="h-20 md:hidden" aria-hidden="true"></div>
     </body>
 </html>

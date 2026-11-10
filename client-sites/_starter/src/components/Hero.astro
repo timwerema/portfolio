@@ -1,5 +1,5 @@
 ---
-import { href, style } from '../lib/theme';
+import { external, href, style } from '../lib/theme';
 import { site } from '../site';
 const h = site.hero;
 const link = (to: string) => (to === 'tel' ? href('tel') : href(to));
@@ -15,8 +15,8 @@ const link = (to: string) => (to === 'tel' ? href('tel') : href(to));
                 <h1 class="mt-3 max-w-4xl text-5xl leading-[0.95] font-black sm:text-7xl">{h.title}</h1>
                 <p class="mt-6 max-w-xl text-lg text-white/85">{h.text}</p>
                 <div class="mt-8 flex flex-wrap gap-3">
-                    <a href={link(h.primary.href)} class="btn btn-primary">{h.primary.label}</a>
-                    <a href={link(h.secondary.href)} class="btn btn-outline">{h.secondary.label}</a>
+                    <a href={link(h.primary.href)} {...external(link(h.primary.href))} class="btn btn-primary">{h.primary.label}</a>
+                    <a href={link(h.secondary.href)} {...external(link(h.secondary.href))} class="btn btn-outline">{h.secondary.label}</a>
                 </div>
             </div>
         </section>
@@ -26,8 +26,8 @@ const link = (to: string) => (to === 'tel' ? href('tel') : href(to));
             <h1 class="mt-3 text-4xl leading-tight font-bold sm:text-6xl">{h.title}</h1>
             <p class="text-muted mx-auto mt-5 max-w-2xl text-lg">{h.text}</p>
             <div class="mt-8 flex flex-wrap justify-center gap-3">
-                <a href={link(h.primary.href)} class="btn btn-primary">{h.primary.label}</a>
-                <a href={link(h.secondary.href)} class="btn btn-outline">{h.secondary.label}</a>
+                <a href={link(h.primary.href)} {...external(link(h.primary.href))} class="btn btn-primary">{h.primary.label}</a>
+                <a href={link(h.secondary.href)} {...external(link(h.secondary.href))} class="btn btn-outline">{h.secondary.label}</a>
             </div>
             <img src={h.image} alt={h.imageAlt} class="mt-14 aspect-[16/8] w-full rounded-[var(--radius)] object-cover" />
         </section>
@@ -38,8 +38,8 @@ const link = (to: string) => (to === 'tel' ? href('tel') : href(to));
                 <h1 class="mt-3 text-4xl leading-tight font-semibold sm:text-6xl">{h.title}</h1>
                 <p class="text-muted mt-5 max-w-xl text-lg">{h.text}</p>
                 <div class="mt-8 flex flex-wrap gap-3">
-                    <a href={link(h.primary.href)} class="btn btn-primary">{h.primary.label}</a>
-                    <a href={link(h.secondary.href)} class="btn btn-outline">{h.secondary.label}</a>
+                    <a href={link(h.primary.href)} {...external(link(h.primary.href))} class="btn btn-primary">{h.primary.label}</a>
+                    <a href={link(h.secondary.href)} {...external(link(h.secondary.href))} class="btn btn-outline">{h.secondary.label}</a>
                 </div>
             </div>
             <img src={h.image} alt={h.imageAlt} class="aspect-[4/3] w-full flex-1 rounded-[var(--radius)] object-cover md:max-w-[520px]" />

@@ -11,7 +11,14 @@ Built with **Astro** (plain, fast HTML pages; free to host; great for Google) an
 | Part | What you get |
 |---|---|
 | **One content file** | `src/site.ts`: business name, phone, hours, service area, services and prices, about, photos, FAQ, colors, style. Edit it and every page updates. |
-| **5 pages** (Starter package) | Home, Services, About, Our work, Contact, plus a 404 page. Remove a page from `nav` in `site.ts` to hide it. |
+| **Pages** | Home, Services, About, Our work, Contact (the Starter package's 5), plus Pricing and Menu when needed, and a 404 page. Pick which ones show in `nav` in `site.ts`. |
+| **Homepage builder** | `home` in `site.ts` lists the homepage sections in order: `hero`, `services`, `pricing`, `menu`, `steps`, `about`, `work`, `testimonials`, `faq`, `location`, `contact`. |
+| **Business types** | `--type services` (trades, cleaners, lawn care), `restaurant` (menu, location, "Reserve a table"), `studio` (salons, gyms, clinics: pricing table, "Book now"). |
+| **Booking button** | Paste a Calendly / Square Appointments / Booksy / OpenTable link in `booking.url`: a Book button appears in the header, hero and phone bar. |
+| **Pricing table** | Plans with price, features and a "Most popular" highlight (`pricing` in `site.ts`). |
+| **Menu** | Sections, prices, dotted leaders, diet tags (V, VG, GF, S) with a key, jump links (`menu` in `site.ts`). |
+| **Location** | Address, hours table, "Get directions" (opens Google Maps, no embedded map). |
+| **Announcement bar** | One line at the top for holiday hours, specials or "Now hiring" (`announcement`). |
 | **3 style presets** | `classic` (serif headings, photo beside the text), `bold` (big uppercase over a full photo), `minimal` (clean and centered). Plus `mode: 'light' \| 'dark'` and two brand colors. |
 | **Sections** | Hero, services and prices list, how it works, about, recent work photos, real testimonials (hidden when empty), FAQ, contact form. |
 | **Built for local businesses** | Tap-to-call bar on phones, hours and service area in the footer, click-to-call everywhere. |
@@ -27,7 +34,10 @@ Built with **Astro** (plain, fast HTML pages; free to host; great for Google) an
 2. **Make the folder** (on your computer, or ask Claude to do steps 2-4):
    ```bash
    npm run client:new -- "Lone Star Lawn Care" --style bold --brand "#2e7d32" --phone "(972) 555-0100"
+   npm run client:new -- "Casa Verde Tacos" --type restaurant
+   npm run client:new -- "Glow Nail Studio" --type studio --style minimal
    ```
+   The sample text is for a home-repair company: replace it all in `site.ts`.
 3. **Fill in `src/site.ts`** from their request and their current website or Google listing:
    name, services and prices, hours, area, colors from their logo. Put 3-5 of their photos
    in `public/images/` (compress to ~200 KB each, e.g. squoosh.app). Preview live with `npm run dev`.

@@ -6,9 +6,21 @@ export const DEMO = import.meta.env.PUBLIC_DEMO === '1';
 /** Link to a page. In the one-file demo every page is a section of the homepage, so links become #anchors. */
 export function href(page: string): string {
     if (page === 'tel') return `tel:${site.business.phone.replace(/[^\d+]/g, '')}`;
+    if (page === 'book') return site.booking.url || href('contact');
+    if (page === 'directions') return mapsUrl();
     if (page === 'home' || page === '') return DEMO ? '#top' : '/';
     return DEMO ? `#${page}` : `/${page}/`;
 }
+
+/** Google Maps search link for "Get directions" (no embedded map, so no tracking or extra loading). */
+export function mapsUrl(): string {
+    const b = site.business;
+    const q = site.location.mapsQuery || [b.name, b.address.street, b.address.city, b.address.region].filter(Boolean).join(', ');
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+}
+
+/** External links (booking, maps) open in a new tab. */
+export const external = (url: string) => (/^https?:/.test(url) ? { target: '_blank', rel: 'noopener' } : {});
 
 const FONTS = {
     classic: { display: "'Fraunces Variable', Georgia, serif", body: "'Inter Variable', system-ui, sans-serif" },
