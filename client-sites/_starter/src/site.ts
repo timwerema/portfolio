@@ -9,6 +9,7 @@
  */
 
 export type Style = 'classic' | 'bold' | 'minimal';
+export type Section = 'hero' | 'services' | 'pricing' | 'menu' | 'steps' | 'about' | 'work' | 'testimonials' | 'faq' | 'location' | 'contact';
 
 export const site = {
     business: {
@@ -97,7 +98,59 @@ export const site = {
     /** Contact form. Paste a form endpoint (e.g. Formspree, Web3Forms, or your own) when going live. */
     form: { action: '' },
 
-    /** Pages in the menu. Remove one to hide it everywhere (the page file can stay). */
+    /** Online booking link (Calendly, Square Appointments, Booksy, OpenTable...). Empty = no booking button. */
+    booking: { url: '', label: 'Book online' },
+
+    /** Optional bar at the very top, e.g. "Holiday hours: closed Dec 25". Empty = hidden. */
+    announcement: { text: '', link: '' },
+
+    /** Location section: "Get directions" opens Google Maps for this search (address or business name + city). */
+    location: {
+        title: 'Visit us',
+        mapsQuery: '', // empty = uses the business name + address/city above
+        note: 'Free parking out front.',
+    },
+
+    /** Price table, for plans and packages (gyms, salons, cleaners, maintenance plans...). */
+    pricing: {
+        title: 'Simple, upfront pricing',
+        text: 'No contracts. Cancel anytime.',
+        plans: [
+            { name: 'Basic', price: '$19', period: '/month', features: ['2 seasonal checkups a year', '10% off repairs'], featured: false },
+            { name: 'Plus', price: '$39', period: '/month', features: ['4 seasonal checkups a year', '15% off repairs', 'Priority scheduling'], featured: true },
+            { name: 'One-time visit', price: '$95', period: '', features: ['Single diagnostic visit', 'Upfront repair quote'], featured: false },
+        ],
+        note: 'Prices include labor for the checkup. Parts are quoted before any work.',
+    },
+
+    /** Menu, for restaurants, cafes and food trucks. Tags: V = vegetarian, VG = vegan, GF = gluten-free, S = spicy. */
+    menu: {
+        title: 'Menu',
+        note: 'Please tell us about any allergies. Prices include tax.',
+        sections: [
+            {
+                name: 'Starters',
+                items: [
+                    { name: 'Street corn', text: 'Grilled corn, lime crema, cotija, chili.', price: '$7', tags: ['V', 'GF'] },
+                    { name: 'Chips & salsa trio', text: 'House chips with roja, verde and mango salsa.', price: '$8', tags: ['VG'] },
+                ],
+            },
+            {
+                name: 'Mains',
+                items: [
+                    { name: 'Brisket tacos', text: '12-hour smoked brisket, pickled onion, salsa verde. Three per order.', price: '$15', tags: ['GF'] },
+                    { name: 'Chipotle chicken bowl', text: 'Rice, black beans, roasted peppers, chipotle chicken.', price: '$14', tags: ['S'] },
+                    { name: 'Garden bowl', text: 'Rice, black beans, grilled vegetables, avocado.', price: '$12', tags: ['VG', 'GF'] },
+                ],
+            },
+        ],
+    },
+
+    /** Homepage sections, top to bottom. Add or remove names to change the homepage (also what the demo shows). */
+    home: ['hero', 'services', 'steps', 'about', 'work', 'testimonials', 'faq', 'contact'] as Section[],
+
+    /** Pages in the menu. Remove one to hide it everywhere (the page file can stay).
+     *  Available pages: services, pricing, menu, about, work, contact. */
     nav: [
         { label: 'Services', page: 'services' },
         { label: 'About', page: 'about' },

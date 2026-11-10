@@ -1,0 +1,46 @@
+---
+import { external, href } from '../lib/theme';
+import { site } from '../site';
+const p = site.pricing;
+const cta = site.booking.url ? { to: href('book'), label: site.booking.label } : { to: href('contact'), label: 'Get started' };
+---
+
+<section id="pricing" class="scroll-mt-20">
+    <div class="mx-auto max-w-6xl px-5 py-16">
+        <h2 class="text-3xl font-semibold sm:text-4xl">{p.title}</h2>
+        {p.text && <p class="text-muted mt-3 text-lg">{p.text}</p>}
+        <ul class="border-line mt-8 border-t">
+            {
+                p.plans.map((plan) => (
+                    <li
+                        class={`border-line flex flex-wrap items-center gap-x-8 gap-y-3 border-b px-4 py-6 ${plan.featured ? 'bg-surface border-l-4' : ''}`}
+                        style={plan.featured ? 'border-left-color: var(--accent)' : undefined}
+                    >
+                        <div class="min-w-[160px] flex-1">
+                            <h3 class="text-xl font-semibold">{plan.name}</h3>
+                            {plan.featured && <p class="text-brand text-sm font-bold">Most popular</p>}
+                        </div>
+                        <p class="min-w-[120px]">
+                            <span class="font-display text-3xl font-bold">{plan.price}</span>
+                            <span class="text-muted">{plan.period}</span>
+                        </p>
+                        <ul class="text-muted flex-[2_1_280px] space-y-1">
+                            {plan.features.map((f) => (
+                                <li class="flex gap-2">
+                                    <span class="text-brand" aria-hidden="true">
+                                        ✓
+                                    </span>
+                                    {f}
+                                </li>
+                            ))}
+                        </ul>
+                        <a href={cta.to} {...external(cta.to)} class={`btn ${plan.featured ? 'btn-primary' : 'btn-outline'}`}>
+                            {cta.label}
+                        </a>
+                    </li>
+                ))
+            }
+        </ul>
+        {p.note && <p class="text-muted mt-4 text-sm">{p.note}</p>}
+    </div>
+</section>

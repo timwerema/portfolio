@@ -1,11 +1,13 @@
 ---
 import Contact from '../components/Contact.astro';
 import Faq from '../components/Faq.astro';
+import Location from '../components/Location.astro';
 import Base from '../layouts/Base.astro';
 import { site } from '../site';
 ---
 
 <Base title="Contact" path="/contact/" description={`Contact ${site.business.name} for a free quote.`}>
     <Contact />
+    <Location />
     <Faq />
 </Base>

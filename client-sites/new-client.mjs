@@ -3,6 +3,12 @@
  *
  *   npm run client:new -- "Lone Star Lawn Care"
  *   npm run client:new -- "Lone Star Lawn Care" --style bold --brand "#2e7d32" --phone "(972) 555-0100"
+ *   npm run client:new -- "Casa Verde Tacos" --type restaurant
+ *
+ * --type sets which sections and menu pages the site starts with:
+ *   services   (default) trades, cleaners, repair, lawn care: services, how it works, work photos
+ *   restaurant cafes, food trucks, restaurants: menu, location & hours, "Reserve a table"
+ *   studio     salons, gyms, studios, clinics: pricing table, services, "Book now"
  *
  * Copies client-sites/_starter to client-sites/<slug>, fills in the name (and any options given),
  * then installs packages. Next: edit client-sites/<slug>/src/site.ts and run `npm run demo` there.
@@ -21,7 +27,9 @@ const opt = (key) => {
 };
 
 if (!name) {
-    console.log('Usage: npm run client:new -- "Business Name" [--style classic|bold|minimal] [--brand "#hex"] [--phone "(214) 555-0100"] [--no-install]');
+    console.log(
+        'Usage: npm run client:new -- "Business Name" [--type services|restaurant|studio] [--style classic|bold|minimal] [--brand "#hex"] [--phone "(214) 555-0100"] [--no-install]',
+    );
     process.exit(1);
 }
 
@@ -47,6 +55,40 @@ site = site.replace(/Northline/g, esc(name));
 if (opt('style')) site = site.replace(/style: '[a-z]+' as Style/, `style: '${opt('style')}' as Style`);
 if (opt('brand')) site = site.replace(/brand: '#[0-9a-fA-F]{3,8}'/, `brand: '${opt('brand')}'`);
 if (opt('phone')) site = site.replace(/phone: '[^']*'/, `phone: '${esc(opt('phone'))}'`);
+
+const TYPES = {
+    services: null,
+    restaurant: {
+        home: ['hero', 'menu', 'about', 'work', 'testimonials', 'location', 'contact'],
+        nav: [['Menu', 'menu'], ['About', 'about'], ['Contact', 'contact']],
+        booking: 'Reserve a table',
+        primary: ['See the menu', 'menu'],
+        secondary: ['Get directions', 'directions'],
+    },
+    studio: {
+        home: ['hero', 'pricing', 'services', 'about', 'testimonials', 'faq', 'location', 'contact'],
+        nav: [['Services', 'services'], ['Pricing', 'pricing'], ['About', 'about'], ['Contact', 'contact']],
+        booking: 'Book now',
+        primary: ['Book now', 'book'],
+        secondary: ['See prices', 'pricing'],
+    },
+};
+const type = opt('type') ?? 'services';
+if (!(type in TYPES)) {
+    console.log(`Unknown --type "${type}". Use services, restaurant or studio.`);
+    process.exit(1);
+}
+const kit = TYPES[type];
+if (kit) {
+    site = site.replace(/home: \[[^\]]*\] as Section\[\]/, `home: [${kit.home.map((h) => `'${h}'`).join(', ')}] as Section[]`);
+    site = site.replace(
+        /nav: \[\n[\s\S]*?\n {4}\],/,
+        `nav: [\n${kit.nav.map(([label, page]) => `        { label: '${label}', page: '${page}' },`).join('\n')}\n    ],`,
+    );
+    site = site.replace(/booking: \{ url: '', label: '[^']*' \}/, `booking: { url: '', label: '${kit.booking}' }`);
+    site = site.replace(/primary: \{ label: '[^']*', href: '[^']*' \}/, `primary: { label: '${kit.primary[0]}', href: '${kit.primary[1]}' }`);
+    site = site.replace(/secondary: \{ label: '[^']*', href: '[^']*' \}/, `secondary: { label: '${kit.secondary[0]}', href: '${kit.secondary[1]}' }`);
+}
 writeFileSync(sitePath, site);
 
 const pkgPath = join(target, 'package.json');
@@ -54,7 +96,7 @@ const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
 pkg.name = slug;
 writeFileSync(pkgPath, JSON.stringify(pkg, null, 4) + '\n');
 
-console.log(`Created client-sites/${slug}`);
+console.log(`Created client-sites/${slug} (type: ${type})`);
 if (!args.includes('--no-install')) {
     console.log('Installing packages (about a minute)...');
     execSync('npm install --no-audit --no-fund', { cwd: target, stdio: 'inherit' });

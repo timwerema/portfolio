@@ -1,0 +1,11 @@
+---
+import Location from '../components/Location.astro';
+import Menu from '../components/Menu.astro';
+import Base from '../layouts/Base.astro';
+import { site } from '../site';
+---
+
+<Base title="Menu" path="/menu/" description={`The menu at ${site.business.name}.`}>
+    <Menu />
+    <Location />
+</Base>

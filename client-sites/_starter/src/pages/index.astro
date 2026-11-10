@@ -3,21 +3,26 @@ import About from '../components/About.astro';
 import Contact from '../components/Contact.astro';
 import Faq from '../components/Faq.astro';
 import Hero from '../components/Hero.astro';
+import Location from '../components/Location.astro';
+import Menu from '../components/Menu.astro';
+import Pricing from '../components/Pricing.astro';
 import Services from '../components/Services.astro';
 import Steps from '../components/Steps.astro';
 import Testimonials from '../components/Testimonials.astro';
 import Work from '../components/Work.astro';
 import Base from '../layouts/Base.astro';
+import { site } from '../site';
+
+// The homepage shows the sections listed in `home` in src/site.ts, in that order.
+// It doubles as the one-page demo (npm run demo), so every menu page should also be a section here.
+const SECTIONS = { hero: Hero, services: Services, pricing: Pricing, menu: Menu, steps: Steps, about: About, work: Work, testimonials: Testimonials, faq: Faq, location: Location, contact: Contact };
 ---
 
-<!-- The homepage shows every section, so it doubles as the one-page demo (npm run demo). -->
 <Base>
-    <Hero />
-    <Services />
-    <Steps />
-    <About />
-    <Work />
-    <Testimonials />
-    <Faq />
-    <Contact />
+    {
+        site.home.map((name) => {
+            const Section = SECTIONS[name];
+            return <Section />;
+        })
+    }
 </Base>
