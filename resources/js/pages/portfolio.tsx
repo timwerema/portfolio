@@ -1,13 +1,22 @@
 import ContactForm from '@/components/contact-form';
+import { CountUp, HoverPreview, Marquee, useParallax, useReveal, useScrollProgress } from '@/components/motion';
 import { PillLink, PlayDiagram, SectionHeading, SiteLayout } from '@/components/site-layout';
 import { type Portfolio } from '@/types/portfolio';
 import { Head, Link } from '@inertiajs/react';
 import { ArrowUpRight, Github, Linkedin, Mail, MapPin } from 'lucide-react';
+import { type CSSProperties, useRef, useState } from 'react';
 
-/** Faint half-court lines behind the hero. */
+const stagger = (i: number) => ({ '--d': i }) as CSSProperties;
+
+/** Screenshot of a demo for the hover preview (made by `npm run demo:previews`). */
+const previewFor = (url: string) => `/images/previews/${url.split('/').filter(Boolean).pop()}.jpg`;
+
+/** Faint half-court lines behind the hero (drift slower than the page as you scroll). */
 function CourtLines() {
+    const ref = useParallax<SVGSVGElement>(0.25);
     return (
         <svg
+            ref={ref}
             aria-hidden="true"
             viewBox="0 0 600 600"
             preserveAspectRatio="xMaxYMid slice"
@@ -20,6 +29,47 @@ function CourtLines() {
                 <circle cx="540" cy="300" r="14" />
             </g>
         </svg>
+    );
+}
+
+const STEPS = [
+    ['Quick call', '15 minutes to talk through your business, your customers and what you need the site to do.', 'Free'],
+    [
+        'Free demo homepage',
+        'Within a week you get a private link to a real demo of your homepage. Approve it or tell me what to change, right on the page.',
+        'Free',
+    ],
+    ['Build & launch', 'Once you approve, I send a clear quote, take a deposit and build the full site, with check-ins along the way.', '1–4 weeks'],
+    ['Care & grow', 'Hosting, updates, backups and small changes on a simple monthly plan, so you never have to think about it.', 'Optional'],
+];
+
+/** "Game plan" steps with a rail that fills as you scroll; each step lights up as the rail reaches it. */
+function GamePlan() {
+    const list = useRef<HTMLOListElement>(null);
+    const [p, setP] = useState(0);
+    useScrollProgress(list, setP);
+    return (
+        <ol ref={list} className="border-rule relative border-y-[3px] pl-6 sm:pl-10">
+            <span aria-hidden="true" className="bg-maple-line absolute top-0 bottom-0 left-0 w-[3px]" />
+            <span aria-hidden="true" className="bg-royal absolute top-0 left-0 w-[3px]" style={{ height: `${p * 100}%` }} />
+            {STEPS.map(([title, text, note], i) => {
+                const on = p >= i / STEPS.length;
+                return (
+                    <li
+                        key={title}
+                        className="border-maple-line flex flex-wrap items-baseline gap-x-10 gap-y-2 border-t py-7 transition-opacity duration-500 first:border-t-0"
+                        style={{ opacity: on ? 1 : 0.35 }}
+                    >
+                        <span aria-hidden="true" className="font-display text-royal w-16 text-5xl leading-none">
+                            {String(i + 1).padStart(2, '0')}
+                        </span>
+                        <h3 className="font-display flex-[1_1_220px] text-3xl uppercase">{title}</h3>
+                        <p className="text-ink-soft flex-[999_1_380px]">{text}</p>
+                        <span className="font-cond text-royal text-lg font-bold tracking-[0.08em] uppercase">{note}</span>
+                    </li>
+                );
+            })}
+        </ol>
     );
 }
 
@@ -43,6 +93,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
         projects,
         experience,
     } = portfolio;
+    useReveal();
     const school = education[0];
     const classYear = school?.period.match(/\d{4}/)?.[0]?.slice(2);
 
@@ -114,12 +165,19 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                             {stats.map((s) => (
                                 <div key={s.label} className="border-navy-line flex-[1_1_220px] border-l-2 px-6">
                                     <dt className="font-cond text-silver text-[15px] font-semibold tracking-[0.14em] uppercase">{s.label}</dt>
-                                    <dd className="font-led text-led mt-1.5 text-6xl leading-none">{s.value}</dd>
+                                    <dd className="font-led text-led mt-1.5 text-6xl leading-none">
+                                        <CountUp value={s.value} />
+                                    </dd>
                                     <dd className="text-silver mt-1.5 text-sm">{s.note}</dd>
                                 </div>
                             ))}
                         </dl>
                     </section>
+
+                    {/* Ticker */}
+                    <div className="border-rule font-display text-strong border-b-[3px] py-5 text-5xl uppercase sm:text-7xl">
+                        <Marquee items={[...services.map((s) => s.title), 'Free demo homepage', 'Dallas, TX', 'Built to win']} />
+                    </div>
 
                     {/* Work */}
                     <section id="work" className="scroll-mt-20">
@@ -129,6 +187,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                 {projects.map((p, i) => (
                                     <article
                                         key={p.title}
+                                        data-reveal
                                         className="border-maple-line flex flex-wrap items-center gap-x-10 gap-y-2 border-t py-8 first:border-t-0"
                                     >
                                         <span
@@ -179,26 +238,33 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                     <p className="text-ink-soft mt-1 mb-6 max-w-xl">
                                         Websites I built for fictional businesses, to show what your site could look like.
                                     </p>
-                                    <div className="flex flex-col gap-4">
-                                        {demos.map((d) => (
-                                            <Link
-                                                key={d.url}
-                                                href={d.url}
-                                                className="group border-rule bg-maple-light hover:bg-navy hover:text-on-navy flex flex-wrap items-center gap-x-8 gap-y-2 rounded-md border-2 px-6 py-5 transition-colors"
-                                            >
-                                                <div className="min-w-0 flex-[999_1_360px]">
-                                                    <p className="font-cond text-royal group-hover:text-led text-[15px] font-bold tracking-[0.12em] uppercase">
-                                                        {d.type} · {d.package} package
-                                                    </p>
-                                                    <h4 className="font-display text-3xl uppercase">{d.title}</h4>
-                                                    <p className="text-ink-soft group-hover:text-silver">{d.description}</p>
-                                                </div>
-                                                <span className="font-cond inline-flex items-center gap-1 text-lg font-bold tracking-[0.06em] uppercase">
-                                                    View demo <ArrowUpRight className="size-5" />
-                                                </span>
-                                            </Link>
-                                        ))}
-                                    </div>
+                                    <HoverPreview>
+                                        {(bind) => (
+                                            <div className="flex flex-col gap-4">
+                                                {demos.map((d, i) => (
+                                                    <Link
+                                                        key={d.url}
+                                                        href={d.url}
+                                                        data-reveal
+                                                        style={stagger(i % 3)}
+                                                        {...bind(previewFor(d.url))}
+                                                        className="group border-rule bg-maple-light hover:bg-navy hover:text-on-navy flex flex-wrap items-center gap-x-8 gap-y-2 rounded-md border-2 px-6 py-5 transition-colors"
+                                                    >
+                                                        <div className="min-w-0 flex-[999_1_360px]">
+                                                            <p className="font-cond text-royal group-hover:text-led text-[15px] font-bold tracking-[0.12em] uppercase">
+                                                                {d.type} · {d.package} package
+                                                            </p>
+                                                            <h4 className="font-display text-3xl uppercase">{d.title}</h4>
+                                                            <p className="text-ink-soft group-hover:text-silver">{d.description}</p>
+                                                        </div>
+                                                        <span className="font-cond inline-flex items-center gap-1 text-lg font-bold tracking-[0.06em] uppercase">
+                                                            View demo <ArrowUpRight className="size-5" />
+                                                        </span>
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </HoverPreview>
                                 </div>
                             )}
                         </div>
@@ -212,9 +278,11 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                 Four plays I run for businesses. Every one starts with your goal and ends with something you can measure.
                             </p>
                             <div className="border-navy-line border-y">
-                                {services.map((s) => (
+                                {services.map((s, i) => (
                                     <Link
                                         key={s.slug}
+                                        data-reveal
+                                        style={stagger(i)}
                                         href={route('services.show', s.slug)}
                                         className="group border-navy-line hover:bg-navy-deep/60 -mx-4 flex flex-wrap items-center gap-x-10 gap-y-4 rounded-sm border-t px-4 py-7 transition-colors first:border-t-0"
                                     >
@@ -233,52 +301,18 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
 
                     {/* How I work */}
                     <section id="process" className="bg-maple-light border-rule scroll-mt-20 border-b-[3px]">
-                        <div className="mx-auto max-w-[1240px] px-5 py-20 sm:px-10 lg:px-16 lg:py-28">
-                            <SectionHeading eyebrow="How I work" title="Game plan" className="mb-4" />
-                            <p className="text-ink-soft mb-12 max-w-xl text-lg">
-                                Simple, honest and fast. You see your new homepage before you pay a thing.
-                            </p>
-                            <ol className="border-rule border-y-[3px]">
-                                {[
-                                    [
-                                        'Quick call',
-                                        '15 minutes to talk through your business, your customers and what you need the site to do.',
-                                        'Free',
-                                    ],
-                                    [
-                                        'Free demo homepage',
-                                        'Within a week you get a private link to a real demo of your homepage. Approve it or tell me what to change, right on the page.',
-                                        'Free',
-                                    ],
-                                    [
-                                        'Build & launch',
-                                        'Once you approve, I send a clear quote, take a deposit and build the full site, with check-ins along the way.',
-                                        '1–4 weeks',
-                                    ],
-                                    [
-                                        'Care & grow',
-                                        'Hosting, updates, backups and small changes on a simple monthly plan, so you never have to think about it.',
-                                        'Optional',
-                                    ],
-                                ].map(([title, text, note], i) => (
-                                    <li
-                                        key={title}
-                                        className="border-maple-line flex flex-wrap items-baseline gap-x-10 gap-y-2 border-t py-7 first:border-t-0"
-                                    >
-                                        <span aria-hidden="true" className="font-display text-royal w-16 text-5xl leading-none">
-                                            {String(i + 1).padStart(2, '0')}
-                                        </span>
-                                        <h3 className="font-display flex-[1_1_220px] text-3xl uppercase">{title}</h3>
-                                        <p className="text-ink-soft flex-[999_1_380px]">{text}</p>
-                                        <span className="font-cond text-royal text-lg font-bold tracking-[0.08em] uppercase">{note}</span>
-                                    </li>
-                                ))}
-                            </ol>
-                            <div className="mt-10">
+                        <div className="mx-auto grid max-w-[1240px] gap-x-16 gap-y-10 px-5 py-20 sm:px-10 lg:grid-cols-[5fr_7fr] lg:px-16 lg:py-28">
+                            {/* On big screens the heading stays pinned while the steps scroll past. */}
+                            <div className="lg:sticky lg:top-28 lg:self-start">
+                                <SectionHeading eyebrow="How I work" title="Game plan" className="mb-4" />
+                                <p className="text-ink-soft mb-8 max-w-xl text-lg">
+                                    Simple, honest and fast. You see your new homepage before you pay a thing.
+                                </p>
                                 <PillLink href="/start" internal>
                                     Start a project
                                 </PillLink>
                             </div>
+                            <GamePlan />
                         </div>
                     </section>
 
@@ -290,9 +324,11 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                 Every website starts with a free demo homepage. You approve it before we go any further.
                             </p>
                             <div className="flex flex-col gap-5">
-                                {packages.map((pkg) => (
+                                {packages.map((pkg, i) => (
                                     <div
                                         key={pkg.name}
+                                        data-reveal
+                                        style={stagger(i)}
                                         className={`border-rule flex flex-wrap items-baseline gap-x-8 gap-y-2 rounded-md border-2 px-6 py-7 sm:px-8 ${
                                             pkg.featured ? 'bg-navy text-on-navy shadow-[8px_8px_0_var(--color-royal)]' : 'bg-maple-light'
                                         }`}
