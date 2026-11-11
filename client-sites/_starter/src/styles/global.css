@@ -73,3 +73,27 @@ html[data-style='bold'] h2 {
         scroll-behavior: auto;
     }
 }
+
+/* Scroll movement (site.theme.motion). `.js-motion` is only added by the script in Base.astro,
+   so everything stays visible without JavaScript or with reduced motion. */
+.js-motion [data-reveal] {
+    opacity: 0;
+    transform: translateY(26px);
+    transition:
+        opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1),
+        transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition-delay: calc(var(--d, 0) * 90ms);
+}
+.js-motion [data-reveal='mask'] {
+    opacity: 1;
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(40%);
+    transition:
+        clip-path 0.8s cubic-bezier(0.2, 0.7, 0.2, 1),
+        transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.js-motion [data-reveal][data-shown] {
+    opacity: 1;
+    transform: none;
+    clip-path: inset(-20% -5% -20% -5%);
+}

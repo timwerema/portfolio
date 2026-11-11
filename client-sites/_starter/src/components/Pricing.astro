@@ -7,12 +7,13 @@ const cta = site.booking.url ? { to: href('book'), label: site.booking.label } :
 
 <section id="pricing" class="scroll-mt-20">
     <div class="mx-auto max-w-6xl px-5 py-16">
-        <h2 class="text-3xl font-semibold sm:text-4xl">{p.title}</h2>
+        <h2 data-reveal="mask" class="text-3xl font-semibold sm:text-4xl">{p.title}</h2>
         {p.text && <p class="text-muted mt-3 text-lg">{p.text}</p>}
         <ul class="border-line mt-8 border-t">
             {
                 p.plans.map((plan) => (
                     <li
+                        data-reveal
                         class={`border-line flex flex-wrap items-center gap-x-8 gap-y-3 border-b px-4 py-6 ${plan.featured ? 'bg-surface border-l-4' : ''}`}
                         style={plan.featured ? 'border-left-color: var(--accent)' : undefined}
                     >

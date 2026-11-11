@@ -3,11 +3,11 @@ import { site } from '../site';
 ---
 
 <section id="faq" class="mx-auto max-w-3xl scroll-mt-20 px-5 py-16">
-    <h2 class="text-3xl font-semibold sm:text-4xl">Questions</h2>
+    <h2 data-reveal="mask" class="text-3xl font-semibold sm:text-4xl">Questions</h2>
     <div class="border-line mt-8 border-t">
         {
             site.faq.map((f) => (
-                <details class="group border-line border-b py-4">
+                <details data-reveal class="group border-line border-b py-4">
                     <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 text-lg font-semibold">
                         {f.q}
                         <span class="text-brand text-2xl transition-transform group-open:rotate-45" aria-hidden="true">

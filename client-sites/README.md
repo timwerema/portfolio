@@ -18,6 +18,7 @@ Built with **Astro** (plain, fast HTML pages; free to host; great for Google) an
 | **Pricing table** | Plans with price, features and a "Most popular" highlight (`pricing` in `site.ts`). |
 | **Menu** | Sections, prices, dotted leaders, diet tags (V, VG, GF, S) with a key, jump links (`menu` in `site.ts`). |
 | **Location** | Address, hours table, "Get directions" (opens Google Maps, no embedded map). |
+| **Scroll movement** | Sections fade and slide in, headings rise into view, the `bold` hero photo drifts. `motion: true` in `theme`; automatically off for visitors who ask for reduced motion. |
 | **Announcement bar** | One line at the top for holiday hours, specials or "Now hiring" (`announcement`). |
 | **3 style presets** | `classic` (serif headings, photo beside the text), `bold` (big uppercase over a full photo), `minimal` (clean and centered). Plus `mode: 'light' \| 'dark'` and two brand colors. |
 | **Sections** | Hero, services and prices list, how it works, about, recent work photos, real testimonials (hidden when empty), FAQ, contact form. |
