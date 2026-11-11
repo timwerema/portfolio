@@ -28,6 +28,16 @@ return [
         'key' => env('RESEND_KEY'),
     ],
 
+    // Encore Live (/live): Spotify login happens in the browser (PKCE), so only the public client ID is needed.
+    'spotify' => [
+        'client_id' => env('SPOTIFY_CLIENT_ID'),
+    ],
+
+    // Ticketmaster Discovery API key (free at developer.ticketmaster.com). Used server-side only.
+    'ticketmaster' => [
+        'key' => env('TICKETMASTER_KEY'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

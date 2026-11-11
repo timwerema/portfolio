@@ -82,6 +82,11 @@ class Seo
                 $meta['title'] = 'Rundown (demo app)';
                 $meta['description'] = "A demo stats site for a fictional basketball league, built by {$name}.";
                 break;
+            case 'live':
+                $meta['title'] = 'Encore Live: R&B shows near you';
+                $meta['description'] = "Connect Spotify and find upcoming R&B and soul shows near you, built by {$name}.";
+                $meta['noindex'] = true;
+                break;
             case 'demos/encore':
                 $meta['title'] = 'Encore (demo app)';
                 $meta['description'] = "A demo concert-finder app with sample data, built by {$name}.";

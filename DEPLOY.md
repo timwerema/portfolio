@@ -195,3 +195,38 @@ It installs Nginx, PHP, Composer, Node.js, a firewall, HTTPS and the
 scheduler, then builds and starts the site in `/var/www/portfolio`. It's safe
 to re-run. Without `DOMAIN`, the site is served over plain HTTP at the
 server's IP address.
+
+## Encore Live (/live): Spotify + Ticketmaster keys
+
+Both are free. You type the values into `.env` on the box yourself (never paste them in chat).
+
+**Spotify (lets people connect their account):**
+1. Go to developer.spotify.com/dashboard, log in, **Create app**.
+2. Redirect URI: `https://timasi.sterango.com/live` (for local testing also add `http://127.0.0.1:8000/live`;
+   Spotify does not accept `localhost`). Which API: **Web API**. Save.
+3. Copy the **Client ID** (not the secret: the site doesn't need it).
+4. Settings > **User Management**: add the Spotify email of everyone who should be able to connect
+   (yours first). New apps stay in "development mode", which allows up to 25 listed users.
+   Everyone else can still type artist names on the page.
+
+**Ticketmaster (finds the shows):**
+1. Register at developer.ticketmaster.com, open **My Apps**, copy the **Consumer Key**.
+
+**On the box:**
+
+```bash
+cd ~/apps/portfolio && nano .env
+```
+
+Add these two lines with your values, save (Ctrl+O, Enter, Ctrl+X):
+
+```
+SPOTIFY_CLIENT_ID=your-client-id
+TICKETMASTER_KEY=your-consumer-key
+```
+
+Then reload the settings:
+
+```bash
+php artisan config:cache
+```

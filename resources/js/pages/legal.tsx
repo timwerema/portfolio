@@ -33,6 +33,11 @@ function Privacy({ name, email }: { name: string; email: string }) {
                         <strong>Client work:</strong> comments you leave on a demo I send you, and the details on invoices I send you.
                     </li>
                     <li>
+                        <strong>Encore Live (if you connect Spotify):</strong> your listening history is read in your browser and never sent to or
+                        stored on my server. Only the artist names you pick and the location you choose are used to search for shows, and the search
+                        results are cached for a few hours.
+                    </li>
+                    <li>
                         <strong>Basic technical data:</strong> your IP address when you submit a form (to stop spam) and standard server logs.
                     </li>
                 </ul>

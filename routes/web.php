@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\PreviewController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\ContactMessageController;
+use App\Http\Controllers\LiveShowsController;
 use App\Http\Controllers\PreviewReviewController;
 use App\Http\Controllers\ProjectRequestController;
 use App\Http\Controllers\PublicInvoiceController;
@@ -83,6 +84,10 @@ Route::get('/demos/fourth-quarter', fn () => Inertia::render('demos/fourth-quart
 Route::get('/demos/lateshift', fn () => Inertia::render('demos/lateshift'))->name('demos.lateshift');
 Route::get('/demos/studyloop', fn () => Inertia::render('demos/studyloop'))->name('demos.studyloop');
 Route::get('/demos/encore', fn () => Inertia::render('demos/encore'))->name('demos.encore');
+
+// Encore Live: real R&B shows near you from your Spotify listening (Ticketmaster search runs server-side).
+Route::get('/live', [LiveShowsController::class, 'page'])->name('live');
+Route::get('/live/shows', [LiveShowsController::class, 'shows'])->middleware('throttle:20,1')->name('live.shows');
 Route::get('/demos/rundown', fn () => Inertia::render('demos/rundown'))->name('demos.rundown');
 Route::get('/demos/deskbot', fn () => Inertia::render('demos/deskbot'))->name('demos.deskbot');
 
