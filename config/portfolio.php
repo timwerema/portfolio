@@ -362,7 +362,7 @@ return [
         [
             'title' => 'Deskbot',
             'type' => 'AI agent (task bot)',
-            'description' => 'A pixel-art office robot that chases overdue invoices, books jobs and answers easy customer emails, walking to each tool and asking before anything is sent.',
+            'description' => 'A pixel-art office robot that chases invoices, books jobs and answers emails, walking to each tool. Built safe: it asks before anything goes out, follows a visible permissions table and catches scam emails that try to trick it.',
             'url' => '/demos/deskbot',
             'package' => 'Custom',
         ],
