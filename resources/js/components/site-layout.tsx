@@ -10,6 +10,23 @@ const sections = [
     { id: 'about', label: 'About' },
 ];
 
+/** The "Ball seams" logo: a basketball drawn in seams with a royal name plate. Seams use the current text colour. */
+const TW_PATH =
+    'M44.98 73V49.39H41.51V43.78H54.29V49.39H50.82V73ZM58.21 73 55.07 43.78H60.78L62.39 62.23L64.03 43.78H69.48L71.04 62.23L72.6 43.78H78.38L75.19 73H68.18L66.72 58.94L65.33 73Z';
+export function BallMark({ className = '' }: { className?: string }) {
+    return (
+        <svg viewBox="0 0 120 120" className={className} aria-hidden="true">
+            <g fill="none" stroke="currentColor">
+                <circle cx="60" cy="60" r="54" strokeWidth="7" />
+                <path d="M60 6 V114 M6 60 H114" strokeWidth="5" />
+                <path d="M22 22 Q46 60 22 98 M98 22 Q74 60 98 98" strokeWidth="5" />
+            </g>
+            <rect x="29" y="40" width="62" height="40" rx="6" style={{ fill: 'var(--color-royal)' }} />
+            <path d={TW_PATH} fill="#fff" />
+        </svg>
+    );
+}
+
 /** Big condensed section title with a small label above it. `tone` = background it sits on. */
 export function SectionHeading({
     eyebrow,
@@ -130,7 +147,7 @@ export function SiteLayout({
 
     const brand = (
         <>
-            <span className="bg-royal font-display flex size-11 items-center justify-center rounded-full text-lg text-white">TW</span>
+            <BallMark className="size-11 text-white" />
             <span className="font-cond text-xl font-bold tracking-[0.06em] uppercase">{name}</span>
         </>
     );
