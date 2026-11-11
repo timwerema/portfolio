@@ -14,6 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // The site sits behind a reverse proxy that handles HTTPS (see DEPLOY.md): trust its
+        // X-Forwarded-* headers so Laravel knows visitors are on https and builds https links.
+        $middleware->trustProxies(at: '*');
         $middleware->web(append: [
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
