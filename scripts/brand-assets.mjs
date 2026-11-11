@@ -16,6 +16,9 @@ try {
 }
 
 const root = process.cwd();
+// The "Ball seams" logo (public/logo-mark.svg) is the source for every icon and the preview card.
+const mark = readFileSync(path.join(root, 'public/logo-mark.svg'), 'utf8');
+const markUri = 'data:image/svg+xml;base64,' + Buffer.from(mark).toString('base64');
 // Fonts are inlined as data URIs: pages created with setContent() can't load file:// fonts.
 const font = (pkg, file) => `data:font/woff2;base64,${readFileSync(path.join(root, 'node_modules/@fontsource', pkg, 'files', file)).toString('base64')}`;
 
@@ -37,7 +40,7 @@ body { width: 1200px; height: 630px; background: #f1e4cc; color: #17130e; font-f
 .court { position: absolute; right: -160px; top: -10px; width: 760px; height: 650px; opacity: .45; }
 .wrap { position: absolute; inset: 0; padding: 64px 72px; display: flex; flex-direction: column; }
 .brand { display: flex; align-items: center; gap: 16px; }
-.dot { width: 64px; height: 64px; border-radius: 50%; background: #0b5fcf; color: #fff; font: 30px Anton; display: flex; align-items: center; justify-content: center; }
+.dot { width: 72px; height: 72px; background: url(${markUri}) center/contain no-repeat; }
 .name { font: 700 30px 'Barlow Condensed'; letter-spacing: .06em; text-transform: uppercase; }
 h1 { margin-top: 44px; font: 108px/0.92 Anton; text-transform: uppercase; }
 h1 span { color: #0b5fcf; }
@@ -48,16 +51,16 @@ h1 span { color: #0b5fcf; }
 </style></head><body>
 <svg class="court" viewBox="0 0 600 600"><g fill="none" stroke="#0b2545" stroke-width="3"><rect x="200" y="160" width="400" height="280"/><circle cx="200" cy="300" r="90"/><path d="M 600 40 L 520 40 A 260 260 0 0 0 520 560 L 600 560"/><circle cx="540" cy="300" r="14"/></g></svg>
 <div class="wrap">
-  <div class="brand"><div class="dot">TW</div><div class="name">${esc(p.name)} · ${esc(p.role)}</div></div>
+  <div class="brand"><div class="dot"></div><div class="name">${esc(p.name)} · ${esc(p.role)}</div></div>
   <h1>Built to win your<br><span>next customer.</span></h1>
   <p class="tag">Custom websites &amp; software for businesses · Dallas, TX</p>
 </div>
 <div class="bar">${(p.stats || []).slice(0, 3).map((s) => `<div class="stat"><b>${esc(s.value)}</b>${esc(s.label)}</div>`).join('')}</div>
 </body></html>`;
 
-const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#0b5fcf"/><text x="32" y="43" text-anchor="middle" font-family="Anton, Impact, sans-serif" font-size="30" fill="#fff">TW</text></svg>`;
-const icon = (size) => `<!doctype html><html><head><meta charset="utf-8"><style>${css} body{width:${size}px;height:${size}px;background:transparent}
-.i{width:${size}px;height:${size}px;border-radius:${size >= 180 ? 0 : '50%'};background:${size >= 180 ? '#0b2545' : '#0b5fcf'};color:#fff;font:${Math.round(size * 0.47)}px Anton;display:flex;align-items:center;justify-content:center}</style></head><body><div class="i">TW</div></body></html>`;
+// Apple touch icon: square navy tile with the mark; small icons: the round mark itself.
+const icon = (size) => `<!doctype html><html><head><meta charset="utf-8"><style>* { margin: 0 } body{width:${size}px;height:${size}px;background:${size >= 180 ? '#0b2545' : 'transparent'};display:flex;align-items:center;justify-content:center}
+img{width:${size >= 180 ? Math.round(size * 0.82) : size}px;height:auto}</style></head><body><img src="${markUri}"></body></html>`;
 
 const browser = await playwright.chromium.launch();
 const shoot = async (html, w, h, out, transparent = false) => {
@@ -74,7 +77,7 @@ await shoot(icon(32), 32, 32, 'public/favicon-32.png', true);
 await shoot(icon(16), 16, 16, 'public/favicon-16.png', true);
 await browser.close();
 
-writeFileSync('public/favicon.svg', iconSvg);
+writeFileSync('public/favicon.svg', mark);
 try {
     execSync('convert public/favicon-16.png public/favicon-32.png public/favicon.ico');
 } catch {
