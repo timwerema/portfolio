@@ -48,7 +48,7 @@ const initials = b.name
 ---
 
 <!doctype html>
-<html lang="en" data-style={style} style={themeVars()}>
+<html lang="en" data-style={style} data-motion={site.theme.motion ? 'on' : 'off'} style={themeVars()}>
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -194,5 +194,34 @@ const initials = b.name
             }
         </div>
         <div class="h-20 md:hidden" aria-hidden="true"></div>
+        <!-- Scroll movement: only when switched on in site.ts and the visitor hasn't asked for reduced motion -->
+        <script is:inline>
+            (function () {
+                var root = document.documentElement;
+                if (root.dataset.motion !== 'on' || !('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+                var els = Array.prototype.slice.call(document.querySelectorAll('[data-reveal]'));
+                els.forEach(function (el) {
+                    // Stagger items in the same list; anything already on screen shows at once (no flash).
+                    var sibs = Array.prototype.filter.call(el.parentElement.children, function (c) { return c.hasAttribute('data-reveal'); });
+                    el.style.setProperty('--d', String(sibs.indexOf(el) % 4));
+                    if (el.getBoundingClientRect().top < innerHeight * 0.95) el.setAttribute('data-shown', '');
+                });
+                root.classList.add('js-motion');
+                var io = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (e) {
+                        if (e.isIntersecting) { e.target.setAttribute('data-shown', ''); io.unobserve(e.target); }
+                    });
+                }, { rootMargin: '0px 0px -8% 0px' });
+                els.forEach(function (el) { if (!el.hasAttribute('data-shown')) io.observe(el); });
+                var drift = document.querySelectorAll('[data-parallax]'), frame = 0;
+                if (drift.length) addEventListener('scroll', function () {
+                    if (frame) return;
+                    frame = requestAnimationFrame(function () {
+                        frame = 0;
+                        drift.forEach(function (el) { el.style.transform = 'translate3d(0,' + scrollY * 0.3 + 'px,0) scale(1.1)'; });
+                    });
+                }, { passive: true });
+            })();
+        </script>
     </body>
 </html>

@@ -36,6 +36,7 @@ export const site = {
         mode: 'light' as 'light' | 'dark',
         brand: '#1f5f8b', // main color: buttons, links
         accent: '#f2a541', // highlights
+        motion: true, // gentle scroll movement (sections fade/slide in, hero photo drifts). Off for visitors who ask for reduced motion.
     },
 
     /** Website address once live (used for SEO and the sitemap). */

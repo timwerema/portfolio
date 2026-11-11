@@ -5,9 +5,9 @@ const a = site.about;
 
 <section id="about" class="scroll-mt-20">
     <div class="mx-auto flex max-w-6xl flex-col gap-10 px-5 py-16 md:flex-row md:items-center">
-        <img src={a.image} alt={a.imageAlt} class="aspect-[4/3] w-full rounded-[var(--radius)] object-cover md:max-w-[460px]" />
+        <img data-reveal src={a.image} alt={a.imageAlt} class="aspect-[4/3] w-full rounded-[var(--radius)] object-cover md:max-w-[460px]" />
         <div class="flex-1">
-            <h2 class="text-3xl font-semibold sm:text-4xl">{a.title}</h2>
+            <h2 data-reveal="mask" class="text-3xl font-semibold sm:text-4xl">{a.title}</h2>
             {a.text.map((p) => <p class="text-muted mt-4 text-lg">{p}</p>)}
             <ul class="mt-6 flex flex-wrap gap-x-6 gap-y-2 font-semibold">
                 {

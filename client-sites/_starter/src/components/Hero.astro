@@ -8,7 +8,7 @@ const link = (to: string) => (to === 'tel' ? href('tel') : href(to));
 {
     style === 'bold' ? (
         <section class="relative isolate overflow-hidden">
-            <img src={h.image} alt={h.imageAlt} class="absolute inset-0 -z-10 size-full object-cover" />
+            <img data-parallax src={h.image} alt={h.imageAlt} class="absolute inset-0 -z-10 size-full scale-110 object-cover" />
             <div class="absolute inset-0 -z-10 bg-black/60" />
             <div class="mx-auto max-w-6xl px-5 py-24 text-white sm:py-36">
                 <p class="text-accent font-bold tracking-wider uppercase">{h.eyebrow}</p>

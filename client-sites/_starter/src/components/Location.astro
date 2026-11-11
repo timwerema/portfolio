@@ -9,7 +9,7 @@ const directions = href('directions');
 <section id="location" class="border-line scroll-mt-20 border-t">
     <div class="mx-auto flex max-w-6xl flex-wrap gap-x-16 gap-y-8 px-5 py-16">
         <div class="min-w-0 flex-[1_1_280px]">
-            <h2 class="text-3xl font-semibold sm:text-4xl">{l.title}</h2>
+            <h2 data-reveal="mask" class="text-3xl font-semibold sm:text-4xl">{l.title}</h2>
             <p class="mt-4 text-lg">
                 {b.address.street && <>{b.address.street}<br /></>}
                 {b.address.city}, {b.address.region} {b.address.postal}
@@ -22,7 +22,7 @@ const directions = href('directions');
         </div>
         <div class="min-w-0 flex-[1_1_280px]">
             <h3 class="text-xl font-semibold">Hours</h3>
-            <table class="mt-3 w-full max-w-sm">
+            <table data-reveal class="mt-3 w-full max-w-sm">
                 <tbody>
                     {
                         b.hours.map((h) => (
