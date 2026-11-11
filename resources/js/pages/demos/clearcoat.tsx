@@ -238,12 +238,104 @@ function Car({
     );
 }
 
-const bodyFor = (type: string): Body => (type === 'SUV' ? 'suv' : type === 'Truck' ? 'truck' : 'coupe');
+// ---------------------------------------------------------------- photos (Wikimedia Commons, free licences; credited in the footer)
+const PHOTO = (name: string) => `/images/demos/clearcoat/${name}.webp`;
+const PHOTO_CREDITS = [
+    {
+        file: 'model-y',
+        title: 'Tesla Model Y 1X7A6211',
+        artist: 'Alexander Migl',
+        license: 'CC BY-SA 4.0',
+        licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
+        page: 'https://commons.wikimedia.org/wiki/File:Tesla_Model_Y_1X7A6211.jpg',
+    },
+    {
+        file: 'm4',
+        title: '2024 BMW M4 (G82) Competition IMG 9367',
+        artist: 'Alexander-93',
+        license: 'CC BY-SA 4.0',
+        licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
+        page: 'https://commons.wikimedia.org/wiki/File:2024_BMW_M4_(G82)_Competition_IMG_9367.jpg',
+    },
+    {
+        file: 'f150',
+        title: '2021 Ford F-150 Raptor',
+        artist: 'HJUdall',
+        license: 'CC BY-SA 4.0',
+        licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
+        page: 'https://commons.wikimedia.org/wiki/File:2021_Ford_F-150_Raptor.jpg',
+    },
+    {
+        file: '911',
+        title: 'Porsche 992 GT3 with touring package 1X7A1548',
+        artist: 'Alexander-93',
+        license: 'CC BY-SA 4.0',
+        licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
+        page: 'https://commons.wikimedia.org/wiki/File:Porsche_992_GT3_with_touring_package_1X7A1548.jpg',
+    },
+    {
+        file: 'accord',
+        title: '2023 Honda Accord front view',
+        artist: 'deathpallie325',
+        license: 'CC BY-SA 4.0',
+        licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
+        page: 'https://commons.wikimedia.org/wiki/File:2023_Honda_Accord_front_view.jpg',
+    },
+    {
+        file: 'challenger',
+        title: 'Dodge Challenger SRT8 (2011)-20180909-RM-171447',
+        artist: 'Ermell',
+        license: 'CC BY-SA 4.0',
+        licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
+        page: 'https://commons.wikimedia.org/wiki/File:Dodge_Challenger_SRT8_(2011)-20180909-RM-171447.jpg',
+    },
+    {
+        file: 'rrsport',
+        title: 'LAND ROVER RANGE ROVER SPORT (L494) China (10)',
+        artist: 'Dinkun Chen',
+        license: 'CC BY-SA 4.0',
+        licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
+        page: 'https://commons.wikimedia.org/wiki/File:LAND_ROVER_RANGE_ROVER_SPORT_(L494)_China_(10).jpg',
+    },
+    {
+        file: 'tacoma',
+        title: 'BakFlip G2 Toyota Tacoma TRD 4X4',
+        artist: 'Esskay840',
+        license: 'CC BY-SA 4.0',
+        licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
+        page: 'https://commons.wikimedia.org/wiki/File:BakFlip_G2_Toyota_Tacoma_TRD_4X4.jpg',
+    },
+    {
+        file: 'c63',
+        title: 'AMG C63 Rear',
+        artist: 'MrWalkr',
+        license: 'CC BY-SA 4.0',
+        licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
+        page: 'https://commons.wikimedia.org/wiki/File:AMG_C63_Rear.jpg',
+    },
+    {
+        file: 'corvette',
+        title: 'Chevrolet Corvette C8 Bahrain 2021',
+        artist: 'Mohammed Hamad',
+        license: 'CC BY-SA 4.0',
+        licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
+        page: 'https://commons.wikimedia.org/wiki/File:Chevrolet_Corvette_C8_Bahrain_2021.jpg',
+    },
+    {
+        file: 'hero',
+        title: 'BMW M4 in der BMW Welt',
+        artist: 'Strubbl',
+        license: 'CC0',
+        licenseUrl: 'http://creativecommons.org/publicdomain/zero/1.0/deed.en',
+        page: 'https://commons.wikimedia.org/wiki/File:BMW_M4_in_der_BMW_Welt.jpg',
+    },
+];
 
 // ---------------------------------------------------------------- work log (sample jobs, fictional)
 const JOBS = [
     {
         car: '2023 Tesla Model Y',
+        photo: 'model-y',
         type: 'SUV',
         service: 'PPF',
         detail: 'Front-end PPF + ceramic on wheels',
@@ -252,7 +344,8 @@ const JOBS = [
         city: 'Frisco',
     },
     {
-        car: '2021 BMW M4',
+        car: '2024 BMW M4',
+        photo: 'm4',
         type: 'Exotic',
         service: 'Wrap',
         detail: 'Full wrap, Satin Nardo Grey',
@@ -261,7 +354,8 @@ const JOBS = [
         city: 'Dallas',
     },
     {
-        car: '2022 Ford F-150',
+        car: '2021 Ford F-150 Raptor',
+        photo: 'f150',
         type: 'Truck',
         service: 'Ceramic',
         detail: '5-year ceramic + paint correction',
@@ -270,7 +364,8 @@ const JOBS = [
         city: 'Plano',
     },
     {
-        car: '2020 Porsche 911',
+        car: '2023 Porsche 911 GT3',
+        photo: '911',
         type: 'Exotic',
         service: 'PPF',
         detail: 'Full-body PPF, matte finish film',
@@ -279,43 +374,48 @@ const JOBS = [
         city: 'Highland Park',
     },
     {
-        car: '2024 Honda Accord',
+        car: '2023 Honda Accord',
+        photo: 'accord',
         type: 'Sedan',
         service: 'Detail',
         detail: 'Signature detail + interior steam',
-        colour: '#5b0f19',
+        colour: '#2b2f36',
         finish: 'Gloss' as Finish,
         city: 'Irving',
     },
     {
         car: '2019 Dodge Challenger',
+        photo: 'challenger',
         type: 'Sedan',
         service: 'Wrap',
-        detail: 'Full wrap, Gloss Midnight Purple',
-        colour: '#3b2257',
+        detail: 'Paint correction + 5-year ceramic',
+        colour: '#b3121b',
         finish: 'Gloss' as Finish,
         city: 'Arlington',
     },
     {
-        car: '2023 Range Rover Sport',
+        car: '2021 Range Rover Sport',
+        photo: 'rrsport',
         type: 'SUV',
         service: 'Wrap',
         detail: 'Chrome delete + roof in gloss black',
-        colour: '#e7e7ea',
+        colour: '#55575b',
         finish: 'Gloss' as Finish,
         city: 'Southlake',
     },
     {
         car: '2022 Toyota Tacoma',
+        photo: 'tacoma',
         type: 'Truck',
         service: 'Detail',
         detail: 'Interior deep clean after a lake weekend',
-        colour: '#4a4f45',
+        colour: '#9b1c1c',
         finish: 'Satin' as Finish,
         city: 'Fort Worth',
     },
     {
-        car: '2024 Mercedes-AMG C63',
+        car: '2020 Mercedes-AMG C63',
+        photo: 'c63',
         type: 'Sedan',
         service: 'Ceramic',
         detail: '2-year ceramic + one-step polish',
@@ -325,10 +425,11 @@ const JOBS = [
     },
     {
         car: '2021 Chevrolet Corvette',
+        photo: 'corvette',
         type: 'Exotic',
         service: 'Wrap',
-        detail: 'Full wrap, Gold chrome',
-        colour: '#b8892c',
+        detail: 'Front-end PPF + ceramic',
+        colour: '#c4c6cb',
         finish: 'Chrome' as Finish,
         city: 'Plano',
     },
@@ -496,9 +597,18 @@ export default function ClearcoatDemo() {
                                     </a>
                                 </div>
                             </div>
-                            <div className="min-w-0 flex-[1_1_420px]">
-                                <Car colour="#c9c9d0" finish="Chrome" />
-                            </div>
+                            <figure className="relative min-w-0 flex-[1_1_420px]">
+                                <img
+                                    src={PHOTO('hero')}
+                                    alt="Blue BMW M4 convertible under showroom lights"
+                                    className="aspect-[4/3] w-full rounded-sm object-cover shadow-2xl"
+                                    style={{ boxShadow: `0 30px 80px -30px ${C.black}` }}
+                                    fetchPriority="high"
+                                />
+                                <figcaption className="mt-2 text-xs" style={{ color: C.muted }}>
+                                    Sample photo, credited below.
+                                </figcaption>
+                            </figure>
                         </div>
                         <ul
                             className="mx-auto flex max-w-[1240px] flex-wrap gap-x-10 gap-y-3 border-t px-5 py-6 text-sm sm:px-8"
@@ -748,9 +858,12 @@ export default function ClearcoatDemo() {
                                         className="flex flex-wrap items-center gap-x-8 gap-y-3 border-b py-5"
                                         style={{ borderColor: C.line }}
                                     >
-                                        <div className="w-[180px] shrink-0">
-                                            <Car colour={j.colour} finish={j.finish} body={bodyFor(j.type)} sheen={false} />
-                                        </div>
+                                        <img
+                                            src={PHOTO(j.photo)}
+                                            alt={`${j.car} (similar model)`}
+                                            loading="lazy"
+                                            className="aspect-[3/2] w-[180px] shrink-0 rounded-sm object-cover"
+                                        />
                                         <div className="min-w-0 flex-[1_1_240px]">
                                             <p className="text-2xl font-semibold" style={serif}>
                                                 {j.car}
@@ -779,7 +892,8 @@ export default function ClearcoatDemo() {
                                 </div>
                             )}
                             <p className="mt-6 text-sm" style={{ color: C.muted }}>
-                                Sample jobs for this demo. A real site would show the shop's own photos here.
+                                Sample jobs for this demo, shown with photos of similar models from Wikimedia Commons (credits at the bottom). A real
+                                site would use the shop's own photos.
                             </p>
                         </div>
                     </section>
@@ -878,7 +992,26 @@ export default function ClearcoatDemo() {
                         className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm sm:px-8"
                         style={{ color: C.muted }}
                     >
-                        <p>Clearcoat is a fictional business. This site is a portfolio demo.</p>
+                        <div className="min-w-0 flex-[1_1_360px]">
+                            <p>Clearcoat is a fictional business. This site is a portfolio demo; the cars pictured are not Clearcoat jobs.</p>
+                            <details className="mt-3">
+                                <summary className="cursor-pointer underline underline-offset-4">Photo credits</summary>
+                                <ul className="mt-2 space-y-1 text-xs">
+                                    {PHOTO_CREDITS.map((p) => (
+                                        <li key={p.file}>
+                                            <a href={p.page} target="_blank" rel="noopener" className="underline">
+                                                {p.title}
+                                            </a>{' '}
+                                            by {p.artist},{' '}
+                                            <a href={p.licenseUrl} target="_blank" rel="noopener" className="underline">
+                                                {p.license}
+                                            </a>
+                                            {p.license !== 'CC0' && ' (resized and cropped)'}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </details>
+                        </div>
                         <Link href="/#contact" className="inline-flex min-h-11 items-center font-semibold text-white underline underline-offset-4">
                             Want a site like this? Let's talk →
                         </Link>
