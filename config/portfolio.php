@@ -346,6 +346,13 @@ return [
             'package' => 'Custom',
         ],
         [
+            'title' => 'Encore Live',
+            'type' => 'Spotify + Ticketmaster app',
+            'description' => 'The real version of Encore: connect Spotify and it finds upcoming shows near you from the R&B artists you actually play, with tickets and add-to-calendar.',
+            'url' => '/live',
+            'package' => 'Custom',
+        ],
+        [
             'title' => 'Rundown',
             'type' => 'League stats site',
             'description' => 'Stats hub for a rec basketball league: scores and box scores, sortable standings and player stats, league leaders, shot charts and head-to-head compare.',
