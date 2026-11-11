@@ -334,7 +334,7 @@ return [
         [
             'title' => 'StudyLoop',
             'type' => 'AI study tool',
-            'description' => 'Turns lecture notes into flashcards, a multiple-choice quiz and typed practice, all in the browser. A preview of the AI Agents service.',
+            'description' => 'Drop in lecture slides (PowerPoint or PDF) and get a study plan that adapts to the exam: closed notes, one cheat sheet or open notes, multiple choice or written. Tracks trouble spots, pop-quiz drills, printable cheat sheet. I use it for my own classes.',
             'url' => '/demos/studyloop',
             'package' => 'Custom',
         ],
