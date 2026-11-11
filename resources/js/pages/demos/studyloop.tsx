@@ -1,17 +1,17 @@
 import '@fontsource-variable/plus-jakarta-sans/wght';
 
+import { type Draft, notesToCards, readPdf, readPptx, slidesToCards } from '@/lib/slides';
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, ArrowRight, Check, ChevronLeft, ChevronRight, FileUp, Lightbulb, RotateCcw, Shuffle, Sparkles, X } from 'lucide-react';
-import { type ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { ArrowLeft, Check, Download, FileUp, Pencil, Printer, RotateCcw, Star, Timer, Trash2, Upload, X } from 'lucide-react';
+import { type ChangeEvent, type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 
 /*
- * DEMO for a fictional study app ("StudyLoop").
- * Turns pasted notes into flashcards, a quiz and typed practice.
- * This demo uses simple rules in the browser (no AI, nothing uploaded);
- * a production version would use an AI model to read full slide decks.
+ * StudyLoop: turns lecture slides (PowerPoint/PDF) and notes into a study plan that adapts to the exam:
+ * closed notes, one cheat sheet or open notes; multiple choice, short answer or written.
+ * Everything runs in the browser and is saved on this device only (localStorage); nothing is uploaded.
  */
 
-// Dark by default; the original light look when the visitor's device is in light mode.
+// Dark by default; a light look when the visitor's device is in light mode.
 const C = {
     bg: 'var(--sl-bg)',
     card: 'var(--sl-card)',
@@ -19,15 +19,16 @@ const C = {
     soft: 'var(--sl-soft)',
     line: 'var(--sl-line)',
     brand: 'var(--sl-brand)',
-    brandDark: 'var(--sl-brandDark)',
     mint: 'var(--sl-mint)',
     mintBg: 'var(--sl-mintBg)',
     red: 'var(--sl-red)',
     redBg: 'var(--sl-redBg)',
+    gold: 'var(--sl-gold)',
     banner: 'var(--sl-banner)',
 };
-const THEME = `:root:has(.sl){color-scheme:dark;--sl-bg:#0d0e1a;--sl-card:#161829;--sl-ink:#ecedf8;--sl-soft:#a3a6c4;--sl-line:#2a2d48;--sl-brand:#6d65f5;--sl-brandDark:#5a52e6;--sl-mint:#34d399;--sl-mintBg:#0f2e25;--sl-red:#fb923c;--sl-redBg:#3a1d10;--sl-banner:#1c1e36}
-@media (prefers-color-scheme: light){:root:has(.sl){color-scheme:light;--sl-bg:#f6f7fb;--sl-card:#ffffff;--sl-ink:#16163a;--sl-soft:#55577a;--sl-line:#dfe1ee;--sl-brand:#4f46e5;--sl-brandDark:#3f37c9;--sl-mint:#0f9d76;--sl-mintBg:#e3f6ef;--sl-red:#c2410c;--sl-redBg:#fdeee6;--sl-banner:#16163a}}`;
+const THEME = `:root:has(.sl){color-scheme:dark;--sl-bg:#0d0e1a;--sl-card:#161829;--sl-ink:#ecedf8;--sl-soft:#a3a6c4;--sl-line:#2a2d48;--sl-brand:#6d65f5;--sl-mint:#34d399;--sl-mintBg:#0f2e25;--sl-red:#fb923c;--sl-redBg:#3a1d10;--sl-gold:#fbbf24;--sl-banner:#1c1e36}
+@media (prefers-color-scheme: light){:root:has(.sl){color-scheme:light;--sl-bg:#f6f7fb;--sl-card:#ffffff;--sl-ink:#16163a;--sl-soft:#55577a;--sl-line:#dfe1ee;--sl-brand:#4f46e5;--sl-mint:#0f9d76;--sl-mintBg:#e3f6ef;--sl-red:#c2410c;--sl-redBg:#fdeee6;--sl-gold:#b45309;--sl-banner:#16163a}}
+@media print{body *{visibility:hidden!important}#print-area,#print-area *{visibility:visible!important;color:#000!important;background:#fff!important}#print-area{position:absolute;inset:0;padding:0}}`;
 
 const SAMPLE = `# Processes
 - Process: a program in execution, with its own address space, registers and open files.
@@ -48,40 +49,62 @@ const SAMPLE = `# Processes
 - Semaphore: an integer counter with wait and signal operations, used to control access to shared resources.
 - Deadlock: a state where each process in a group waits for a resource held by another, so none can proceed.`;
 
-type Card = { term: string; def: string; topic: string };
+/* ---------------------------------------------------------------- data */
 
-/** Rule-based "Term: definition" extraction (the AI version would read whole decks). */
-function parseNotes(text: string): Card[] {
-    const cards: Card[] = [];
-    let topic = 'General';
-    for (const raw of text.split(/\r?\n/)) {
-        const line = raw.trim();
-        if (!line) continue;
-        const heading = line.match(/^#{1,6}\s+(.+)$/);
-        if (heading) {
-            topic = heading[1].trim();
-            continue;
-        }
-        const body = line.replace(/^([-*•]|\d+[.)])\s+/, '');
-        const m =
-            body.match(/^(.{2,70}?)\s*(?::|\s[-–—=]\s)\s*(.{8,})$/) ??
-            body.match(/^(?:an?|the)?\s*([\w\s()/-]{2,40}?)\s+(?:is|are|means|refers to)\s+(.{8,})$/i);
-        if (!m) continue;
-        const term = m[1].trim().replace(/^(an?|the)\s+/i, '');
-        const def = m[2].trim().replace(/\.$/, '');
-        if (term.split(/\s+/).length <= 6) cards.push({ term: term.charAt(0).toUpperCase() + term.slice(1), def, topic });
-    }
-    return cards;
+type NotesRule = 'closed' | 'sheet' | 'open';
+type Format = 'mc' | 'short' | 'written' | 'mixed';
+type Card = {
+    id: string;
+    term: string;
+    def: string;
+    topic: string;
+    source: string;
+    star: boolean;
+    box: number;
+    due: number;
+    right: number;
+    wrong: number;
+};
+type Course = { id: string; name: string; examName: string; examDate: string; notes: NotesRule; format: Format; cards: Card[] };
+type Store = { courses: Course[]; active: string };
+type Mode = 'review' | 'quiz' | 'recall' | 'explain' | 'drill' | 'sheet' | 'index' | 'trouble';
+
+const KEY = 'studyloop.v1';
+const DAY = 86400000;
+/** Days until a card comes back, by how well you know it (spaced repetition, Leitner boxes 0-4). */
+const GAPS = [0, 1, 3, 7, 16];
+const uid = () => Math.random().toString(36).slice(2, 10);
+const isoDay = (t: number) => new Date(t).toISOString().slice(0, 10);
+
+const toCard = (d: Draft): Card => ({ id: uid(), ...d, star: false, box: 0, due: 0, right: 0, wrong: 0 });
+
+function sampleCourse(): Course {
+    const cards = notesToCards(SAMPLE, 'Sample notes').map(toCard);
+    cards.filter((c) => /Deadlock|Semaphore/.test(c.term)).forEach((c) => (c.star = true));
+    return {
+        id: uid(),
+        name: 'Operating Systems (sample)',
+        examName: 'Midterm',
+        examDate: isoDay(Date.now() + 14 * DAY),
+        notes: 'closed',
+        format: 'mixed',
+        cards,
+    };
 }
 
-const shuffle = <T,>(xs: T[]) => {
-    const a = [...xs];
-    for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
+function loadStore(): Store {
+    try {
+        const raw = localStorage.getItem(KEY);
+        if (raw) {
+            const s = JSON.parse(raw) as Store;
+            if (Array.isArray(s.courses) && s.courses.length) return s;
+        }
+    } catch {
+        /* private mode or bad data: start fresh */
     }
-    return a;
-};
+    const c = sampleCourse();
+    return { courses: [c], active: c.id };
+}
 
 const norm = (s: string) =>
     s
@@ -100,144 +123,805 @@ function distance(a: string, b: string) {
     return d[a.length][b.length];
 }
 
-type Question = { card: Card; options: string[] };
-const buildQuiz = (cards: Card[]): Question[] =>
-    shuffle(cards)
-        .slice(0, 10)
-        .map((card) => ({
-            card,
-            options: shuffle([
-                card.term,
-                ...shuffle(cards.filter((c) => c.term !== card.term))
-                    .slice(0, 3)
-                    .map((c) => c.term),
-            ]),
-        }));
+const shuffle = <T,>(xs: T[]) => {
+    const a = [...xs];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+};
 
-type Mode = 'cards' | 'quiz' | 'practice';
+/** Hardest first: starred (prof emphasized / pop quiz), then most missed, then least learned. */
+const priority = (c: Card) => (c.star ? 100 : 0) + c.wrong * 10 + (4 - c.box);
+const byPriority = (cards: Card[]) => [...cards].sort((a, b) => priority(b) - priority(a));
 
-export default function StudyLoopDemo() {
-    const [notes, setNotes] = useState(SAMPLE);
-    const [cards, setCards] = useState<Card[]>(() => parseNotes(SAMPLE));
-    const [mode, setMode] = useState<Mode>('cards');
-    const [fileNote, setFileNote] = useState('');
+const STOP = new Set(
+    'a an the of to and or in on for with by is are be it its that this as at from into when which their there each one so not can'.split(' '),
+);
+const keywords = (def: string) =>
+    [...new Set(def.toLowerCase().match(/[a-z][a-z-]{3,}/g) ?? [])]
+        .filter((w) => !STOP.has(w))
+        .sort((a, b) => b.length - a.length)
+        .slice(0, 4);
 
-    // Flashcards
-    const [order, setOrder] = useState<number[]>(() => cards.map((_, i) => i));
-    const [pos, setPos] = useState(0);
-    const [flipped, setFlipped] = useState(false);
-    const [known, setKnown] = useState<string[]>([]);
+function options(card: Card, all: Card[]) {
+    const others = shuffle(all.filter((c) => c.id !== card.id));
+    const sameTopic = others.filter((c) => c.topic === card.topic);
+    return shuffle([card.term, ...[...sameTopic, ...others.filter((c) => c.topic !== card.topic)].slice(0, 3).map((c) => c.term)]);
+}
 
-    // Quiz
-    const [quiz, setQuiz] = useState<Question[]>(() => buildQuiz(cards));
-    const [qi, setQi] = useState(0);
-    const [picked, setPicked] = useState<string | null>(null);
-    const [answers, setAnswers] = useState<boolean[]>([]);
+/** What to practise, given how the exam works. */
+function plan(c: Course) {
+    const base: Record<NotesRule, Mode[]> = { closed: ['review', 'recall'], sheet: ['sheet', 'review'], open: ['index', 'drill'] };
+    const fmt: Record<Format, Mode[]> = { mc: ['quiz'], short: ['recall'], written: ['explain'], mixed: ['quiz', 'recall', 'explain'] };
+    const recommended = [...new Set([...base[c.notes], ...fmt[c.format], 'drill' as Mode])];
+    const all: Mode[] = ['review', 'quiz', 'recall', 'explain', 'drill', 'sheet', 'index', 'trouble'];
+    const tips: string[] = [];
+    if (c.notes === 'closed')
+        tips.push('Closed notes: you need to pull answers from memory, not just recognize them. Do Review daily and type answers in Recall.');
+    if (c.notes === 'sheet')
+        tips.push('One cheat sheet allowed: your sheet should hold what you keep missing. The Cheat sheet tab builds it from your trouble spots.');
+    if (c.notes === 'open')
+        tips.push(
+            'Open notes: the risk is running out of time looking things up. Learn where each topic is (Index) and practise answering fast (Pop quiz drill).',
+        );
+    if (c.format === 'mc') tips.push('Multiple choice: practise telling similar terms apart. The quiz uses look-alike answers from the same topic.');
+    if (c.format === 'short') tips.push('Short answer: practise producing the exact term from its definition (Recall).');
+    if (c.format === 'written') tips.push('Written answers: practise explaining in your own words, then check you used the key terms (Explain).');
+    if (c.format === 'mixed') tips.push('Mixed format: rotate Quiz, Recall and Explain.');
+    tips.push('Star anything your professor stressed or put on a pop quiz. Starred cards come up first everywhere.');
+    return { recommended, order: [...recommended, ...all.filter((m) => !recommended.includes(m))], tips };
+}
 
-    // Practice
-    const [pi, setPi] = useState(0);
-    const [guess, setGuess] = useState('');
-    const [result, setResult] = useState<null | 'right' | 'close' | 'wrong'>(null);
-    const [hint, setHint] = useState(false);
-    const [practiceOrder, setPracticeOrder] = useState<number[]>(() => shuffle(cards.map((_, i) => i)));
+const MODE_LABEL: Record<Mode, string> = {
+    review: 'Review',
+    quiz: 'Quiz',
+    recall: 'Recall',
+    explain: 'Explain',
+    drill: 'Pop quiz drill',
+    sheet: 'Cheat sheet',
+    index: 'Index',
+    trouble: 'Trouble spots',
+};
 
-    const generate = () => {
-        const next = parseNotes(notes);
-        setCards(next);
-        setOrder(next.map((_, i) => i));
-        setPos(0);
-        setFlipped(false);
-        setKnown([]);
-        setQuiz(buildQuiz(next));
-        setQi(0);
-        setPicked(null);
-        setAnswers([]);
-        setPracticeOrder(shuffle(next.map((_, i) => i)));
-        setPi(0);
-        setGuess('');
-        setResult(null);
-        setHint(false);
-        document.getElementById('study')?.scrollIntoView({ behavior: 'smooth' });
-    };
+/* ---------------------------------------------------------------- small UI pieces */
 
-    const onFile = (e: ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        if (!/\.(txt|md|markdown)$/i.test(file.name)) {
-            setFileNote('This demo reads .txt and .md files. The AI version would read PDFs and slide decks.');
-            return;
-        }
-        file.text().then((t) => {
-            setNotes(t);
-            setFileNote(`Loaded ${file.name} (read in your browser, nothing uploaded).`);
-        });
-    };
+const btn =
+    'inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 font-semibold transition-opacity hover:opacity-90 disabled:opacity-40';
+const field = 'min-h-11 rounded-xl border px-3 text-base';
+const fieldStyle: CSSProperties = { borderColor: C.line, background: C.bg, color: C.ink };
+const panel: CSSProperties = { background: C.card, borderColor: C.line };
 
-    const card = cards[order[pos]];
-    const go = useCallback(
-        (d: number) => {
-            setFlipped(false);
-            setPos((p) => (p + d + order.length) % order.length);
-        },
-        [order.length],
-    );
-
-    useEffect(() => {
-        if (mode !== 'cards') return;
-        const onKey = (e: KeyboardEvent) => {
-            if ((e.target as HTMLElement)?.closest('textarea, input')) return;
-            if (e.key === 'ArrowRight') go(1);
-            else if (e.key === 'ArrowLeft') go(-1);
-            else if (e.key === ' ') {
-                e.preventDefault();
-                setFlipped((f) => !f);
-            }
-        };
-        window.addEventListener('keydown', onKey);
-        return () => window.removeEventListener('keydown', onKey);
-    }, [mode, go]);
-
-    const mark = (got: boolean) => {
-        if (!card) return;
-        setKnown((k) => (got ? [...new Set([...k, card.term])] : k.filter((t) => t !== card.term)));
-        go(1);
-    };
-
-    const q = quiz[qi];
-    const quizDone = quiz.length > 0 && qi >= quiz.length; // only after "See results" on the last question
-    const score = answers.filter(Boolean).length;
-
-    const pc = cards[practiceOrder[pi]];
-    const check = () => {
-        if (!pc || !guess.trim()) return;
-        const g = norm(guess);
-        const t = norm(pc.term);
-        setResult(g === t ? 'right' : distance(g, t) <= Math.max(1, Math.floor(t.length / 6)) ? 'close' : 'wrong');
-    };
-    const nextPractice = () => {
-        setPi((i) => (i + 1) % practiceOrder.length);
-        setGuess('');
-        setResult(null);
-        setHint(false);
-    };
-
-    const btn = 'inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 font-semibold transition-colors';
-    const tab = (id: Mode, label: string) => (
+function StarBtn({ on, onClick }: { on: boolean; onClick: () => void }) {
+    return (
         <button
             type="button"
-            role="tab"
-            aria-selected={mode === id}
-            onClick={() => setMode(id)}
-            className="min-h-11 rounded-xl px-5 font-semibold"
-            style={mode === id ? { background: C.brand, color: '#fff' } : { color: C.soft }}
+            onClick={onClick}
+            aria-pressed={on}
+            aria-label={on ? 'Unstar (no longer important)' : 'Star: professor stressed it / was on a pop quiz'}
+            title="Professor stressed it / was on a pop quiz"
+            className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl border"
+            style={{ borderColor: on ? C.gold : C.line, color: on ? C.gold : C.soft }}
         >
-            {label}
+            <Star className="size-5" fill={on ? 'currentColor' : 'none'} />
         </button>
     );
+}
+
+function Source({ card }: { card: Card }) {
+    return (
+        <span className="text-xs" style={{ color: C.soft }}>
+            {card.source}
+            {card.topic && !card.source.includes(card.topic) ? ` · ${card.topic}` : ''}
+        </span>
+    );
+}
+
+function Empty({ children }: { children: ReactNode }) {
+    return (
+        <p className="py-10 text-center" style={{ color: C.soft }}>
+            {children}
+        </p>
+    );
+}
+
+/* ---------------------------------------------------------------- study modes */
+
+type Grade = (id: string, ok: boolean) => void;
+type Toggle = (id: string) => void;
+
+function Review({ cards, grade, toggleStar }: { cards: Card[]; grade: Grade; toggleStar: Toggle }) {
+    const [ahead, setAhead] = useState(false);
+    const [flipped, setFlipped] = useState(false);
+    const now = Date.now();
+    const queue = byPriority(cards.filter((c) => ahead || c.due <= now));
+    const card = queue[0];
+    if (!cards.length) return <Empty>Add slides or notes to start.</Empty>;
+    if (!card) {
+        const next = Math.min(...cards.map((c) => c.due));
+        return (
+            <Empty>
+                Nothing due right now. Next review {new Date(next).toLocaleDateString()}.{' '}
+                <button type="button" className="font-semibold underline" style={{ color: C.ink }} onClick={() => setAhead(true)}>
+                    Study ahead anyway
+                </button>
+            </Empty>
+        );
+    }
+    const answer = (ok: boolean) => {
+        grade(card.id, ok);
+        setFlipped(false);
+    };
+    return (
+        <div>
+            <p className="text-sm" style={{ color: C.soft }}>
+                {queue.length} to review {ahead ? '(studying ahead)' : 'today'} · missed cards come back sooner
+            </p>
+            <div className="mt-3 flex items-start gap-3">
+                <button
+                    type="button"
+                    onClick={() => setFlipped((f) => !f)}
+                    className="flex min-h-56 flex-1 flex-col items-center justify-center rounded-3xl border p-8 text-center"
+                    style={flipped ? { background: C.ink, color: C.card, borderColor: C.ink } : { ...panel, color: C.ink }}
+                    aria-label={flipped ? `Definition: ${card.def}. Tap to see the term.` : `Term: ${card.term}. Tap to see the definition.`}
+                >
+                    <span className="text-xs font-bold tracking-[0.2em] uppercase opacity-70">{flipped ? 'Definition' : 'Term'}</span>
+                    <span className={`mt-3 ${flipped ? 'text-lg' : 'text-3xl font-extrabold'}`}>{flipped ? card.def : card.term}</span>
+                    {!flipped && <span className="mt-4 text-sm opacity-60">Say the answer, then tap to check</span>}
+                </button>
+                <StarBtn on={card.star} onClick={() => toggleStar(card.id)} />
+            </div>
+            <div className="mt-2">
+                <Source card={card} />
+            </div>
+            {flipped && (
+                <div className="mt-4 flex flex-wrap gap-3">
+                    <button type="button" onClick={() => answer(false)} className={btn} style={{ background: C.redBg, color: C.red }}>
+                        <X className="size-4" /> Missed it
+                    </button>
+                    <button type="button" onClick={() => answer(true)} className={btn} style={{ background: C.mintBg, color: C.mint }}>
+                        <Check className="size-4" /> Got it
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+}
+
+function Quiz({ cards, grade }: { cards: Card[]; grade: Grade }) {
+    const build = () =>
+        shuffle(cards)
+            .slice(0, Math.min(10, cards.length))
+            .map((c) => ({ card: c, opts: options(c, cards) }));
+    const [qs, setQs] = useState(build);
+    const [i, setI] = useState(0);
+    const [picked, setPicked] = useState<string | null>(null);
+    const [score, setScore] = useState(0);
+    if (cards.length < 4) return <Empty>The quiz needs at least 4 cards.</Empty>;
+    const q = qs[i];
+    if (!q)
+        return (
+            <div className="py-6 text-center">
+                <p className="text-4xl font-extrabold">
+                    {score}/{qs.length}
+                </p>
+                <button
+                    type="button"
+                    className={`${btn} mt-5`}
+                    style={{ background: C.brand, color: '#fff' }}
+                    onClick={() => {
+                        setQs(build());
+                        setI(0);
+                        setScore(0);
+                    }}
+                >
+                    <RotateCcw className="size-4" /> New quiz
+                </button>
+            </div>
+        );
+    const pick = (o: string) => {
+        if (picked) return;
+        setPicked(o);
+        const ok = o === q.card.term;
+        if (ok) setScore((s) => s + 1);
+        grade(q.card.id, ok);
+    };
+    return (
+        <div>
+            <p className="text-sm" style={{ color: C.soft }}>
+                Question {i + 1} of {qs.length} · look-alike answers come from the same topic
+            </p>
+            <p className="mt-3 text-xl font-semibold">{q.card.def}</p>
+            <Source card={q.card} />
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                {q.opts.map((o) => {
+                    const right = picked && o === q.card.term;
+                    const wrong = picked === o && o !== q.card.term;
+                    return (
+                        <button
+                            key={o}
+                            type="button"
+                            onClick={() => pick(o)}
+                            className="min-h-12 rounded-xl border px-4 text-left font-semibold"
+                            style={
+                                right
+                                    ? { background: C.mintBg, borderColor: C.mint }
+                                    : wrong
+                                      ? { background: C.redBg, borderColor: C.red }
+                                      : { borderColor: C.line }
+                            }
+                        >
+                            {o}
+                        </button>
+                    );
+                })}
+            </div>
+            {picked && (
+                <button
+                    type="button"
+                    className={`${btn} mt-4`}
+                    style={{ background: C.brand, color: '#fff' }}
+                    onClick={() => {
+                        setI((n) => n + 1);
+                        setPicked(null);
+                    }}
+                >
+                    {i + 1 < qs.length ? 'Next' : 'See score'}
+                </button>
+            )}
+        </div>
+    );
+}
+
+function Recall({ cards, grade }: { cards: Card[]; grade: Grade }) {
+    const [order, setOrder] = useState(() => byPriority(cards).map((c) => c.id));
+    const [i, setI] = useState(0);
+    const [guess, setGuess] = useState('');
+    const [result, setResult] = useState<null | 'right' | 'close' | 'wrong'>(null);
+    const card = cards.find((c) => c.id === order[i % Math.max(1, order.length)]);
+    useEffect(() => setOrder(byPriority(cards).map((c) => c.id)), [cards.length]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!card) return <Empty>Add slides or notes to start.</Empty>;
+    const check = () => {
+        if (!guess.trim() || result) return;
+        const g = norm(guess);
+        const t = norm(card.term);
+        const r = g === t ? 'right' : distance(g, t) <= Math.max(1, Math.floor(t.length / 6)) ? 'close' : 'wrong';
+        setResult(r);
+        grade(card.id, r !== 'wrong');
+    };
+    const next = () => {
+        setI((n) => n + 1);
+        setGuess('');
+        setResult(null);
+    };
+    return (
+        <div>
+            <p className="text-sm" style={{ color: C.soft }}>
+                Type the term. Hardest cards first.
+            </p>
+            <p className="mt-3 text-xl font-semibold">{card.def}</p>
+            <Source card={card} />
+            <form
+                className="mt-4 flex flex-wrap gap-2"
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    if (result) next();
+                    else check();
+                }}
+            >
+                <label className="min-w-0 flex-[1_1_240px]">
+                    <span className="sr-only">Your answer</span>
+                    <input
+                        value={guess}
+                        onChange={(e) => setGuess(e.target.value)}
+                        className={`${field} w-full`}
+                        style={fieldStyle}
+                        placeholder="Your answer"
+                        autoComplete="off"
+                    />
+                </label>
+                <button type="submit" className={btn} style={{ background: C.brand, color: '#fff' }}>
+                    {result ? 'Next' : 'Check'}
+                </button>
+            </form>
+            {result && (
+                <p
+                    role="status"
+                    className="mt-3 rounded-xl px-4 py-3 font-semibold"
+                    style={result === 'wrong' ? { background: C.redBg, color: C.red } : { background: C.mintBg, color: C.mint }}
+                >
+                    {result === 'right' ? 'Correct!' : result === 'close' ? `Close enough, watch the spelling: ${card.term}` : `It was: ${card.term}`}
+                </p>
+            )}
+        </div>
+    );
+}
+
+function Explain({ cards, grade }: { cards: Card[]; grade: Grade }) {
+    const order = useMemo(() => byPriority(cards).map((c) => c.id), [cards.length]); // eslint-disable-line react-hooks/exhaustive-deps
+    const [i, setI] = useState(0);
+    const [text, setText] = useState('');
+    const [shown, setShown] = useState(false);
+    const card = cards.find((c) => c.id === order[i % Math.max(1, order.length)]);
+    if (!card) return <Empty>Add slides or notes to start.</Empty>;
+    const keys = keywords(card.def);
+    const lower = text.toLowerCase();
+    const done = (ok: boolean) => {
+        grade(card.id, ok);
+        setI((n) => n + 1);
+        setText('');
+        setShown(false);
+    };
+    return (
+        <div>
+            <p className="text-sm" style={{ color: C.soft }}>
+                Explain it in your own words, like on a written exam.
+            </p>
+            <p className="mt-3 text-3xl font-extrabold">{card.term}</p>
+            <Source card={card} />
+            <label className="mt-4 block">
+                <span className="sr-only">Your explanation</span>
+                <textarea
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    rows={4}
+                    className={`${field} w-full py-3`}
+                    style={fieldStyle}
+                    placeholder="Write your answer..."
+                />
+            </label>
+            {!shown ? (
+                <button type="button" className={`${btn} mt-3`} style={{ background: C.brand, color: '#fff' }} onClick={() => setShown(true)}>
+                    Check my answer
+                </button>
+            ) : (
+                <div className="mt-4 rounded-2xl border p-4" style={panel}>
+                    <p className="text-sm font-bold" style={{ color: C.soft }}>
+                        From the slides
+                    </p>
+                    <p className="mt-1">{card.def}</p>
+                    {keys.length > 0 && (
+                        <p className="mt-3 flex flex-wrap gap-2 text-sm">
+                            Key words:
+                            {keys.map((k) => (
+                                <span
+                                    key={k}
+                                    className="rounded-full px-2.5"
+                                    style={lower.includes(k) ? { background: C.mintBg, color: C.mint } : { background: C.redBg, color: C.red }}
+                                >
+                                    {lower.includes(k) ? '✓' : '✗'} {k}
+                                </span>
+                            ))}
+                        </p>
+                    )}
+                    <div className="mt-4 flex flex-wrap gap-3">
+                        <button type="button" onClick={() => done(false)} className={btn} style={{ background: C.redBg, color: C.red }}>
+                            I missed parts
+                        </button>
+                        <button type="button" onClick={() => done(true)} className={btn} style={{ background: C.mintBg, color: C.mint }}>
+                            I had it
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+/** Five quick questions from starred and most-missed cards, against a 90-second clock. */
+function Drill({ cards, grade }: { cards: Card[]; grade: Grade }) {
+    const [qs, setQs] = useState<{ card: Card; opts: string[] | null }[] | null>(null);
+    const [i, setI] = useState(0);
+    const [left, setLeft] = useState(90);
+    const [guess, setGuess] = useState('');
+    const [log, setLog] = useState<{ card: Card; ok: boolean }[]>([]);
+    const finished = qs && (i >= qs.length || left <= 0);
+    useEffect(() => {
+        if (!qs || finished) return;
+        const t = setInterval(() => setLeft((s) => s - 1), 1000);
+        return () => clearInterval(t);
+    }, [qs, finished]);
+    if (cards.length < 4) return <Empty>The drill needs at least 4 cards.</Empty>;
+    const start = () => {
+        const top = byPriority(cards).slice(0, 8);
+        const pick = shuffle(top).slice(0, 5);
+        setQs(pick.map((c, n) => ({ card: c, opts: n % 2 === 0 ? options(c, cards) : null })));
+        setI(0);
+        setLeft(90);
+        setLog([]);
+        setGuess('');
+    };
+    if (!qs)
+        return (
+            <div className="py-6 text-center">
+                <p className="text-lg">5 questions · 90 seconds · starred and most-missed cards first.</p>
+                <button type="button" onClick={start} className={`${btn} mt-5`} style={{ background: C.brand, color: '#fff' }}>
+                    <Timer className="size-4" /> Start the drill
+                </button>
+            </div>
+        );
+    if (finished) {
+        const right = log.filter((l) => l.ok).length;
+        return (
+            <div>
+                <p className="text-4xl font-extrabold">
+                    {right}/{qs.length}
+                </p>
+                <p style={{ color: C.soft }}>{left <= 0 ? "Time's up." : `Done with ${left}s left.`}</p>
+                {log.some((l) => !l.ok) && (
+                    <ul className="mt-4 space-y-2">
+                        {log
+                            .filter((l) => !l.ok)
+                            .map((l) => (
+                                <li key={l.card.id} className="rounded-xl px-4 py-2" style={{ background: C.redBg }}>
+                                    <b>{l.card.term}</b>: {l.card.def}
+                                </li>
+                            ))}
+                    </ul>
+                )}
+                <button type="button" onClick={start} className={`${btn} mt-5`} style={{ background: C.brand, color: '#fff' }}>
+                    <RotateCcw className="size-4" /> Again
+                </button>
+            </div>
+        );
+    }
+    const q = qs[i];
+    const answer = (ok: boolean) => {
+        grade(q.card.id, ok);
+        setLog((l) => [...l, { card: q.card, ok }]);
+        setI((n) => n + 1);
+        setGuess('');
+    };
+    return (
+        <div>
+            <p className="flex justify-between text-sm font-bold" style={{ color: left <= 15 ? C.red : C.soft }}>
+                <span>
+                    Question {i + 1}/{qs.length}
+                </span>
+                <span aria-live="off">{left}s</span>
+            </p>
+            <p className="mt-3 text-xl font-semibold">{q.card.def}</p>
+            {q.opts ? (
+                <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                    {q.opts.map((o) => (
+                        <button
+                            key={o}
+                            type="button"
+                            onClick={() => answer(o === q.card.term)}
+                            className="min-h-12 rounded-xl border px-4 text-left font-semibold"
+                            style={{ borderColor: C.line }}
+                        >
+                            {o}
+                        </button>
+                    ))}
+                </div>
+            ) : (
+                <form
+                    className="mt-4 flex gap-2"
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        const g = norm(guess);
+                        const t = norm(q.card.term);
+                        answer(g === t || distance(g, t) <= Math.max(1, Math.floor(t.length / 6)));
+                    }}
+                >
+                    <label className="min-w-0 flex-1">
+                        <span className="sr-only">Your answer</span>
+                        <input
+                            value={guess}
+                            onChange={(e) => setGuess(e.target.value)}
+                            className={`${field} w-full`}
+                            style={fieldStyle}
+                            placeholder="Type the term"
+                            autoComplete="off"
+                        />
+                    </label>
+                    <button type="submit" className={btn} style={{ background: C.brand, color: '#fff' }}>
+                        Answer
+                    </button>
+                </form>
+            )}
+        </div>
+    );
+}
+
+/** One printed page: the cards you need most, densest first. */
+function CheatSheet({ course }: { course: Course }) {
+    const BUDGET = 5200; // characters that fit on one page at this size
+    const picked: Card[] = [];
+    let used = 0;
+    for (const c of byPriority(course.cards)) {
+        const len = c.term.length + c.def.length + 4;
+        if (used + len > BUDGET) continue;
+        picked.push(c);
+        used += len;
+    }
+    return (
+        <div>
+            <p className="text-sm" style={{ color: C.soft }}>
+                {picked.length} of {course.cards.length} cards fit on one page. Starred and most-missed go first, so study more and the sheet updates.
+                Check your professor's rules (hand-written only? one side?).
+            </p>
+            <button type="button" onClick={() => window.print()} className={`${btn} mt-3`} style={{ background: C.brand, color: '#fff' }}>
+                <Printer className="size-4" /> Print / save as PDF
+            </button>
+            <div id="print-area" className="mt-5 rounded-2xl border p-4" style={panel}>
+                <p className="text-xs font-bold">
+                    {course.name} · {course.examName} cheat sheet
+                </p>
+                <div className="mt-2 columns-1 gap-6 text-[11px] leading-snug sm:columns-2">
+                    {picked.map((c) => (
+                        <p key={c.id} className="mb-1 break-inside-avoid">
+                            <b>
+                                {c.star ? '★ ' : ''}
+                                {c.term}
+                            </b>
+                            : {c.def}
+                        </p>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+/** For open-notes exams: where each topic lives in the slides, so lookups take seconds. */
+function Index({ course }: { course: Course }) {
+    const groups = new Map<string, Card[]>();
+    for (const c of course.cards) {
+        const lecture = c.source.split(' · ')[0] || 'Notes';
+        groups.set(lecture, [...(groups.get(lecture) ?? []), c]);
+    }
+    const az = [...course.cards].sort((a, b) => a.term.localeCompare(b.term));
+    return (
+        <div>
+            <p className="text-sm" style={{ color: C.soft }}>
+                Print this and keep it on top of your notes: find any term in seconds.
+            </p>
+            <button type="button" onClick={() => window.print()} className={`${btn} mt-3`} style={{ background: C.brand, color: '#fff' }}>
+                <Printer className="size-4" /> Print / save as PDF
+            </button>
+            <div id="print-area" className="mt-5 rounded-2xl border p-4 text-sm" style={panel}>
+                <p className="text-xs font-bold">{course.name} · A-Z index</p>
+                <ul className="mt-2 columns-1 gap-6 sm:columns-2">
+                    {az.map((c) => (
+                        <li key={c.id} className="flex break-inside-avoid justify-between gap-3 border-b py-1" style={{ borderColor: C.line }}>
+                            <span>
+                                {c.star ? '★ ' : ''}
+                                {c.term}
+                            </span>
+                            <span className="shrink-0" style={{ color: C.soft }}>
+                                {c.source.replace(/^.* · /, '') || c.source}
+                            </span>
+                        </li>
+                    ))}
+                </ul>
+                <p className="mt-4 text-xs font-bold">By lecture</p>
+                {[...groups.entries()].map(([lecture, cs]) => (
+                    <p key={lecture} className="mt-1 text-xs">
+                        <b>{lecture}:</b> {cs.map((c) => c.term).join(', ')}
+                    </p>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+function Trouble({
+    cards,
+    update,
+    remove,
+    toggleStar,
+}: {
+    cards: Card[];
+    update: (c: Card) => void;
+    remove: (id: string) => void;
+    toggleStar: Toggle;
+}) {
+    const [editing, setEditing] = useState<string | null>(null);
+    const [draft, setDraft] = useState({ term: '', def: '' });
+    if (!cards.length) return <Empty>No cards yet.</Empty>;
+    return (
+        <div>
+            <p className="text-sm" style={{ color: C.soft }}>
+                Everything, hardest first. Strength dots fill as you get a card right on different days. Fix a card the slides got wrong with Edit.
+            </p>
+            <ul className="mt-3 border-t" style={{ borderColor: C.line }}>
+                {byPriority(cards).map((c) => (
+                    <li key={c.id} className="flex flex-wrap items-start gap-3 border-b py-3" style={{ borderColor: C.line }}>
+                        <StarBtn on={c.star} onClick={() => toggleStar(c.id)} />
+                        {editing === c.id ? (
+                            <form
+                                className="flex min-w-0 flex-[1_1_300px] flex-col gap-2"
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    update({ ...c, term: draft.term.trim() || c.term, def: draft.def.trim() || c.def });
+                                    setEditing(null);
+                                }}
+                            >
+                                <input
+                                    aria-label="Term"
+                                    value={draft.term}
+                                    onChange={(e) => setDraft({ ...draft, term: e.target.value })}
+                                    className={field}
+                                    style={fieldStyle}
+                                />
+                                <textarea
+                                    aria-label="Definition"
+                                    value={draft.def}
+                                    onChange={(e) => setDraft({ ...draft, def: e.target.value })}
+                                    rows={3}
+                                    className={`${field} py-2`}
+                                    style={fieldStyle}
+                                />
+                                <span className="flex gap-2">
+                                    <button type="submit" className={btn} style={{ background: C.brand, color: '#fff' }}>
+                                        Save
+                                    </button>
+                                    <button type="button" className={btn} onClick={() => setEditing(null)}>
+                                        Cancel
+                                    </button>
+                                </span>
+                            </form>
+                        ) : (
+                            <div className="min-w-0 flex-[1_1_300px]">
+                                <p className="font-bold">{c.term}</p>
+                                <p className="text-sm" style={{ color: C.soft }}>
+                                    {c.def}
+                                </p>
+                                <Source card={c} />
+                            </div>
+                        )}
+                        <div className="flex items-center gap-3 text-sm">
+                            <span style={{ color: c.wrong ? C.red : C.soft }}>{c.wrong} missed</span>
+                            <span aria-label={`Strength ${c.box} of 4`} className="flex gap-1">
+                                {[1, 2, 3, 4].map((n) => (
+                                    <span key={n} className="size-2 rounded-full" style={{ background: n <= c.box ? C.mint : C.line }} />
+                                ))}
+                            </span>
+                            <button
+                                type="button"
+                                aria-label={`Edit ${c.term}`}
+                                className="inline-flex size-11 items-center justify-center"
+                                onClick={() => {
+                                    setEditing(c.id);
+                                    setDraft({ term: c.term, def: c.def });
+                                }}
+                            >
+                                <Pencil className="size-4" />
+                            </button>
+                            <button
+                                type="button"
+                                aria-label={`Delete ${c.term}`}
+                                className="inline-flex size-11 items-center justify-center"
+                                style={{ color: C.red }}
+                                onClick={() => remove(c.id)}
+                            >
+                                <Trash2 className="size-4" />
+                            </button>
+                        </div>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+}
+
+/* ---------------------------------------------------------------- page */
+
+export default function StudyLoop() {
+    const [store, setStore] = useState<Store | null>(null);
+    const [mode, setMode] = useState<Mode | null>(null);
+    const [lecture, setLecture] = useState('');
+    const [paste, setPaste] = useState('');
+    const [preview, setPreview] = useState<Draft[] | null>(null);
+    const [busy, setBusy] = useState(false);
+    const [note, setNote] = useState('');
+    const [newName, setNewName] = useState('');
+    const importRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => setStore(loadStore()), []);
+    useEffect(() => {
+        if (!store) return;
+        try {
+            localStorage.setItem(KEY, JSON.stringify(store));
+        } catch {
+            /* storage full or blocked: keep working in memory */
+        }
+    }, [store]);
+
+    const course = store?.courses.find((c) => c.id === store.active) ?? store?.courses[0];
+    const p = course ? plan(course) : null;
+    const activeMode = mode && p?.order.includes(mode) ? mode : p?.order[0];
+
+    const editCourse = (patch: Partial<Course>) =>
+        setStore((s) => (s && course ? { ...s, courses: s.courses.map((c) => (c.id === course.id ? { ...c, ...patch } : c)) } : s));
+    const editCards = (fn: (cards: Card[]) => Card[]) => course && editCourse({ cards: fn(course.cards) });
+
+    const grade: Grade = (id, ok) =>
+        editCards((cs) =>
+            cs.map((c) => {
+                if (c.id !== id) return c;
+                const box = ok ? Math.min(4, c.box + 1) : 0;
+                return { ...c, box, due: Date.now() + GAPS[box] * DAY, right: c.right + (ok ? 1 : 0), wrong: c.wrong + (ok ? 0 : 1) };
+            }),
+        );
+    const toggleStar: Toggle = (id) => editCards((cs) => cs.map((c) => (c.id === id ? { ...c, star: !c.star } : c)));
+
+    const onFile = async (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        e.target.value = '';
+        if (!file) return;
+        const name = lecture.trim() || file.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ');
+        setNote('');
+        setBusy(true);
+        try {
+            let drafts: Draft[];
+            if (/\.pptx$/i.test(file.name)) drafts = slidesToCards(await readPptx(file), name);
+            else if (/\.pdf$/i.test(file.name)) drafts = slidesToCards(await readPdf(file), name);
+            else if (/\.(txt|md|markdown)$/i.test(file.name)) drafts = notesToCards(await file.text(), name);
+            else if (/\.ppt$/i.test(file.name)) throw new Error('Old .ppt files can\'t be read. In PowerPoint, use "Save As" .pptx or PDF first.');
+            else throw new Error('Use a .pptx, .pdf, .txt or .md file.');
+            if (!drafts.length) throw new Error('No text found. If the slides are pictures (scanned), paste the text instead.');
+            setLecture(name);
+            setPreview(drafts);
+        } catch (err) {
+            setNote(err instanceof Error ? err.message : 'Could not read that file.');
+        } finally {
+            setBusy(false);
+        }
+    };
+
+    const addPreview = () => {
+        if (!preview || !course) return;
+        const have = new Set(course.cards.map((c) => norm(c.term)));
+        const fresh = preview.filter((d) => !have.has(norm(d.term)));
+        editCards((cs) => [...cs, ...fresh.map(toCard)]);
+        setNote(`Added ${fresh.length} cards${preview.length - fresh.length ? ` (${preview.length - fresh.length} already there)` : ''}.`);
+        setPreview(null);
+        setPaste('');
+        setLecture('');
+    };
+
+    const exportAll = () => {
+        if (!store) return;
+        const url = URL.createObjectURL(new Blob([JSON.stringify(store, null, 2)], { type: 'application/json' }));
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `studyloop-backup-${isoDay(Date.now())}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+    const importAll = async (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        e.target.value = '';
+        if (!file) return;
+        try {
+            const s = JSON.parse(await file.text()) as Store;
+            if (!Array.isArray(s.courses) || !s.courses.length) throw new Error();
+            setStore(s);
+            setNote('Backup restored.');
+        } catch {
+            setNote('That file is not a StudyLoop backup.');
+        }
+    };
+
+    if (!store || !course || !p) return <div className="sl min-h-screen" style={{ background: C.bg }} />;
+
+    const now = Date.now();
+    const daysLeft = Math.max(0, Math.ceil((new Date(course.examDate + 'T23:59:59').getTime() - now) / DAY));
+    const learned = course.cards.filter((c) => c.box >= 3).length;
+    const due = course.cards.filter((c) => c.due <= now).length;
+    const perDay = Math.ceil((course.cards.length - learned) / Math.max(1, daysLeft));
+    const troubleCount = course.cards.filter((c) => c.wrong > 0 || c.star).length;
+
+    const chip = (on: boolean): CSSProperties =>
+        on ? { background: C.brand, color: '#fff', borderColor: C.brand } : { borderColor: C.line, color: C.soft };
 
     return (
         <>
-            <Head title="StudyLoop (demo)">
+            <Head title="StudyLoop">
                 <meta name="robots" content="noindex, nofollow" />
             </Head>
             <style>{THEME}</style>
@@ -246,421 +930,357 @@ export default function StudyLoopDemo() {
                 className="sl min-h-screen"
                 style={{ background: C.bg, color: C.ink, fontFamily: "'Plus Jakarta Sans Variable', system-ui, sans-serif" }}
             >
-                {/* Demo banner */}
                 <div style={{ background: C.banner, color: '#fff' }}>
                     <div className="mx-auto flex max-w-[1100px] flex-wrap items-center justify-between gap-x-6 gap-y-1 px-5 py-2.5 text-sm font-medium sm:px-8">
-                        <p>Demo app designed &amp; built by Timasi Werema. Runs entirely in your browser.</p>
+                        <p>Built by Timasi Werema. Runs in your browser: slides and progress stay on this device.</p>
                         <Link href="/#work" className="inline-flex min-h-8 items-center gap-1 underline underline-offset-4">
                             <ArrowLeft className="size-4" /> Back to portfolio
                         </Link>
                     </div>
                 </div>
 
-                <header className="border-b" style={{ borderColor: C.line, background: C.card }}>
-                    <nav className="mx-auto flex max-w-[1100px] items-center justify-between gap-4 px-5 py-4 sm:px-8">
+                <main className="mx-auto max-w-[1100px] px-5 py-8 sm:px-8 sm:py-10">
+                    {/* Course bar */}
+                    <div className="flex flex-wrap items-center gap-3">
                         <span className="flex items-center gap-2 text-xl font-extrabold">
                             <span className="flex size-9 items-center justify-center rounded-xl" style={{ background: C.brand, color: '#fff' }}>
                                 <RotateCcw className="size-5" />
                             </span>
                             StudyLoop
                         </span>
-                        <span className="text-sm font-semibold" style={{ color: C.soft }}>
-                            {cards.length} cards · {known.length} mastered
-                        </span>
-                    </nav>
-                </header>
-
-                <main className="mx-auto max-w-[1100px] px-5 py-10 sm:px-8">
-                    <h1 className="max-w-3xl text-4xl leading-tight font-extrabold sm:text-5xl">
-                        Turn your lecture notes into <span style={{ color: C.brand }}>flashcards, quizzes and practice</span> in one click.
-                    </h1>
-                    <p className="mt-3 max-w-2xl text-lg" style={{ color: C.soft }}>
-                        Paste notes with lines like{' '}
-                        <code className="rounded px-1.5 py-0.5 text-base" style={{ background: C.line }}>
-                            Term: definition
-                        </code>
-                        , or upload a .txt or .md file. The sample below is from an Operating Systems unit.
-                    </p>
-
-                    {/* Input */}
-                    <section
-                        aria-label="Your notes"
-                        className="mt-8 rounded-2xl border p-5 sm:p-6"
-                        style={{ background: C.card, borderColor: C.line }}
-                    >
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                            <label htmlFor="notes" className="font-bold">
-                                Your notes
+                        <label className="ml-auto min-w-0 flex-[0_1_280px]">
+                            <span className="sr-only">Course</span>
+                            <select
+                                value={course.id}
+                                onChange={(e) => {
+                                    setStore({ ...store, active: e.target.value });
+                                    setMode(null);
+                                }}
+                                className={`${field} w-full font-semibold`}
+                                style={fieldStyle}
+                            >
+                                {store.courses.map((c) => (
+                                    <option key={c.id} value={c.id}>
+                                        {c.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                        <form
+                            className="flex gap-2"
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                if (!newName.trim()) return;
+                                const c: Course = {
+                                    id: uid(),
+                                    name: newName.trim(),
+                                    examName: 'Exam',
+                                    examDate: isoDay(now + 21 * DAY),
+                                    notes: 'closed',
+                                    format: 'mixed',
+                                    cards: [],
+                                };
+                                setStore({ courses: [...store.courses, c], active: c.id });
+                                setNewName('');
+                                setMode(null);
+                            }}
+                        >
+                            <label>
+                                <span className="sr-only">New course name</span>
+                                <input
+                                    value={newName}
+                                    onChange={(e) => setNewName(e.target.value)}
+                                    placeholder="New course, e.g. CS 3345"
+                                    className={`${field} w-48`}
+                                    style={fieldStyle}
+                                />
                             </label>
-                            <div className="flex flex-wrap gap-2">
-                                <label className={`${btn} cursor-pointer border`} style={{ borderColor: C.line }}>
-                                    <FileUp className="size-4" /> Upload .txt / .md
-                                    <input type="file" accept=".txt,.md,.markdown,text/plain,text/markdown" onChange={onFile} className="sr-only" />
+                            <button type="submit" className={`${btn} border`} style={{ borderColor: C.line }}>
+                                Add
+                            </button>
+                        </form>
+                    </div>
+
+                    {/* Exam setup + plan */}
+                    <section aria-labelledby="exam" className="mt-6 grid gap-6 rounded-3xl border p-5 sm:p-7 lg:grid-cols-[3fr_2fr]" style={panel}>
+                        <div>
+                            <h1 id="exam" className="text-2xl font-extrabold sm:text-3xl">
+                                {course.name}
+                            </h1>
+                            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                                <label className="text-sm font-semibold">
+                                    Exam
+                                    <input
+                                        value={course.examName}
+                                        onChange={(e) => editCourse({ examName: e.target.value })}
+                                        className={`${field} mt-1 w-full`}
+                                        style={fieldStyle}
+                                    />
                                 </label>
-                                <button type="button" onClick={() => setNotes(SAMPLE)} className={`${btn} border`} style={{ borderColor: C.line }}>
-                                    Load sample
-                                </button>
+                                <label className="text-sm font-semibold">
+                                    Date
+                                    <input
+                                        type="date"
+                                        value={course.examDate}
+                                        onChange={(e) => editCourse({ examDate: e.target.value })}
+                                        className={`${field} mt-1 w-full`}
+                                        style={fieldStyle}
+                                    />
+                                </label>
+                            </div>
+                            <p className="mt-4 text-sm font-semibold">Notes allowed?</p>
+                            <div role="radiogroup" aria-label="Notes allowed" className="mt-1 flex flex-wrap gap-2">
+                                {(
+                                    [
+                                        ['closed', 'None (closed notes)'],
+                                        ['sheet', 'One cheat sheet'],
+                                        ['open', 'Open notes'],
+                                    ] as [NotesRule, string][]
+                                ).map(([v, l]) => (
+                                    <button
+                                        key={v}
+                                        type="button"
+                                        role="radio"
+                                        aria-checked={course.notes === v}
+                                        onClick={() => editCourse({ notes: v })}
+                                        className="min-h-11 rounded-full border px-4 text-sm font-semibold"
+                                        style={chip(course.notes === v)}
+                                    >
+                                        {l}
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="mt-4 text-sm font-semibold">Question style</p>
+                            <div role="radiogroup" aria-label="Question style" className="mt-1 flex flex-wrap gap-2">
+                                {(
+                                    [
+                                        ['mc', 'Multiple choice'],
+                                        ['short', 'Short answer'],
+                                        ['written', 'Written / essay'],
+                                        ['mixed', 'Mix'],
+                                    ] as [Format, string][]
+                                ).map(([v, l]) => (
+                                    <button
+                                        key={v}
+                                        type="button"
+                                        role="radio"
+                                        aria-checked={course.format === v}
+                                        onClick={() => editCourse({ format: v })}
+                                        className="min-h-11 rounded-full border px-4 text-sm font-semibold"
+                                        style={chip(course.format === v)}
+                                    >
+                                        {l}
+                                    </button>
+                                ))}
                             </div>
                         </div>
-                        <textarea
-                            id="notes"
-                            value={notes}
-                            onChange={(e) => setNotes(e.target.value)}
-                            rows={9}
-                            className="mt-3 w-full rounded-xl border p-4 font-mono text-sm leading-relaxed"
-                            style={{ borderColor: C.line, background: C.bg }}
-                        />
-                        {fileNote && (
-                            <p role="status" className="mt-2 text-sm" style={{ color: C.soft }}>
-                                {fileNote}
+                        <div>
+                            <dl className="grid grid-cols-3 gap-3 text-center">
+                                {[
+                                    [daysLeft, daysLeft === 1 ? 'day left' : 'days left'],
+                                    [due, 'due today'],
+                                    [`${learned}/${course.cards.length}`, 'learned'],
+                                ].map(([v, l]) => (
+                                    <div key={String(l)} className="rounded-2xl py-3" style={{ background: C.bg }}>
+                                        <dt className="sr-only">{l}</dt>
+                                        <dd className="text-2xl font-extrabold">{v}</dd>
+                                        <dd className="text-xs" style={{ color: C.soft }}>
+                                            {l}
+                                        </dd>
+                                    </div>
+                                ))}
+                            </dl>
+                            <p className="mt-4 font-semibold">
+                                Your plan: about {perDay} new card{perDay === 1 ? '' : 's'} a day
+                                {troubleCount ? `, plus your ${troubleCount} trouble spots` : ''}.
                             </p>
-                        )}
-                        <div className="mt-4 flex flex-wrap items-center gap-4">
-                            <button type="button" onClick={generate} className={btn} style={{ background: C.brand, color: '#fff' }}>
-                                <Sparkles className="size-4" /> Generate study set
-                            </button>
-                            <p className="text-sm" style={{ color: C.soft }}>
-                                Found <strong>{parseNotes(notes).length}</strong> terms. This demo uses simple rules; the AI version reads full slide
-                                decks and writes its own questions.
-                            </p>
+                            <ul className="mt-2 space-y-2 text-sm" style={{ color: C.soft }}>
+                                {p.tips.map((t) => (
+                                    <li key={t}>• {t}</li>
+                                ))}
+                            </ul>
                         </div>
                     </section>
 
-                    {/* Study modes */}
-                    <section id="study" className="mt-10 scroll-mt-6">
-                        <div
-                            role="tablist"
-                            aria-label="Study mode"
-                            className="inline-flex flex-wrap gap-1 rounded-2xl border p-1"
-                            style={{ background: C.card, borderColor: C.line }}
-                        >
-                            {tab('cards', 'Flashcards')}
-                            {tab('quiz', 'Quiz')}
-                            {tab('practice', 'Practice')}
+                    {/* Add material */}
+                    <section aria-labelledby="add" className="mt-6 rounded-3xl border p-5 sm:p-7" style={panel}>
+                        <h2 id="add" className="text-xl font-extrabold">
+                            Add slides or notes
+                        </h2>
+                        <p className="mt-1 text-sm" style={{ color: C.soft }}>
+                            PowerPoint (.pptx) or PDF slides, or .txt/.md notes. Read on your device, never uploaded. Each card remembers its slide.
+                        </p>
+                        <div className="mt-4 flex flex-wrap items-center gap-3">
+                            <label className="min-w-0 flex-[1_1_220px] text-sm font-semibold">
+                                Lecture name (optional)
+                                <input
+                                    value={lecture}
+                                    onChange={(e) => setLecture(e.target.value)}
+                                    placeholder="e.g. Lecture 5"
+                                    className={`${field} mt-1 w-full`}
+                                    style={fieldStyle}
+                                />
+                            </label>
+                            <label className={`${btn} mt-5 cursor-pointer`} style={{ background: C.brand, color: '#fff' }}>
+                                <FileUp className="size-4" /> {busy ? 'Reading...' : 'Choose slides'}
+                                <input
+                                    type="file"
+                                    accept=".pptx,.pdf,.txt,.md,.markdown,.ppt"
+                                    className="sr-only"
+                                    onChange={onFile}
+                                    disabled={busy}
+                                />
+                            </label>
                         </div>
-
-                        {cards.length < 4 ? (
-                            <p className="mt-6 rounded-2xl border p-6" style={{ background: C.card, borderColor: C.line }}>
-                                Add at least 4 terms (one per line, like <code>Term: definition</code>) and press Generate.
+                        <details className="mt-3">
+                            <summary className="cursor-pointer text-sm font-semibold underline underline-offset-4">
+                                Or paste notes ("Term: definition" lines, "# Topic" headings)
+                            </summary>
+                            <textarea
+                                value={paste}
+                                onChange={(e) => setPaste(e.target.value)}
+                                rows={5}
+                                className={`${field} mt-2 w-full py-2 font-mono text-sm`}
+                                style={fieldStyle}
+                            />
+                            <button
+                                type="button"
+                                className={`${btn} mt-2 border`}
+                                style={{ borderColor: C.line }}
+                                onClick={() => {
+                                    const d = notesToCards(paste, lecture.trim() || 'Notes');
+                                    if (d.length) setPreview(d);
+                                    else setNote('No "Term: definition" lines found.');
+                                }}
+                            >
+                                Find cards
+                            </button>
+                        </details>
+                        {note && (
+                            <p role="status" className="mt-3 text-sm font-semibold">
+                                {note}
                             </p>
-                        ) : mode === 'cards' ? (
-                            <div role="tabpanel" className="mt-6">
-                                <div
-                                    className="mb-3 flex flex-wrap items-center justify-between gap-3 text-sm font-semibold"
-                                    style={{ color: C.soft }}
-                                >
-                                    <span>
-                                        Card {pos + 1} of {order.length} · {card?.topic}
-                                    </span>
+                        )}
+                        {preview && (
+                            <div className="mt-4 rounded-2xl border p-4" style={{ borderColor: C.line }}>
+                                <p className="font-semibold">Found {preview.length} cards. First few:</p>
+                                <ul className="mt-2 space-y-1 text-sm">
+                                    {preview.slice(0, 6).map((d, i) => (
+                                        <li key={i}>
+                                            <b>{d.term}</b>
+                                            <span style={{ color: C.soft }}>
+                                                {' '}
+                                                · {d.def.slice(0, 90)}
+                                                {d.def.length > 90 ? '…' : ''} ({d.source})
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <div className="mt-3 flex gap-2">
+                                    <button type="button" onClick={addPreview} className={btn} style={{ background: C.brand, color: '#fff' }}>
+                                        Add {preview.length} cards
+                                    </button>
                                     <button
                                         type="button"
-                                        onClick={() => {
-                                            setOrder(shuffle(cards.map((_, i) => i)));
-                                            setPos(0);
-                                            setFlipped(false);
-                                        }}
-                                        className="inline-flex min-h-10 items-center gap-1.5"
+                                        onClick={() => setPreview(null)}
+                                        className={`${btn} border`}
+                                        style={{ borderColor: C.line }}
                                     >
-                                        <Shuffle className="size-4" /> Shuffle
+                                        Cancel
                                     </button>
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={() => setFlipped((f) => !f)}
-                                    aria-label={
-                                        flipped
-                                            ? `Definition: ${card?.def}. Click to show the term.`
-                                            : `Term: ${card?.term}. Click to show the definition.`
-                                    }
-                                    className="flex min-h-[260px] w-full flex-col items-center justify-center rounded-3xl border-2 p-8 text-center shadow-sm transition-colors"
-                                    style={{
-                                        background: flipped ? C.ink : C.card,
-                                        color: flipped ? C.card : C.ink,
-                                        borderColor: flipped ? C.ink : C.line,
-                                    }}
-                                >
-                                    <span className="mb-3 text-xs font-bold tracking-[0.15em] uppercase opacity-60">
-                                        {flipped ? 'Definition' : 'Term'}
-                                    </span>
-                                    <span
-                                        className={flipped ? 'max-w-2xl text-xl leading-relaxed sm:text-2xl' : 'text-3xl font-extrabold sm:text-4xl'}
-                                    >
-                                        {flipped ? card?.def : card?.term}
-                                    </span>
-                                    <span className="mt-6 text-xs opacity-60">Click or press Space to flip · ← → to move</span>
-                                </button>
-                                <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                                    <div className="flex gap-2">
-                                        <button
-                                            type="button"
-                                            aria-label="Previous card"
-                                            onClick={() => go(-1)}
-                                            className={`${btn} border px-3`}
-                                            style={{ borderColor: C.line, background: C.card }}
-                                        >
-                                            <ChevronLeft className="size-5" />
-                                        </button>
-                                        <button
-                                            type="button"
-                                            aria-label="Next card"
-                                            onClick={() => go(1)}
-                                            className={`${btn} border px-3`}
-                                            style={{ borderColor: C.line, background: C.card }}
-                                        >
-                                            <ChevronRight className="size-5" />
-                                        </button>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <button
-                                            type="button"
-                                            onClick={() => mark(false)}
-                                            className={btn}
-                                            style={{ background: C.redBg, color: C.red }}
-                                        >
-                                            Still learning
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => mark(true)}
-                                            className={btn}
-                                            style={{ background: C.mintBg, color: C.mint }}
-                                        >
-                                            <Check className="size-4" /> Got it
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className="mt-6">
-                                    <div className="h-2 rounded-full" style={{ background: C.line }} aria-hidden="true">
-                                        <div
-                                            className="h-2 rounded-full transition-all"
-                                            style={{ width: `${(known.length / cards.length) * 100}%`, background: C.mint }}
-                                        />
-                                    </div>
-                                    <p className="mt-2 text-sm" style={{ color: C.soft }}>
-                                        {known.length} of {cards.length} mastered
-                                    </p>
-                                </div>
                             </div>
-                        ) : mode === 'quiz' ? (
-                            <div role="tabpanel" className="mt-6 rounded-3xl border p-6 sm:p-8" style={{ background: C.card, borderColor: C.line }}>
-                                {quizDone ? (
-                                    <div role="status">
-                                        <p className="text-sm font-bold tracking-[0.12em] uppercase" style={{ color: C.soft }}>
-                                            Quiz complete
-                                        </p>
-                                        <p className="mt-2 text-5xl font-extrabold">
-                                            {score}/{quiz.length}
-                                        </p>
-                                        <p className="mt-2" style={{ color: C.soft }}>
-                                            {score === quiz.length
-                                                ? 'Perfect score. You know this unit.'
-                                                : score >= quiz.length * 0.7
-                                                  ? 'Solid. Review the ones you missed below.'
-                                                  : 'Keep going: flashcards first, then try again.'}
-                                        </p>
-                                        <ul className="mt-6 divide-y" style={{ borderColor: C.line }}>
-                                            {quiz.map((qq, i) => (
-                                                <li key={qq.card.term} className="flex items-start gap-3 py-3" style={{ borderColor: C.line }}>
-                                                    {answers[i] ? (
-                                                        <Check className="mt-0.5 size-5 shrink-0" style={{ color: C.mint }} />
-                                                    ) : (
-                                                        <X className="mt-0.5 size-5 shrink-0" style={{ color: C.red }} />
-                                                    )}
-                                                    <span>
-                                                        <strong>{qq.card.term}</strong> — {qq.card.def}
-                                                    </span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setQuiz(buildQuiz(cards));
-                                                setQi(0);
-                                                setPicked(null);
-                                                setAnswers([]);
-                                            }}
-                                            className={`${btn} mt-6`}
-                                            style={{ background: C.brand, color: '#fff' }}
-                                        >
-                                            <RotateCcw className="size-4" /> New quiz
-                                        </button>
-                                    </div>
-                                ) : (
-                                    q && (
-                                        <fieldset>
-                                            <legend className="w-full">
-                                                <span className="flex justify-between text-sm font-semibold" style={{ color: C.soft }}>
-                                                    <span>
-                                                        Question {qi + 1} of {quiz.length}
-                                                    </span>
-                                                    <span>Score: {score}</span>
-                                                </span>
-                                                <span className="mt-3 block text-xl font-bold sm:text-2xl">Which term matches this definition?</span>
-                                                <span className="mt-2 block text-lg" style={{ color: C.soft }}>
-                                                    "{q.card.def}"
-                                                </span>
-                                            </legend>
-                                            <div className="mt-5 flex flex-col gap-2">
-                                                {q.options.map((opt) => {
-                                                    const isRight = opt === q.card.term;
-                                                    const chosen = picked === opt;
-                                                    const style = picked
-                                                        ? isRight
-                                                            ? { background: C.mintBg, borderColor: C.mint, color: C.ink }
-                                                            : chosen
-                                                              ? { background: C.redBg, borderColor: C.red, color: C.ink }
-                                                              : { borderColor: C.line, color: C.soft }
-                                                        : { borderColor: C.line };
-                                                    return (
-                                                        <button
-                                                            key={opt}
-                                                            type="button"
-                                                            disabled={!!picked}
-                                                            onClick={() => {
-                                                                setPicked(opt);
-                                                                setAnswers((a) => [...a, isRight]);
-                                                            }}
-                                                            className="flex min-h-12 items-center justify-between rounded-xl border-2 px-4 text-left font-semibold disabled:cursor-default"
-                                                            style={style}
-                                                        >
-                                                            {opt}
-                                                            {picked && isRight && <Check className="size-5" style={{ color: C.mint }} />}
-                                                            {picked && chosen && !isRight && <X className="size-5" style={{ color: C.red }} />}
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                            {picked && (
-                                                <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-                                                    <p
-                                                        role="status"
-                                                        className="font-semibold"
-                                                        style={{ color: picked === q.card.term ? C.mint : C.red }}
-                                                    >
-                                                        {picked === q.card.term ? 'Correct!' : `Not quite. It's "${q.card.term}".`}
-                                                    </p>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                            setQi((i) => i + 1);
-                                                            setPicked(null);
-                                                        }}
-                                                        className={btn}
-                                                        style={{ background: C.brand, color: '#fff' }}
-                                                    >
-                                                        {qi + 1 === quiz.length ? 'See results' : 'Next'} <ArrowRight className="size-4" />
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </fieldset>
-                                    )
-                                )}
-                            </div>
-                        ) : (
-                            pc && (
-                                <div
-                                    role="tabpanel"
-                                    className="mt-6 rounded-3xl border p-6 sm:p-8"
-                                    style={{ background: C.card, borderColor: C.line }}
-                                >
-                                    <p className="text-sm font-semibold" style={{ color: C.soft }}>
-                                        Type the term · {pi + 1} of {practiceOrder.length}
-                                    </p>
-                                    <p className="mt-3 text-xl leading-relaxed font-semibold sm:text-2xl">"{pc.def}"</p>
-                                    <form
-                                        onSubmit={(e) => {
-                                            e.preventDefault();
-                                            if (result) nextPractice();
-                                            else check();
-                                        }}
-                                        className="mt-5 flex flex-wrap gap-2"
-                                    >
-                                        <label htmlFor="guess" className="sr-only">
-                                            Your answer
-                                        </label>
-                                        <input
-                                            id="guess"
-                                            value={guess}
-                                            onChange={(e) => setGuess(e.target.value)}
-                                            disabled={!!result}
-                                            autoComplete="off"
-                                            placeholder="Your answer"
-                                            className="min-h-12 min-w-0 flex-[1_1_240px] rounded-xl border-2 px-4 text-lg"
-                                            style={{ borderColor: C.line }}
-                                        />
-                                        <button type="submit" className={btn} style={{ background: C.brand, color: '#fff' }}>
-                                            {result ? 'Next' : 'Check'}
-                                        </button>
-                                        {!result && (
-                                            <button
-                                                type="button"
-                                                onClick={() => setHint(true)}
-                                                className={`${btn} border`}
-                                                style={{ borderColor: C.line }}
-                                            >
-                                                <Lightbulb className="size-4" /> Hint
-                                            </button>
-                                        )}
-                                    </form>
-                                    {hint && !result && (
-                                        <p className="mt-3 text-sm" style={{ color: C.soft }}>
-                                            Starts with <strong>{pc.term.charAt(0)}</strong>, {pc.term.replace(/\s*\(.*?\)/, '').length} characters.
-                                        </p>
-                                    )}
-                                    {result && (
-                                        <p
-                                            role="status"
-                                            className="mt-4 rounded-xl px-4 py-3 font-semibold"
-                                            style={
-                                                result === 'wrong' ? { background: C.redBg, color: C.red } : { background: C.mintBg, color: C.mint }
-                                            }
-                                        >
-                                            {result === 'right' && 'Correct!'}
-                                            {result === 'close' && `Close enough. Watch the spelling: "${pc.term}".`}
-                                            {result === 'wrong' && `The answer is "${pc.term}".`}
-                                        </p>
-                                    )}
-                                </div>
-                            )
                         )}
                     </section>
 
-                    {/* What a real version adds */}
-                    <section className="mt-16 border-t pt-10" style={{ borderColor: C.line }}>
-                        <h2 className="text-2xl font-extrabold">What the full AI version adds</h2>
-                        <ul className="mt-4 grid gap-x-10 gap-y-3 sm:grid-cols-2">
-                            {[
-                                'Reads PowerPoint and PDF slides, not just typed notes',
-                                'Writes its own questions, including "why" and "compare" questions',
-                                'Spaced repetition: brings back cards right before you forget them',
-                                'Short explainer videos and worked examples for tough topics',
-                                'Shares a study set with classmates',
-                                'Tracks which topics need more work before the exam',
-                            ].map((f) => (
-                                <li key={f} className="flex items-start gap-2">
-                                    <Sparkles className="mt-1 size-4 shrink-0" style={{ color: C.brand }} /> {f}
-                                </li>
+                    {/* Study */}
+                    <section aria-labelledby="study" className="mt-6 rounded-3xl border p-5 sm:p-7" style={panel}>
+                        <h2 id="study" className="sr-only">
+                            Study
+                        </h2>
+                        <div role="tablist" aria-label="Study modes" className="-mx-1 flex gap-1 overflow-x-auto pb-1">
+                            {p.order.map((m) => (
+                                <button
+                                    key={m}
+                                    type="button"
+                                    role="tab"
+                                    aria-selected={activeMode === m}
+                                    onClick={() => setMode(m)}
+                                    className="relative min-h-11 shrink-0 rounded-xl px-4 text-sm font-semibold"
+                                    style={activeMode === m ? { background: C.brand, color: '#fff' } : { color: C.soft }}
+                                >
+                                    {MODE_LABEL[m]}
+                                    {p.recommended.includes(m) && (
+                                        <span
+                                            className="ml-1.5 inline-block size-1.5 rounded-full align-middle"
+                                            style={{ background: C.gold }}
+                                            aria-label="(recommended)"
+                                        />
+                                    )}
+                                </button>
                             ))}
-                        </ul>
+                        </div>
+                        <p className="mt-1 text-xs" style={{ color: C.soft }}>
+                            <span className="mr-1 inline-block size-1.5 rounded-full align-middle" style={{ background: C.gold }} /> recommended for
+                            this exam
+                        </p>
+                        <div role="tabpanel" className="mt-5" key={`${course.id}-${activeMode}`}>
+                            {activeMode === 'review' && <Review cards={course.cards} grade={grade} toggleStar={toggleStar} />}
+                            {activeMode === 'quiz' && <Quiz cards={course.cards} grade={grade} />}
+                            {activeMode === 'recall' && <Recall cards={course.cards} grade={grade} />}
+                            {activeMode === 'explain' && <Explain cards={course.cards} grade={grade} />}
+                            {activeMode === 'drill' && <Drill cards={course.cards} grade={grade} />}
+                            {activeMode === 'sheet' && <CheatSheet course={course} />}
+                            {activeMode === 'index' && <Index course={course} />}
+                            {activeMode === 'trouble' && (
+                                <Trouble
+                                    cards={course.cards}
+                                    toggleStar={toggleStar}
+                                    update={(c) => editCards((cs) => cs.map((x) => (x.id === c.id ? c : x)))}
+                                    remove={(id) => editCards((cs) => cs.filter((x) => x.id !== id))}
+                                />
+                            )}
+                        </div>
+                    </section>
+
+                    {/* Data */}
+                    <section className="mt-6 flex flex-wrap items-center gap-3 text-sm" style={{ color: C.soft }}>
+                        <span>Your data lives in this browser. Back it up before clearing your browser or switching devices.</span>
+                        <button type="button" onClick={exportAll} className={`${btn} border`} style={{ borderColor: C.line, color: C.ink }}>
+                            <Download className="size-4" /> Back up
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => importRef.current?.click()}
+                            className={`${btn} border`}
+                            style={{ borderColor: C.line, color: C.ink }}
+                        >
+                            <Upload className="size-4" /> Restore
+                        </button>
+                        <input
+                            ref={importRef}
+                            type="file"
+                            accept=".json"
+                            className="sr-only"
+                            onChange={importAll}
+                            aria-label="Restore a backup file"
+                        />
+                        <button
+                            type="button"
+                            className={`${btn} border`}
+                            style={{ borderColor: C.line, color: C.red }}
+                            onClick={() => {
+                                if (!confirm(`Delete "${course.name}" and all its cards?`)) return;
+                                const rest = store.courses.filter((c) => c.id !== course.id);
+                                const next = rest.length ? rest : [sampleCourse()];
+                                setStore({ courses: next, active: next[0].id });
+                                setMode(null);
+                            }}
+                        >
+                            <Trash2 className="size-4" /> Delete course
+                        </button>
                     </section>
                 </main>
-
-                <footer className="border-t" style={{ borderColor: C.line, background: C.card }}>
-                    <div
-                        className="mx-auto flex max-w-[1100px] flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm sm:px-8"
-                        style={{ color: C.soft }}
-                    >
-                        <p>StudyLoop is a demo app. Your notes stay in your browser and are never uploaded.</p>
-                        <Link
-                            href="/services/ai-agents"
-                            className="inline-flex min-h-11 items-center font-bold underline underline-offset-4"
-                            style={{ color: C.ink }}
-                        >
-                            Want an AI tool like this? Let's talk →
-                        </Link>
-                    </div>
-                </footer>
             </div>
         </>
     );
