@@ -24,10 +24,15 @@ export function SectionHeading({
 }) {
     return (
         <div className={className}>
-            <p className={`font-cond mb-2 text-base font-bold tracking-[0.14em] uppercase ${tone === 'dark' ? 'text-led' : 'text-royal'}`}>
+            <p
+                data-reveal
+                className={`font-cond mb-2 text-base font-bold tracking-[0.14em] uppercase ${tone === 'dark' ? 'text-led' : 'text-royal'}`}
+            >
                 {eyebrow}
             </p>
-            <h2 className="font-display text-5xl leading-[0.95] uppercase sm:text-7xl lg:text-[88px]">{title}</h2>
+            <h2 data-reveal="mask" className="font-display text-5xl leading-[0.95] uppercase sm:text-7xl lg:text-[88px]">
+                {title}
+            </h2>
         </div>
     );
 }

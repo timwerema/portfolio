@@ -10,7 +10,8 @@
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix",
         "resume:pdf": "node scripts/resume-pdf.mjs",
-        "brand:assets": "node scripts/brand-assets.mjs"
+        "brand:assets": "node scripts/brand-assets.mjs",
+        "demo:previews": "node scripts/demo-previews.mjs"
     },
     "devDependencies": {
         "@eslint/js": "^9.19.0",
