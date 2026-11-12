@@ -1,7 +1,8 @@
+import { useActiveSection } from '@/components/motion';
 import { type Service } from '@/types/portfolio';
 import { Link } from '@inertiajs/react';
 import { Menu, X } from 'lucide-react';
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useLayoutEffect, useRef, useState } from 'react';
 
 const sections = [
     { id: 'work', label: 'Work' },
@@ -9,6 +10,7 @@ const sections = [
     { id: 'packages', label: 'Packages' },
     { id: 'about', label: 'About' },
 ];
+const SECTION_IDS = sections.map((s) => s.id);
 
 /** The "Ball seams" logo: a basketball drawn in seams with a royal name plate. Seams use the current text colour. */
 const TW_PATH =
@@ -143,6 +145,23 @@ export function SiteLayout({
 }) {
     const [menuOpen, setMenuOpen] = useState(false);
     const href = (id: string) => (home ? `#${id}` : `/#${id}`);
+    const active = useActiveSection(SECTION_IDS);
+    const navRef = useRef<HTMLDivElement>(null);
+    const [bar, setBar] = useState<{ left: number; width: number } | null>(null);
+
+    // The blue underline slides to the section you're reading (or "Start a project" at the very top / on other pages).
+    useLayoutEffect(() => {
+        const nav = navRef.current;
+        if (!nav) return;
+        const target = nav.querySelector<HTMLElement>(`[data-nav="${home && active ? active : 'start'}"]`);
+        if (!target) return;
+        const measure = () => setBar({ left: target.offsetLeft, width: target.offsetWidth });
+        measure();
+        // Re-measure once the web fonts are in (text width changes), and on resize.
+        document.fonts?.ready.then(measure);
+        window.addEventListener('resize', measure);
+        return () => window.removeEventListener('resize', measure);
+    }, [active, home]);
     const navLink = 'font-cond py-3 text-lg font-semibold tracking-[0.08em] uppercase text-silver hover:text-white';
 
     const brand = (
@@ -165,9 +184,15 @@ export function SiteLayout({
                             {brand}
                         </Link>
                     )}
-                    <div className="hidden items-center gap-7 md:flex">
+                    <div ref={navRef} className="relative hidden items-center gap-7 md:flex">
                         {sections.map((s) => (
-                            <a key={s.id} href={href(s.id)} className={navLink}>
+                            <a
+                                key={s.id}
+                                href={href(s.id)}
+                                data-nav={s.id}
+                                aria-current={home && active === s.id ? 'location' : undefined}
+                                className={`${navLink} transition-colors ${home && active === s.id ? 'text-white' : ''}`}
+                            >
                                 {s.label}
                             </a>
                         ))}
@@ -176,9 +201,14 @@ export function SiteLayout({
                                 Resume
                             </a>
                         )}
-                        <Link href="/start" className="font-cond border-led border-b-2 py-2 text-lg font-bold tracking-[0.08em] text-white uppercase">
+                        <Link href="/start" data-nav="start" className="font-cond py-3 text-lg font-bold tracking-[0.08em] text-white uppercase">
                             Start a project
                         </Link>
+                        <span
+                            aria-hidden="true"
+                            className="bg-led absolute bottom-1 h-0.5 rounded-full transition-[left,width] duration-500 ease-[cubic-bezier(.2,.7,.2,1)] motion-reduce:transition-none"
+                            style={bar ? { left: bar.left, width: bar.width } : { left: 0, width: 0, opacity: 0 }}
+                        />
                     </div>
                     <button
                         type="button"

@@ -217,3 +217,73 @@ export function HoverPreview({
         </>
     );
 }
+
+/** Which page section (by id) is currently on screen, so the nav can point at it. */
+export function useActiveSection(ids: string[]): string | null {
+    const [active, setActive] = useState<string | null>(null);
+    useEffect(() => {
+        const els = ids.map((id) => document.getElementById(id)).filter((el): el is HTMLElement => !!el);
+        if (!els.length) return;
+        const ratios = new Map<string, number>();
+        const io = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((e) => ratios.set(e.target.id, e.isIntersecting ? e.intersectionRatio : 0));
+                // Pick the section with the most of itself on screen; near the top of the page, none.
+                const best = [...ratios.entries()].sort((a, b) => b[1] - a[1])[0];
+                setActive(best && best[1] > 0 ? best[0] : null);
+            },
+            { rootMargin: '-35% 0px -45% 0px', threshold: [0, 0.1, 0.25, 0.5, 0.75, 1] },
+        );
+        els.forEach((el) => io.observe(el));
+        return () => io.disconnect();
+    }, [ids]);
+    return active;
+}
+
+/** Types each phrase, pauses, backspaces, then the next one. Static first phrase for reduced motion and screen readers. */
+export function Typewriter({ phrases, className = '' }: { phrases: string[]; className?: string }) {
+    const [text, setText] = useState(phrases[0] ?? '');
+    const [blink, setBlink] = useState(true);
+    useEffect(() => {
+        if (reduced() || phrases.length < 2) return;
+        let i = 0;
+        let len = phrases[0].length;
+        let deleting = false;
+        let timer = 0;
+        const tick = () => {
+            const full = phrases[i];
+            if (!deleting && len < full.length) {
+                len++;
+                setText(full.slice(0, len));
+                timer = window.setTimeout(tick, 45 + Math.random() * 40);
+            } else if (!deleting) {
+                deleting = true;
+                timer = window.setTimeout(tick, 1900); // read it
+            } else if (len > 0) {
+                len--;
+                setText(full.slice(0, len));
+                timer = window.setTimeout(tick, 24);
+            } else {
+                deleting = false;
+                i = (i + 1) % phrases.length;
+                timer = window.setTimeout(tick, 350);
+            }
+        };
+        timer = window.setTimeout(tick, 1600);
+        const blinkTimer = window.setInterval(() => setBlink((b) => !b), 530);
+        return () => {
+            clearTimeout(timer);
+            clearInterval(blinkTimer);
+        };
+    }, [phrases]);
+    return (
+        <span className={className} aria-label={phrases.join('. ')}>
+            <span aria-hidden="true">{text}</span>
+            <span
+                aria-hidden="true"
+                className="ml-0.5 inline-block w-[0.08em] translate-y-[0.08em] bg-current align-baseline"
+                style={{ height: '0.95em', opacity: blink ? 1 : 0 }}
+            />
+        </span>
+    );
+}
