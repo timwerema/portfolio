@@ -199,7 +199,14 @@ export function notesToCards(text: string, source: string): Draft[] {
  */
 export function slidesToCards(slides: Slide[], lecture: string): Draft[] {
     const out: Draft[] = [];
+    // The same title can appear in different sections (e.g. "Address Translation" under Segmentation and under Paging).
+    // Give each repeat its section so the cards stay distinct: "Address Translation (Paging)".
+    const titleCount = new Map<string, number>();
+    for (const s of slides) if (s.title) titleCount.set(s.title, (titleCount.get(s.title) ?? 0) + 1);
+    let section = '';
     for (const s of slides) {
+        if (/^what is (.+)\?$/i.test(s.title)) section = s.title.replace(/^what is (.+)\?$/i, '$1');
+        if ((titleCount.get(s.title) ?? 0) > 1 && section && !s.title.includes(section)) s.title = `${s.title} (${section})`;
         if (!s.title && !s.lines.length) continue;
         if (SKIP.test(s.title) || (s.n === 1 && s.lines.length < 3)) continue; // title slide, agenda...
         const source = `${lecture} · slide ${s.n}`;
@@ -219,5 +226,12 @@ export function slidesToCards(slides: Slide[], lecture: string): Draft[] {
             out.push({ term: s.title, def: points.join(' • ').slice(0, 420), topic, source });
         }
     }
-    return out;
+    // Same term twice (build steps that differ by a line): keep the fuller one.
+    const best = new Map<string, Draft>();
+    for (const d of out) {
+        const key = d.term.toLowerCase();
+        const prev = best.get(key);
+        if (!prev || d.def.length > prev.def.length) best.set(key, d);
+    }
+    return [...best.values()];
 }
