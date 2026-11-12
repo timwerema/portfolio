@@ -1,5 +1,5 @@
 import ContactForm from '@/components/contact-form';
-import { CountUp, HoverPreview, Marquee, useParallax, useReveal, useScrollProgress } from '@/components/motion';
+import { CountUp, HoverPreview, Marquee, Typewriter, useParallax, useReveal, useScrollProgress } from '@/components/motion';
 import { PillLink, PlayDiagram, SectionHeading, SiteLayout } from '@/components/site-layout';
 import { type Portfolio } from '@/types/portfolio';
 import { Head, Link } from '@inertiajs/react';
@@ -95,6 +95,13 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
     } = portfolio;
     useReveal();
     const school = education[0];
+    const typing = [
+        'websites that bring in customers',
+        'dashboards that save hours a week',
+        'AI bots that do the busywork',
+        'tools that cut validation time 65%',
+        'software shaped around how you work',
+    ];
     const classYear = school?.period.match(/\d{4}/)?.[0]?.slice(2);
 
     return (
@@ -122,9 +129,13 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                     <br />
                                     win your next
                                     <br />
-                                    <span className="text-royal">customer.</span>
+                                    <span className="text-gradient-royal">customer.</span>
                                 </h1>
-                                <p className="text-ink-soft mt-7 max-w-xl text-xl">{tagline}</p>
+                                <p className="font-cond text-royal mt-6 min-h-[1.4em] text-2xl font-bold tracking-[0.04em] uppercase sm:text-3xl">
+                                    <span className="text-ink-muted">I build </span>
+                                    <Typewriter phrases={typing} />
+                                </p>
+                                <p className="text-ink-soft mt-5 max-w-xl text-xl">{tagline}</p>
                                 <div className="mt-9 flex flex-wrap gap-3">
                                     <PillLink href="/start" internal>
                                         Start a project
@@ -136,7 +147,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                             </div>
 
                             {/* Player card */}
-                            <div className="bg-navy text-on-navy w-full max-w-[360px] flex-[1_1_300px] rounded-md p-7 shadow-[10px_10px_0_var(--color-royal)]">
+                            <div className="bg-gradient-navy text-on-navy w-full max-w-[360px] flex-[1_1_300px] rounded-md p-7 shadow-[10px_10px_0_var(--color-royal)]">
                                 <div className="flex items-start justify-between">
                                     <span className="font-cond text-silver text-[15px] font-bold tracking-[0.12em] uppercase">Player card</span>
                                     {classYear && <span className="font-display text-led text-6xl leading-[0.8]">{classYear}</span>}
@@ -160,7 +171,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                     </section>
 
                     {/* Scoreboard */}
-                    <section aria-label="Career stats" className="bg-navy-deep text-on-navy">
+                    <section aria-label="Career stats" className="bg-gradient-stats text-on-navy">
                         <dl className="mx-auto flex max-w-[1240px] flex-wrap gap-y-8 px-5 py-10 sm:px-10 lg:px-16">
                             {stats.map((s) => (
                                 <div key={s.label} className="border-navy-line flex-[1_1_220px] border-l-2 px-6">
@@ -187,7 +198,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                 {projects.map((p, i) => (
                                     <article
                                         key={p.title}
-                                        data-reveal
+                                        data-reveal="left"
                                         className="border-maple-line flex flex-wrap items-center gap-x-10 gap-y-2 border-t py-8 first:border-t-0"
                                     >
                                         <span
@@ -281,7 +292,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                 {services.map((s, i) => (
                                     <Link
                                         key={s.slug}
-                                        data-reveal
+                                        data-reveal="left"
                                         style={stagger(i)}
                                         href={route('services.show', s.slug)}
                                         className="group border-navy-line hover:bg-navy-deep/60 -mx-4 flex flex-wrap items-center gap-x-10 gap-y-4 rounded-sm border-t px-4 py-7 transition-colors first:border-t-0"
@@ -327,7 +338,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                 {packages.map((pkg, i) => (
                                     <div
                                         key={pkg.name}
-                                        data-reveal
+                                        data-reveal="left"
                                         style={stagger(i)}
                                         className={`border-rule flex flex-wrap items-baseline gap-x-8 gap-y-2 rounded-md border-2 px-6 py-7 sm:px-8 ${
                                             pkg.featured ? 'bg-navy text-on-navy shadow-[8px_8px_0_var(--color-royal)]' : 'bg-maple-light'

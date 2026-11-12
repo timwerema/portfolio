@@ -300,3 +300,51 @@ html:has(.hardwood) {
         animation: none;
     }
 }
+
+/* Gradient accents (Hardwood). Text gradient falls back to solid royal where unsupported. */
+.text-gradient-royal {
+    color: var(--color-royal);
+    background: linear-gradient(100deg, var(--color-royal) 0%, var(--color-led) 55%, var(--color-royal) 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: sheen 6s ease-in-out infinite;
+}
+@keyframes sheen {
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+.bg-gradient-navy {
+    background: linear-gradient(
+        135deg,
+        var(--color-navy) 0%,
+        var(--color-navy-deep) 60%,
+        color-mix(in srgb, var(--color-royal) 35%, var(--color-navy-deep)) 100%
+    );
+}
+.bg-gradient-stats {
+    background:
+        radial-gradient(900px 300px at 15% 0%, color-mix(in srgb, var(--color-royal) 28%, transparent), transparent 70%),
+        linear-gradient(90deg, var(--color-navy-deep), var(--color-navy));
+}
+@media (prefers-reduced-motion: reduce) {
+    .text-gradient-royal {
+        animation: none;
+    }
+}
+
+/* Reveal variant that enters from the left, so the eye reads left → right. */
+.js-motion [data-reveal='left'] {
+    opacity: 0;
+    transform: translateX(-32px);
+}
+.js-motion [data-reveal='left'][data-shown] {
+    opacity: 1;
+    transform: none;
+}
