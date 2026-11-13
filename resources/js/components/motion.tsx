@@ -287,3 +287,78 @@ export function Typewriter({ phrases, className = '' }: { phrases: string[]; cla
         </span>
     );
 }
+
+/**
+ * Custom cursor: a small dot that sits on the pointer and a ring that trails it and grows over links.
+ * Mouse/trackpad only; off for touch screens and reduced motion. The real cursor is hidden on the page.
+ */
+export function Cursor() {
+    const dot = useRef<HTMLDivElement>(null);
+    const ring = useRef<HTMLDivElement>(null);
+    const [on, setOn] = useState(false);
+    useEffect(() => {
+        if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches || reduced()) return;
+        setOn(true);
+        document.documentElement.classList.add('has-cursor');
+        let x = -100;
+        let y = -100;
+        let rx = x;
+        let ry = y;
+        let frame = 0;
+        let big = false;
+        const move = (e: PointerEvent) => {
+            x = e.clientX;
+            y = e.clientY;
+            if (dot.current) dot.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+            const t = e.target as HTMLElement | null;
+            big = !!t?.closest('a, button, [role="button"], input, select, textarea, summary, label');
+            ring.current?.toggleAttribute('data-big', big);
+            if (!frame) frame = requestAnimationFrame(tick);
+        };
+        const tick = () => {
+            rx += (x - rx) * 0.18;
+            ry += (y - ry) * 0.18;
+            if (ring.current) ring.current.style.transform = `translate3d(${rx}px, ${ry}px, 0) scale(${big ? 2.2 : 1})`;
+            frame = Math.abs(x - rx) + Math.abs(y - ry) > 0.2 ? requestAnimationFrame(tick) : 0;
+        };
+        const leave = () => {
+            if (dot.current) dot.current.style.opacity = '0';
+            if (ring.current) ring.current.style.opacity = '0';
+        };
+        const enter = () => {
+            if (dot.current) dot.current.style.opacity = '1';
+            if (ring.current) ring.current.style.opacity = '1';
+        };
+        window.addEventListener('pointermove', move, { passive: true });
+        document.documentElement.addEventListener('mouseleave', leave);
+        document.documentElement.addEventListener('mouseenter', enter);
+        return () => {
+            cancelAnimationFrame(frame);
+            window.removeEventListener('pointermove', move);
+            document.documentElement.removeEventListener('mouseleave', leave);
+            document.documentElement.removeEventListener('mouseenter', enter);
+            document.documentElement.classList.remove('has-cursor');
+        };
+    }, []);
+    if (!on) return null;
+    return (
+        <>
+            <div ref={dot} aria-hidden="true" className="cursor-dot" />
+            <div ref={ring} aria-hidden="true" className="cursor-ring" />
+        </>
+    );
+}
+
+/** A live clock for one time zone, like the office rows on studio sites. Updates every second. */
+export function LiveClock({ zone, className = '' }: { zone: string; className?: string }) {
+    const [now, setNow] = useState(() => new Date());
+    useEffect(() => {
+        const t = setInterval(() => setNow(new Date()), 1000);
+        return () => clearInterval(t);
+    }, []);
+    return (
+        <time dateTime={now.toISOString()} className={`tabular-nums ${className}`}>
+            {now.toLocaleTimeString('en-US', { timeZone: zone, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+        </time>
+    );
+}

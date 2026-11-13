@@ -359,3 +359,75 @@ html:has(.hardwood) {
     opacity: 1;
     transform: none;
 }
+
+/* Custom cursor (components/motion.tsx). Only when .has-cursor is set: mouse/trackpad, no reduced motion. */
+.has-cursor,
+.has-cursor a,
+.has-cursor button,
+.has-cursor label,
+.has-cursor summary {
+    cursor: none;
+}
+.has-cursor input,
+.has-cursor textarea,
+.has-cursor select {
+    cursor: auto;
+}
+.cursor-dot,
+.cursor-ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    pointer-events: none;
+    border-radius: 999px;
+    transition: opacity 0.2s;
+}
+.cursor-dot {
+    width: 6px;
+    height: 6px;
+    margin: -3px 0 0 -3px;
+    background: var(--color-royal);
+}
+.cursor-ring {
+    width: 32px;
+    height: 32px;
+    margin: -16px 0 0 -16px;
+    border: 1px solid var(--color-royal);
+    opacity: 0.9;
+    transition:
+        opacity 0.2s,
+        border-color 0.2s,
+        background-color 0.2s;
+}
+.cursor-ring[data-big] {
+    background: color-mix(in srgb, var(--color-royal) 18%, transparent);
+}
+
+/* Quick fade between pages (Inertia swaps the page; body fades out on leave, in on arrive). */
+.page-fade {
+    animation: page-in 0.35s ease-out both;
+}
+.page-leaving {
+    opacity: 0;
+    transition: opacity 0.18s ease-in;
+}
+@keyframes page-in {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .page-fade {
+        animation: none;
+    }
+    .page-leaving {
+        transition: none;
+        opacity: 1;
+    }
+}
