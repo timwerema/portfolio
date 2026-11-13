@@ -1,8 +1,8 @@
-import { useActiveSection } from '@/components/motion';
+import { Cursor, LiveClock, useActiveSection } from '@/components/motion';
 import { type Service } from '@/types/portfolio';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { ArrowUpRight, Menu, X } from 'lucide-react';
-import { type ReactNode, useLayoutEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 /*
  * Public layout, "Studio" look: near-black paper, warm off-white ink, one blue accent,
@@ -200,6 +200,18 @@ export function SiteLayout({
         return () => window.removeEventListener('resize', measure);
     }, [active, home]);
 
+    // Fade out before Inertia navigates to another page, fade in on arrival (the page-fade class).
+    useEffect(() => {
+        const off = router.on('start', (e) => {
+            if (e.detail.visit.url.pathname !== window.location.pathname) document.body.classList.add('page-leaving');
+        });
+        const offDone = router.on('finish', () => document.body.classList.remove('page-leaving'));
+        return () => {
+            off();
+            offDone();
+        };
+    }, []);
+
     const navLink = 'font-cond py-3 text-ink-muted hover:text-ink transition-colors';
     const brand = (
         <>
@@ -209,7 +221,8 @@ export function SiteLayout({
     );
 
     return (
-        <div className="hardwood bg-maple text-ink font-body min-h-screen text-[15px] leading-relaxed sm:text-[16px]">
+        <div className="hardwood page-fade bg-maple text-ink font-body min-h-screen text-[15px] leading-relaxed sm:text-[16px]">
+            <Cursor />
             <header className="border-maple-line bg-maple/85 sticky top-0 z-40 border-b backdrop-blur">
                 <nav className="mx-auto flex max-w-[1280px] items-center justify-between gap-6 px-5 py-3 sm:px-8 lg:px-10">
                     {home ? (
@@ -280,6 +293,27 @@ export function SiteLayout({
             {children}
 
             <footer className="border-maple-line border-t">
+                {/* Studio clock row: where I am, what time it is, and whether I'm likely awake. */}
+                <div className="border-maple-line border-b">
+                    <dl className="font-cond text-ink-muted mx-auto grid max-w-[1280px] grid-cols-2 gap-x-8 gap-y-5 px-5 py-6 sm:grid-cols-4 sm:px-8 lg:px-10">
+                        {[
+                            ['DAL / Dallas', 'America/Chicago', 'Home base · UT Dallas'],
+                            ['NYC / New York', 'America/New_York', 'Remote clients'],
+                            ['SFO / San Francisco', 'America/Los_Angeles', 'Remote clients'],
+                            ['LON / London', 'Europe/London', 'Remote clients'],
+                        ].map(([label, zone, note]) => (
+                            <div key={zone}>
+                                <dt>
+                                    <span className="text-royal">{label.split(' / ')[0]}</span> / {label.split(' / ')[1]}
+                                </dt>
+                                <dd className="text-ink mt-1 text-2xl">
+                                    <LiveClock zone={zone} />
+                                </dd>
+                                <dd className="mt-0.5">{note}</dd>
+                            </div>
+                        ))}
+                    </dl>
+                </div>
                 <div className="font-cond text-ink-muted mx-auto flex max-w-[1280px] flex-col items-start justify-between gap-3 px-5 py-8 sm:flex-row sm:items-center sm:px-8 lg:px-10">
                     <p>
                         © {new Date().getFullYear()} {name} · Dallas, TX
