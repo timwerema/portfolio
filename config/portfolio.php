@@ -367,6 +367,13 @@ return [
             'package' => 'Custom',
         ],
         [
+            'title' => 'Hardwood Performance Lab',
+            'type' => 'Basketball training facility',
+            'description' => 'Maple court, navy and LED scoreboard: programs, a facility tour, a scroll-driven game plan, memberships and a free-evaluation form. The original look of this portfolio, kept for sports and fitness clients.',
+            'url' => '/demos/hardwood',
+            'package' => 'Business',
+        ],
+        [
             'title' => 'Galacticals SC - v3 concept',
             'type' => 'Youth soccer academy',
             'description' => 'A redesign of the club site I built: Apple/Google sign-in, a schedule hub with calendar, upcoming and payment tabs, and one-tap registration.',

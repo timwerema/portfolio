@@ -8,8 +8,8 @@ const UPDATED = 'November 9, 2026';
 function Section({ title, children }: { title: string; children: ReactNode }) {
     return (
         <section className="border-maple-line border-t py-7 first:border-t-0">
-            <h2 className="font-display text-3xl uppercase">{title}</h2>
-            <div className="text-ink-soft mt-3 space-y-3 text-lg leading-relaxed [&_li]:ml-5 [&_li]:list-disc">{children}</div>
+            <h2 className="font-display text-xl sm:text-2xl">{title}</h2>
+            <div className="text-ink-soft mt-3 space-y-3 leading-relaxed [&_li]:ml-5 [&_li]:list-disc">{children}</div>
         </section>
     );
 }

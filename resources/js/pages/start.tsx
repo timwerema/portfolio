@@ -24,7 +24,7 @@ type FormData = {
 const STEPS = ['What you need', 'Your business', 'How to reach you'];
 
 const field =
-    'border-rule bg-maple-light text-ink placeholder:text-ink-muted focus-visible:outline-royal min-h-12 w-full rounded-md border-2 px-4 text-lg focus-visible:outline-3 focus-visible:outline-offset-1';
+    'border-maple-line bg-maple-light text-ink placeholder:text-ink-muted focus-visible:outline-royal min-h-12 w-full rounded-sm border px-4 focus-visible:outline-3 focus-visible:outline-offset-1';
 
 function Choice({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: ReactNode }) {
     return (
@@ -32,8 +32,8 @@ function Choice({ selected, onClick, children }: { selected: boolean; onClick: (
             type="button"
             aria-pressed={selected}
             onClick={onClick}
-            className={`font-cond flex min-h-12 items-center gap-2 rounded-full border-2 px-5 text-lg font-bold tracking-[0.04em] uppercase transition-colors ${
-                selected ? 'border-rule bg-navy text-on-navy' : 'border-rule/40 text-strong hover:border-rule'
+            className={`font-cond flex min-h-12 items-center gap-2 rounded-full border px-5 font-medium transition-colors ${
+                selected ? 'border-royal bg-royal text-maple' : 'border-maple-line text-ink hover:border-ink'
             }`}
         >
             {selected && <Check className="size-4" />}
@@ -98,9 +98,9 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                     {sent ? (
                         <div role="status">
                             <CircleCheck className="text-royal size-14" />
-                            <h1 className="font-display mt-4 text-6xl uppercase sm:text-7xl">Request received.</h1>
+                            <h1 className="font-display mt-4 text-4xl sm:text-5xl">Request received.</h1>
                             <p className="text-ink-soft mt-4 text-xl">Thanks for reaching out. Here's what happens next:</p>
-                            <ol className="border-rule mt-8 border-y-[3px]">
+                            <ol className="border-maple-line mt-8 border-y">
                                 {[
                                     ['Within 1 business day', 'I reply by email with a few questions, or a time for a quick call.'],
                                     ['15-minute call', 'We talk through your goals, what you like and what success looks like.'],
@@ -111,9 +111,9 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                                     ['Build & launch', 'Once you approve, I send a simple quote and we get to work.'],
                                 ].map(([t, d], i) => (
                                     <li key={t} className="border-maple-line flex gap-6 border-t py-5 first:border-t-0">
-                                        <span className="font-display text-royal text-4xl leading-none">{String(i + 1).padStart(2, '0')}</span>
+                                        <span className="font-cond text-royal pt-1">{String(i + 1).padStart(2, '0')}</span>
                                         <span>
-                                            <span className="block text-xl font-semibold">{t}</span>
+                                            <span className="block text-xl font-medium">{t}</span>
                                             <span className="text-ink-soft">{d}</span>
                                         </span>
                                     </li>
@@ -130,8 +130,8 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                         </div>
                     ) : (
                         <>
-                            <p className="font-cond text-royal text-lg font-bold tracking-[0.14em] uppercase">Start a project</p>
-                            <h1 className="font-display mt-2 text-6xl leading-[0.95] uppercase sm:text-7xl">Let's build something.</h1>
+                            <p className="font-cond text-royal font-medium">Start a project</p>
+                            <h1 className="font-display mt-2 text-4xl leading-[1.05] sm:text-5xl">Let's build something.</h1>
                             <p className="text-ink-soft mt-4 max-w-xl text-xl">
                                 Three quick steps, about two minutes. Every website project starts with a <strong>free demo homepage</strong> you
                                 approve before paying.
@@ -142,10 +142,10 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                                     <li
                                         key={s}
                                         aria-current={step === i ? 'step' : undefined}
-                                        className={`font-cond flex items-center gap-2 text-lg font-bold tracking-[0.06em] uppercase ${i <= step ? 'text-strong' : 'text-ink-muted'}`}
+                                        className={`font-cond flex items-center gap-2 font-medium ${i <= step ? 'text-strong' : 'text-ink-muted'}`}
                                     >
                                         <span
-                                            className={`flex size-8 items-center justify-center rounded-full border-2 ${i < step ? 'bg-royal border-royal text-white' : i === step ? 'border-rule' : 'border-maple-line'}`}
+                                            className={`flex size-8 items-center justify-center rounded-full border ${i < step ? 'bg-royal border-royal text-white' : i === step ? 'border-maple-line' : 'border-maple-line'}`}
                                         >
                                             {i < step ? <Check className="size-4" /> : i + 1}
                                         </span>
@@ -154,11 +154,15 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                                 ))}
                             </ol>
 
-                            <form onSubmit={submit} className="border-rule bg-maple-light relative mt-6 rounded-md border-2 p-6 sm:p-10" noValidate>
+                            <form
+                                onSubmit={submit}
+                                className="border-maple-line bg-maple-light relative mt-6 rounded-sm border p-6 sm:p-10"
+                                noValidate
+                            >
                                 {step === 0 && (
                                     <div className="space-y-8">
                                         <fieldset>
-                                            <legend className="font-display text-3xl uppercase">What do you need help with?</legend>
+                                            <legend className="font-display text-xl sm:text-2xl">What do you need help with?</legend>
                                             <p className="text-ink-soft mt-1">Pick all that apply.</p>
                                             <div className="mt-4 flex flex-wrap gap-2">
                                                 {portfolio.services.map((s) => (
@@ -174,7 +178,7 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                                             <InputError message={err.services} className="mt-2" />
                                         </fieldset>
                                         <fieldset>
-                                            <legend className="font-display text-3xl uppercase">Which package fits?</legend>
+                                            <legend className="font-display text-xl sm:text-2xl">Which package fits?</legend>
                                             <div className="mt-4 flex flex-wrap gap-2">
                                                 {[...portfolio.packages.map((p) => `${p.name}`), 'Not sure yet'].map((p) => (
                                                     <Choice
@@ -184,7 +188,7 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                                                     >
                                                         {p}
                                                         {portfolio.packages.find((x) => x.name === p) && (
-                                                            <span className="font-body text-sm font-semibold tracking-normal normal-case opacity-80">
+                                                            <span className="font-body text-sm font-medium tracking-normal normal-case opacity-80">
                                                                 {portfolio.packages.find((x) => x.name === p)!.price}
                                                             </span>
                                                         )}
@@ -193,7 +197,7 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                                             </div>
                                         </fieldset>
                                         <fieldset>
-                                            <legend className="font-display text-3xl uppercase">Budget</legend>
+                                            <legend className="font-display text-xl sm:text-2xl">Budget</legend>
                                             <div className="mt-4 flex flex-wrap gap-2">
                                                 {budgets.map((b) => (
                                                     <Choice key={b} selected={data.budget === b} onClick={() => setData('budget', b)}>
@@ -204,7 +208,7 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                                             <InputError message={err.budget} className="mt-2" />
                                         </fieldset>
                                         <fieldset>
-                                            <legend className="font-display text-3xl uppercase">Timeline</legend>
+                                            <legend className="font-display text-xl sm:text-2xl">Timeline</legend>
                                             <div className="mt-4 flex flex-wrap gap-2">
                                                 {timelines.map((t) => (
                                                     <Choice key={t} selected={data.timeline === t} onClick={() => setData('timeline', t)}>
@@ -219,9 +223,9 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
 
                                 {step === 1 && (
                                     <div className="space-y-6">
-                                        <h2 className="font-display text-3xl uppercase">Tell me about your business</h2>
+                                        <h2 className="font-display text-xl sm:text-2xl">Tell me about your business</h2>
                                         <label className="block">
-                                            <span className="mb-2 block text-lg font-semibold">Business name (optional)</span>
+                                            <span className="mb-2 block font-medium">Business name (optional)</span>
                                             <input
                                                 className={field}
                                                 value={data.business}
@@ -231,7 +235,7 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                                             <InputError message={err.business} className="mt-1" />
                                         </label>
                                         <label className="block">
-                                            <span className="mb-2 block text-lg font-semibold">Current website (optional)</span>
+                                            <span className="mb-2 block font-medium">Current website (optional)</span>
                                             <input
                                                 className={field}
                                                 value={data.business_website}
@@ -241,7 +245,7 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                                             <InputError message={err.business_website} className="mt-1" />
                                         </label>
                                         <label className="block">
-                                            <span className="mb-2 block text-lg font-semibold">What should this project do for you?</span>
+                                            <span className="mb-2 block font-medium">What should this project do for you?</span>
                                             <textarea
                                                 className={`${field} min-h-36 py-3`}
                                                 value={data.message}
@@ -255,10 +259,10 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
 
                                 {step === 2 && (
                                     <div className="space-y-6">
-                                        <h2 className="font-display text-3xl uppercase">How should I reach you?</h2>
+                                        <h2 className="font-display text-xl sm:text-2xl">How should I reach you?</h2>
                                         <div className="grid gap-6 sm:grid-cols-2">
                                             <label className="block">
-                                                <span className="mb-2 block text-lg font-semibold">Name</span>
+                                                <span className="mb-2 block font-medium">Name</span>
                                                 <input
                                                     className={field}
                                                     autoComplete="name"
@@ -268,7 +272,7 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                                                 <InputError message={err.name} className="mt-1" />
                                             </label>
                                             <label className="block">
-                                                <span className="mb-2 block text-lg font-semibold">Email</span>
+                                                <span className="mb-2 block font-medium">Email</span>
                                                 <input
                                                     className={field}
                                                     type="email"
@@ -280,7 +284,7 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                                             </label>
                                         </div>
                                         <label className="block">
-                                            <span className="mb-2 block text-lg font-semibold">Phone (optional)</span>
+                                            <span className="mb-2 block font-medium">Phone (optional)</span>
                                             <input
                                                 className={field}
                                                 type="tel"
@@ -313,7 +317,7 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                                 </div>
 
                                 {(stepError || err.throttle) && (
-                                    <p role="alert" className="text-danger mt-6 font-semibold">
+                                    <p role="alert" className="text-danger mt-6 font-medium">
                                         {stepError || err.throttle}
                                     </p>
                                 )}
@@ -323,7 +327,7 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                                         <button
                                             type="button"
                                             onClick={() => setStep((s) => s - 1)}
-                                            className="font-cond text-strong inline-flex min-h-12 items-center gap-2 text-lg font-bold tracking-[0.06em] uppercase"
+                                            className="font-cond text-strong inline-flex min-h-12 items-center gap-2 font-medium"
                                         >
                                             <ArrowLeft className="size-5" /> Back
                                         </button>
@@ -333,7 +337,7 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                                     <button
                                         type="submit"
                                         disabled={processing}
-                                        className="bg-royal hover:bg-royal-dark font-cond inline-flex min-h-[54px] items-center gap-2 rounded-full px-8 text-xl font-bold tracking-[0.06em] text-white uppercase disabled:opacity-60"
+                                        className="bg-royal hover:bg-royal-dark font-cond inline-flex min-h-[54px] items-center gap-2 rounded-full px-8 text-xl font-medium text-white disabled:opacity-60"
                                     >
                                         {processing && <LoaderCircle className="size-5 animate-spin" />}
                                         {step < 2 ? 'Next' : 'Send request'} {!processing && <ArrowRight className="size-5" />}

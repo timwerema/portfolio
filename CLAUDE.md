@@ -34,6 +34,7 @@ Context for Claude sessions working on this repository. Read this first.
   live in `resources/css/app.css`; use `border-rule`, `text-strong` and `text-on-navy`
   (not `border-navy`/`text-navy`/`text-maple-light`) so both modes work. Light demos keep
   colours as CSS variables in a `THEME` string on `:root:has(.<demo>)`.
+- Timasi reads left to right: reveals enter from the left. Inspiration for the main site: norrvik-template.modulify.website.
 - Public pages must not use AI-looking repeated card grids. Timasi dislikes them.
   Prefer rows, lists, tables and editorial layouts.
 - Demo sites are for **fictional** businesses: label them as demos, keep them `noindex`,
@@ -53,7 +54,7 @@ SQLite · Vite. Fonts are bundled with `@fontsource` (no external font CDNs).
 |---|---|
 | **All portfolio content** (bio, services, packages, projects, experience, demos, alert/reminder settings) | `config/portfolio.php` (edit content here, not in React) |
 | Public pages | `resources/js/pages/portfolio.tsx`, `service.tsx`, `resume.tsx` |
-| Public layout and theme ("Hardwood": maple, navy, royal blue) | `resources/js/components/site-layout.tsx`, theme tokens at the bottom of `resources/css/app.css` |
+| Public layout and theme ("Studio": near-black, warm off-white, one blue; Inter Tight + JetBrains Mono, hairline rows, `FIG. 01 /` mono labels, two-tone titles) | `resources/js/components/site-layout.tsx`, theme tokens in `resources/css/app.css`. Token *names* (maple, navy, royal, led...) are kept from the old basketball theme; the basketball look itself is now the Hardwood demo (`/demos/hardwood`). |
 | Demo sites | `resources/js/pages/demos/*.tsx`, routes in `routes/web.php`, listed in `config/portfolio.php` → `demos` |
 | Admin dashboard (`/dashboard`, login required) | `resources/js/pages/admin/**`, controllers in `app/Http/Controllers/Admin/` |
 | Client demo approvals (`/p/{token}`) | `PreviewReviewController`, `resources/js/pages/previews/*`. Uploaded HTML is served sandboxed. |
@@ -113,7 +114,7 @@ It pulls `main`, installs, builds, migrates and rebuilds caches. Then check
 - Demos built: Clearcoat (detailing, PPF & wraps), 4th Quarter (gym), Galacticals v3
   (club concept), LATESHIFT (streetwear store), StudyLoop (slides-to-learning),
   Encore (concert finder), Rundown (league stats), Deskbot (AI agent: pixel robot office
-  helper, scripted). No ideas queued.
+  helper, scripted), Hardwood Performance Lab (the original basketball portfolio look). No ideas queued.
 - "Look official" pages live in code: `/start` project questionnaire
   (`ProjectRequestController`, saved as a message with `source = start`), `/privacy`,
   `/terms` (`resources/js/pages/legal.tsx`). Needs a deploy to reach the box.

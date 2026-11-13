@@ -1,6 +1,8 @@
 import '../css/app.css';
 
 // Hardwood theme fonts, bundled with the site (no external font server).
+import '@fontsource-variable/inter-tight/wght.css';
+import '@fontsource-variable/jetbrains-mono/wght.css';
 import '@fontsource/anton/400.css';
 import '@fontsource/barlow-condensed/500.css';
 import '@fontsource/barlow-condensed/600.css';

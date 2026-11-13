@@ -27,8 +27,8 @@
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         <link rel="icon" href="/favicon.ico" sizes="32x32">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-        <meta name="theme-color" content="#10284a" media="(prefers-color-scheme: dark)">
-        <meta name="theme-color" content="#0b2545" media="(prefers-color-scheme: light)">
+        <meta name="theme-color" content="#0a0908" media="(prefers-color-scheme: dark)">
+        <meta name="theme-color" content="#f3efe7" media="(prefers-color-scheme: light)">
 
         @if ($seo['jsonLd'])
         <script type="application/ld+json">{!! json_encode($seo['jsonLd'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
