@@ -158,104 +158,115 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Hardwood theme (public pages): maple court, Dallas navy, royal blue, silver.
-   Admin pages keep the default shadcn theme above.
+   Public theme ("Studio"): near-black paper, warm off-white ink, one cool blue.
+   Inter Tight for everything, JetBrains Mono for small labels.
+   Token names are kept from the old Hardwood theme so every public page still works:
+     maple = page background, maple-light = raised panel, maple-line = hairline
+     ink = text, ink-soft = secondary text, ink-muted = labels
+     navy = dark band, navy-deep = deeper band, navy-line = hairline on a band
+     royal = accent, led = bright accent, silver = text on a band
+     rule = strong divider, strong = emphasis text, on-navy = text on a band
+   The basketball version lives on as the Hardwood demo (/demos/hardwood).
 --------------------------------------------------------------------------- */
 @theme {
-    --color-maple: #f1e4cc;
-    --color-maple-light: #fbf4e6;
-    --color-maple-line: #c9b999;
-    --color-ink: #17130e;
-    --color-ink-soft: #3d3328;
-    --color-ink-muted: #6b5d4c;
-    --color-navy: #0b2545;
-    --color-navy-deep: #071a33;
-    --color-navy-line: #26426b;
-    --color-royal: #0b5fcf;
-    --color-royal-dark: #084aa3;
-    --color-silver: #c4ccd3;
-    --color-led: #6cb8ff;
-    /* Semantic: thick rules and strong text on maple; cream text on navy panels. */
-    --color-rule: #0b2545;
-    --color-strong: #0b2545;
-    --color-on-navy: #fbf4e6;
-    --color-danger: #b42318;
+    --color-maple: #0a0908;
+    --color-maple-light: #11100e;
+    --color-maple-line: #26231f;
+    --color-ink: #ece6d8;
+    --color-ink-soft: #b9b2a3;
+    --color-ink-muted: #8a8478;
+    --color-navy: #11100e;
+    --color-navy-deep: #0a0908;
+    --color-navy-line: #26231f;
+    --color-royal: #86b6f0;
+    --color-royal-dark: #6ea1dd;
+    --color-silver: #b9b2a3;
+    --color-led: #86b6f0;
+    --color-rule: #3a3630;
+    --color-strong: #ece6d8;
+    --color-on-navy: #ece6d8;
+    --color-danger: #ff8a80;
 
-    --font-display: 'Anton', 'Impact', sans-serif;
-    --font-cond: 'Barlow Condensed', 'Arial Narrow', sans-serif;
-    --font-body: 'Barlow', ui-sans-serif, system-ui, sans-serif;
-    --font-led: 'Share Tech Mono', ui-monospace, monospace;
+    --font-display: 'Inter Tight Variable', 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+    --font-cond: 'JetBrains Mono Variable', ui-monospace, monospace;
+    --font-body: 'Inter Tight Variable', 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+    --font-led: 'JetBrains Mono Variable', ui-monospace, monospace;
 }
 
-/* Public pages: dark ("court at night") by default; the original light maple look
-   when the visitor's device is set to light mode. Set on <html> so popovers and
-   dropdowns (portalled to <body>) match too. Printing always uses the light look. */
+/* Public pages are dark by default; a warm paper look when the visitor's device is set to light mode.
+   Set on <html> so popovers and dropdowns (portalled to <body>) match too. Printing uses the light look. */
 html:has(.hardwood) {
     color-scheme: dark;
-    --color-maple: #0b0f17;
-    --color-maple-light: #131a26;
-    --color-maple-line: #2a3548;
-    --color-ink: #eef1f6;
-    --color-ink-soft: #c5ccd8;
-    --color-ink-muted: #8f9aab;
-    --color-navy: #10284a;
-    --color-navy-deep: #0a1b33;
-    --color-navy-line: #2b4a75;
-    --color-royal: #3d8bff;
-    --color-royal-dark: #2a74e6;
-    --color-rule: #3a5683;
-    --color-strong: #e6edf7;
-    --color-danger: #ff8a80;
-    --color-background: #131a26;
-    --color-foreground: #eef1f6;
-    --color-popover: #131a26;
-    --color-popover-foreground: #eef1f6;
-    --color-primary: #3d8bff;
-    --color-primary-foreground: #ffffff;
-    --color-muted: #1b2433;
-    --color-muted-foreground: #a3adbd;
-    --color-accent: #1f2a3c;
-    --color-accent-foreground: #eef1f6;
-    --color-border: #3a5683;
-    --color-input: #3a5683;
-    --color-ring: #3d8bff;
+    --color-background: #11100e;
+    --color-foreground: #ece6d8;
+    --color-popover: #11100e;
+    --color-popover-foreground: #ece6d8;
+    --color-primary: #86b6f0;
+    --color-primary-foreground: #0a0908;
+    --color-muted: #1a1815;
+    --color-muted-foreground: #8a8478;
+    --color-accent: #1f1c18;
+    --color-accent-foreground: #ece6d8;
+    --color-border: #3a3630;
+    --color-input: #3a3630;
+    --color-ring: #86b6f0;
     --color-destructive: #ff8a80;
-    background: #0b0f17;
+    background: #0a0908;
 }
 
 @media print, (prefers-color-scheme: light) {
     html:has(.hardwood) {
         color-scheme: light;
-        --color-maple: #f1e4cc;
-        --color-maple-light: #fbf4e6;
-        --color-maple-line: #c9b999;
-        --color-ink: #17130e;
-        --color-ink-soft: #3d3328;
-        --color-ink-muted: #6b5d4c;
-        --color-navy: #0b2545;
-        --color-navy-deep: #071a33;
-        --color-navy-line: #26426b;
-        --color-royal: #0b5fcf;
-        --color-royal-dark: #084aa3;
-        --color-rule: #0b2545;
-        --color-strong: #0b2545;
+        --color-maple: #f3efe7;
+        --color-maple-light: #faf8f3;
+        --color-maple-line: #ddd7cb;
+        --color-ink: #141210;
+        --color-ink-soft: #4a463f;
+        --color-ink-muted: #76706a;
+        --color-navy: #141210;
+        --color-navy-deep: #0a0908;
+        --color-navy-line: #2e2b26;
+        --color-royal: #1f5fb8;
+        --color-royal-dark: #184c94;
+        --color-silver: #b9b2a3;
+        --color-led: #86b6f0;
+        --color-rule: #141210;
+        --color-strong: #141210;
+        --color-on-navy: #ece6d8;
         --color-danger: #b42318;
-        --color-background: #fbf4e6;
-        --color-foreground: #17130e;
-        --color-popover: #fbf4e6;
-        --color-popover-foreground: #17130e;
-        --color-primary: #0b5fcf;
+        --color-background: #faf8f3;
+        --color-foreground: #141210;
+        --color-popover: #faf8f3;
+        --color-popover-foreground: #141210;
+        --color-primary: #1f5fb8;
         --color-primary-foreground: #ffffff;
-        --color-muted: #ece0c7;
-        --color-muted-foreground: #5c4f40;
-        --color-accent: #e6d7b9;
-        --color-accent-foreground: #17130e;
-        --color-border: #0b2545;
-        --color-input: #0b2545;
-        --color-ring: #0b5fcf;
+        --color-muted: #ece7dd;
+        --color-muted-foreground: #5e5951;
+        --color-accent: #e6e0d4;
+        --color-accent-foreground: #141210;
+        --color-border: #141210;
+        --color-input: #141210;
+        --color-ring: #1f5fb8;
         --color-destructive: #b42318;
-        background: #f1e4cc;
+        background: #f3efe7;
     }
+}
+
+/* Studio type styles */
+.hardwood .font-display {
+    letter-spacing: -0.03em;
+    text-transform: none;
+    font-weight: 500;
+}
+.hardwood .font-cond {
+    font-size: 0.72em;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+/* Two-tone titles: everything after the break is dimmed, like "The ground truth / for every building." */
+.hardwood .title-dim {
+    color: var(--color-ink-muted);
 }
 
 /* ---------------------------------------------------------------------------

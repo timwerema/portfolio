@@ -36,30 +36,29 @@ const css = `
 `;
 
 const og = `<!doctype html><html><head><meta charset="utf-8"><style>${css}
-body { width: 1200px; height: 630px; background: #f1e4cc; color: #17130e; font-family: Barlow; position: relative; overflow: hidden; }
-.court { position: absolute; right: -160px; top: -10px; width: 760px; height: 650px; opacity: .45; }
-.wrap { position: absolute; inset: 0; padding: 64px 72px; display: flex; flex-direction: column; }
-.brand { display: flex; align-items: center; gap: 16px; }
-.dot { width: 72px; height: 72px; background: url(${markUri}) center/contain no-repeat; }
-.name { font: 700 30px 'Barlow Condensed'; letter-spacing: .06em; text-transform: uppercase; }
-h1 { margin-top: 44px; font: 108px/0.92 Anton; text-transform: uppercase; }
-h1 span { color: #0b5fcf; }
-.tag { margin-top: 24px; max-width: 760px; font-size: 26px; color: #3d3328; font-weight: 500; }
-.bar { position: absolute; left: 0; right: 0; bottom: 0; height: 92px; background: #0b2545; display: flex; align-items: center; gap: 56px; padding: 0 72px; color: #f1e4cc; }
-.stat b { font: 40px LED; color: #6cb8ff; margin-right: 10px; }
-.stat { font: 700 20px 'Barlow Condensed'; letter-spacing: .1em; text-transform: uppercase; color: #c4ccd3; display: flex; align-items: baseline; }
+@font-face { font-family: 'Inter Tight'; src: url(${font('../@fontsource-variable/inter-tight', 'inter-tight-latin-wght-normal.woff2')}); font-weight: 100 900; }
+@font-face { font-family: Mono; src: url(${font('../@fontsource-variable/jetbrains-mono', 'jetbrains-mono-latin-wght-normal.woff2')}); font-weight: 100 800; }
+body { width: 1200px; height: 630px; background: #0a0908; color: #ece6d8; font-family: 'Inter Tight'; position: relative; overflow: hidden; }
+.wrap { position: absolute; inset: 0; padding: 60px 72px; display: flex; flex-direction: column; justify-content: space-between; }
+.top, .bot { display: flex; justify-content: space-between; align-items: center; font: 500 13px Mono; letter-spacing: .14em; text-transform: uppercase; color: #8a8478; }
+.top b { color: #86b6f0; font-weight: 500; }
+.brand { display: flex; align-items: center; gap: 14px; color: #ece6d8; }
+.dot { width: 44px; height: 44px; background: url(${markUri}) center/contain no-repeat; }
+h1 { font-size: 92px; line-height: 1.02; letter-spacing: -.03em; font-weight: 500; margin: 0; }
+h1 span { color: #8a8478; }
+.tag { margin-top: 26px; max-width: 760px; font-size: 24px; color: #b9b2a3; }
+.rule { position: absolute; left: 72px; right: 72px; top: 118px; height: 1px; background: #26231f; }
 </style></head><body>
-<svg class="court" viewBox="0 0 600 600"><g fill="none" stroke="#0b2545" stroke-width="3"><rect x="200" y="160" width="400" height="280"/><circle cx="200" cy="300" r="90"/><path d="M 600 40 L 520 40 A 260 260 0 0 0 520 560 L 600 560"/><circle cx="540" cy="300" r="14"/></g></svg>
+<div class="rule"></div>
 <div class="wrap">
-  <div class="brand"><div class="dot"></div><div class="name">${esc(p.name)} · ${esc(p.role)}</div></div>
-  <h1>Built to win your<br><span>next customer.</span></h1>
-  <p class="tag">Custom websites &amp; software for businesses · Dallas, TX</p>
+  <div class="top"><div class="brand"><div class="dot"></div><span>${esc(p.name)}</span></div><span><b>FIG. 01 /</b> ${esc(p.role)} · Dallas, TX</span></div>
+  <div><h1>Built to win<br><span>your next customer.</span></h1><p class="tag">Websites, software &amp; AI task bots for businesses. Every website starts with a free demo homepage.</p></div>
+  <div class="bot"><span>timasi.sterango.com</span><span>${(p.stats || []).slice(0, 3).map((s) => `${esc(s.value)} ${esc(s.label)}`).join('   ·   ')}</span></div>
 </div>
-<div class="bar">${(p.stats || []).slice(0, 3).map((s) => `<div class="stat"><b>${esc(s.value)}</b>${esc(s.label)}</div>`).join('')}</div>
 </body></html>`;
 
 // Apple touch icon: square navy tile with the mark; small icons: the round mark itself.
-const icon = (size) => `<!doctype html><html><head><meta charset="utf-8"><style>* { margin: 0 } body{width:${size}px;height:${size}px;background:${size >= 180 ? '#0b2545' : 'transparent'};display:flex;align-items:center;justify-content:center}
+const icon = (size) => `<!doctype html><html><head><meta charset="utf-8"><style>* { margin: 0 } body{width:${size}px;height:${size}px;background:${size >= 180 ? '#0a0908' : 'transparent'};display:flex;align-items:center;justify-content:center}
 img{width:${size >= 180 ? Math.round(size * 0.82) : size}px;height:auto}</style></head><body><img src="${markUri}"></body></html>`;
 
 const browser = await playwright.chromium.launch();

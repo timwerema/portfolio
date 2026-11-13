@@ -90,6 +90,7 @@ Route::get('/live', [LiveShowsController::class, 'page'])->name('live');
 Route::get('/live/shows', [LiveShowsController::class, 'shows'])->middleware('throttle:20,1')->name('live.shows');
 Route::get('/demos/rundown', fn () => Inertia::render('demos/rundown'))->name('demos.rundown');
 Route::get('/demos/deskbot', fn () => Inertia::render('demos/deskbot'))->name('demos.deskbot');
+Route::get('/demos/hardwood', fn () => Inertia::render('demos/hardwood'))->name('demos.hardwood');
 
 Route::get('/resume', function () {
     return Inertia::render('resume', [
