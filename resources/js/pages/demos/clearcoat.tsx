@@ -32,6 +32,10 @@ const serif = { fontFamily: "'Cormorant Garamond', Georgia, serif" };
 const CSS = `
 .cc-chrome{background:linear-gradient(110deg,#8c8c95 0%,#f4f4f7 22%,#9b9ba4 38%,#ffffff 50%,#8f8f98 62%,#e9e9ee 80%,#8c8c95 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:cc-sweep 6s linear infinite}
 @keyframes cc-sweep{0%{background-position:100% 0}100%{background-position:-150% 0}}
+.cc-hero-car{animation:cc-drive 1.6s cubic-bezier(.2,.7,.2,1) both}
+@keyframes cc-drive{from{opacity:0;transform:translateX(-4%) scale(1.04)}to{opacity:1;transform:none}}
+@media (min-width:1024px){.cc-hero-car{-webkit-mask-image:linear-gradient(90deg,transparent,#000 30%,#000 90%,transparent),linear-gradient(180deg,transparent,#000 22%,#000 88%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,transparent,#000 30%,#000 90%,transparent),linear-gradient(180deg,transparent,#000 22%,#000 88%,transparent);mask-composite:intersect}}
+@media (prefers-reduced-motion:reduce){.cc-hero-car{animation:none}}
 .cc-sheen{animation:cc-sheen 5s ease-in-out infinite}
 @keyframes cc-sheen{0%,60%{transform:translateX(-120%) skewX(-20deg)}100%{transform:translateX(220%) skewX(-20deg)}}
 @media (prefers-reduced-motion:reduce){.cc-chrome,.cc-sheen{animation:none}}
@@ -322,12 +326,13 @@ const PHOTO_CREDITS = [
         page: 'https://commons.wikimedia.org/wiki/File:Chevrolet_Corvette_C8_Bahrain_2021.jpg',
     },
     {
-        file: 'hero',
-        title: 'BMW M4 in der BMW Welt',
-        artist: 'Strubbl',
-        license: 'CC0',
-        licenseUrl: 'http://creativecommons.org/publicdomain/zero/1.0/deed.en',
-        page: 'https://commons.wikimedia.org/wiki/File:BMW_M4_in_der_BMW_Welt.jpg',
+        file: 'ferrari',
+        title: 'Ferrari 488 Pista Blue',
+        artist: 'Calreyn88',
+        license: 'CC BY 4.0',
+        licenseUrl: 'https://creativecommons.org/licenses/by/4.0',
+        page: 'https://commons.wikimedia.org/wiki/File:Ferrari_488_Pista_Blue.jpg',
+        changes: 'cropped, darkened, badges and background signs blurred',
     },
 ];
 
@@ -570,13 +575,23 @@ export default function ClearcoatDemo() {
                 </header>
 
                 <main id="top">
-                    {/* Hero */}
-                    <section
-                        className="relative overflow-hidden border-b"
-                        style={{ borderColor: C.line, background: `radial-gradient(ellipse at 70% 40%, ${C.dark3} 0%, ${C.black} 65%)` }}
-                    >
-                        <div className="mx-auto flex max-w-[1240px] flex-wrap items-center gap-x-10 gap-y-8 px-5 py-16 sm:px-8 lg:py-24">
-                            <div className="min-w-0 flex-[999_1_460px]">
+                    {/* Hero: the car sits behind the headline and fades into black on the left, where the text is. */}
+                    <section className="relative isolate overflow-hidden border-b" style={{ borderColor: C.line, background: C.black }}>
+                        <img
+                            src={PHOTO('ferrari')}
+                            alt="Blue supercar with white racing stripes, front three-quarter view"
+                            className="cc-hero-car absolute inset-0 -z-10 h-full w-full object-cover object-[70%_60%] lg:inset-auto lg:right-0 lg:bottom-[60px] lg:h-auto lg:w-[64%] lg:max-w-[980px]"
+                            fetchPriority="high"
+                        />
+                        <div
+                            aria-hidden="true"
+                            className="absolute inset-0 -z-10"
+                            style={{
+                                background: `linear-gradient(90deg, ${C.black} 0%, ${C.black} 28%, rgba(5,5,7,0.7) 46%, rgba(5,5,7,0.15) 72%, transparent 100%), linear-gradient(0deg, ${C.black} 0%, transparent 25%)`,
+                            }}
+                        />
+                        <div className="mx-auto max-w-[1240px] px-5 pt-20 pb-28 sm:px-8 lg:pt-32 lg:pb-40">
+                            <div className="max-w-[640px]">
                                 <p className={eyebrow} style={{ color: C.gold }}>
                                     Ceramic · PPF · Wraps — Dallas–Fort Worth
                                 </p>
@@ -597,19 +612,10 @@ export default function ClearcoatDemo() {
                                     </a>
                                 </div>
                             </div>
-                            <figure className="relative min-w-0 flex-[1_1_420px]">
-                                <img
-                                    src={PHOTO('hero')}
-                                    alt="Blue BMW M4 convertible under showroom lights"
-                                    className="aspect-[4/3] w-full rounded-sm object-cover shadow-2xl"
-                                    style={{ boxShadow: `0 30px 80px -30px ${C.black}` }}
-                                    fetchPriority="high"
-                                />
-                                <figcaption className="mt-2 text-xs" style={{ color: C.muted }}>
-                                    Sample photo, credited below.
-                                </figcaption>
-                            </figure>
                         </div>
+                        <p className="absolute right-5 bottom-20 text-xs sm:right-8" style={{ color: C.muted }}>
+                            Sample photo, credited below.
+                        </p>
                         <ul
                             className="mx-auto flex max-w-[1240px] flex-wrap gap-x-10 gap-y-3 border-t px-5 py-6 text-sm sm:px-8"
                             style={{ borderColor: C.line, color: C.muted }}
@@ -1006,7 +1012,7 @@ export default function ClearcoatDemo() {
                                             <a href={p.licenseUrl} target="_blank" rel="noopener" className="underline">
                                                 {p.license}
                                             </a>
-                                            {p.license !== 'CC0' && ' (resized and cropped)'}
+                                            {p.license !== 'CC0' && ` (${'changes' in p ? p.changes : 'resized and cropped'})`}
                                         </li>
                                     ))}
                                 </ul>

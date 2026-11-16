@@ -17,7 +17,7 @@ return [
     'first_name' => 'Timasi',
     'role' => 'Software Engineer',
     'location' => 'Dallas, TX',
-    'availability' => 'Open to internships & freelance projects',
+    'availability' => 'Open to full-time, internships & freelance',
     'tagline' => 'I build full-stack tools that automate the tedious parts of work - from 5G infrastructure validation at Nokia to AI assistants that find answers fast.',
 
     'about' => [
