@@ -431,3 +431,43 @@ html:has(.hardwood) {
         opacity: 1;
     }
 }
+
+/* ------------------------------------------------------------------
+   Slanted buttons and tags: skew the box, skew the label back.
+------------------------------------------------------------------- */
+.slant {
+    transform: skewX(-14deg);
+}
+.slant-undo {
+    display: inline-flex;
+    transform: skewX(14deg);
+}
+
+/* "Live" status dot on spec rows. */
+.live-dot {
+    animation: live-pulse 2s ease-in-out infinite;
+}
+@keyframes live-pulse {
+    50% {
+        opacity: 0.35;
+    }
+}
+
+/* Intro screen: wipes away left to right. */
+.intro-screen {
+    clip-path: inset(0 0 0 0);
+    transition: clip-path 0.7s cubic-bezier(0.7, 0, 0.2, 1);
+    cursor: pointer;
+}
+.intro-screen[data-leaving] {
+    clip-path: inset(0 0 0 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .live-dot {
+        animation: none;
+    }
+    .intro-screen {
+        display: none;
+    }
+}

@@ -1,6 +1,6 @@
 import ContactForm from '@/components/contact-form';
 import { CountUp, HoverPreview, Typewriter, useReveal, useScrollProgress } from '@/components/motion';
-import { Fig, PillLink, PlayDiagram, SectionHeading, SiteLayout } from '@/components/site-layout';
+import { Chip, Fig, PillLink, PlayDiagram, SectionHeading, SiteLayout, Spec } from '@/components/site-layout';
 import { type Portfolio } from '@/types/portfolio';
 import { Head, Link } from '@inertiajs/react';
 import { ArrowUpRight, Github, Linkedin, Mail } from 'lucide-react';
@@ -182,7 +182,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                     <article
                                         key={p.title}
                                         data-reveal="left"
-                                        className="border-maple-line grid gap-x-8 gap-y-2 border-b py-7 sm:grid-cols-[3rem_1fr_auto]"
+                                        className="border-maple-line grid gap-x-8 gap-y-5 border-b py-8 sm:grid-cols-[3rem_1fr] lg:grid-cols-[3rem_1fr_300px]"
                                     >
                                         <span aria-hidden="true" className="font-cond text-ink-muted pt-1.5">
                                             {num(i)}
@@ -191,28 +191,37 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                             <h3 className="font-display text-2xl sm:text-3xl">{p.title}</h3>
                                             <p className="font-cond text-ink-muted mt-1">{[p.subtitle, p.period].filter(Boolean).join(' · ')}</p>
                                             <p className="text-ink-soft mt-3 max-w-2xl">{p.description}</p>
-                                            <p className="font-cond text-ink-muted mt-3">{p.tags.join(' · ')}</p>
+                                            <div className="mt-4 flex flex-wrap gap-2 pl-1">
+                                                {p.tags.map((t) => (
+                                                    <Chip key={t}>{t}</Chip>
+                                                ))}
+                                            </div>
                                         </div>
-                                        <div className="font-cond flex items-start gap-5 pt-1.5">
-                                            {p.url && (
-                                                <a
-                                                    href={p.url}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="text-ink hover:text-royal inline-flex min-h-11 items-center gap-1"
-                                                >
-                                                    Live <ArrowUpRight className="size-3.5" />
-                                                </a>
-                                            )}
-                                            {p.repo && (
-                                                <a
-                                                    href={p.repo}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="text-ink hover:text-royal inline-flex min-h-11 items-center gap-1"
-                                                >
-                                                    <Github className="size-3.5" /> Code
-                                                </a>
+                                        <div className="sm:col-start-2 lg:col-start-auto">
+                                            {p.spec && <Spec rows={Object.entries(p.spec)} />}
+                                            {(p.url || p.repo) && (
+                                                <div className="font-cond mt-2 flex items-start gap-5">
+                                                    {p.url && (
+                                                        <a
+                                                            href={p.url}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="text-ink hover:text-royal inline-flex min-h-11 items-center gap-1"
+                                                        >
+                                                            Visit site <ArrowUpRight className="size-3.5" />
+                                                        </a>
+                                                    )}
+                                                    {p.repo && (
+                                                        <a
+                                                            href={p.repo}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="text-ink hover:text-royal inline-flex min-h-11 items-center gap-1"
+                                                        >
+                                                            <Github className="size-3.5" /> Code
+                                                        </a>
+                                                    )}
+                                                </div>
                                             )}
                                         </div>
                                     </article>
@@ -238,18 +247,23 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                                         data-reveal="left"
                                                         style={stagger(i % 3)}
                                                         {...bind(previewFor(d.url))}
-                                                        className="group border-maple-line hover:bg-maple-light grid gap-x-8 gap-y-1 border-b py-5 transition-colors sm:grid-cols-[3rem_1fr_auto]"
+                                                        className="group border-maple-line hover:bg-maple-light grid gap-x-8 gap-y-3 border-b py-6 transition-colors sm:grid-cols-[3rem_1fr_auto] lg:grid-cols-[3rem_1fr_300px_auto]"
                                                     >
                                                         <span aria-hidden="true" className="font-cond text-ink-muted pt-1">
                                                             {num(i)}
                                                         </span>
                                                         <div className="min-w-0">
                                                             <h4 className="font-display text-xl sm:text-2xl">{d.title}</h4>
-                                                            <p className="font-cond text-ink-muted mt-1">
-                                                                {d.type} · {d.package} package
-                                                            </p>
                                                             <p className="text-ink-soft mt-2 max-w-2xl text-sm">{d.description}</p>
                                                         </div>
+                                                        <Spec
+                                                            className="sm:col-start-2 sm:row-start-2 lg:col-start-auto lg:row-start-auto"
+                                                            rows={[
+                                                                ['Type', d.type],
+                                                                ['Package', d.package],
+                                                                ['Status', d.url.startsWith('/demos/') ? 'Demo' : 'Live'],
+                                                            ]}
+                                                        />
                                                         <span className="font-cond text-ink group-hover:text-royal inline-flex items-center gap-1 pt-1">
                                                             Open{' '}
                                                             <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -331,11 +345,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                         <div className="min-w-0">
                                             <h3 className="font-display flex flex-wrap items-center gap-3 text-2xl sm:text-3xl">
                                                 {pkg.name}
-                                                {pkg.featured && (
-                                                    <span className="font-cond text-royal border-royal rounded-sm border px-2 py-0.5">
-                                                        Most chosen
-                                                    </span>
-                                                )}
+                                                {pkg.featured && <Chip tone="royal">Most chosen</Chip>}
                                             </h3>
                                             <p className="text-ink-soft mt-1 max-w-2xl">{pkg.summary}</p>
                                         </div>

@@ -8,6 +8,8 @@ export type Project = {
     repo: string | null;
     image: string | null;
     on_resume?: boolean;
+    /** Spec rows on the home page: label → value (Type, Built for, Status). */
+    spec?: Record<string, string>;
     bullets: string[];
 };
 

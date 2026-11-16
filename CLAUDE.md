@@ -54,7 +54,7 @@ SQLite · Vite. Fonts are bundled with `@fontsource` (no external font CDNs).
 |---|---|
 | **All portfolio content** (bio, services, packages, projects, experience, demos, alert/reminder settings) | `config/portfolio.php` (edit content here, not in React) |
 | Public pages | `resources/js/pages/portfolio.tsx`, `service.tsx`, `resume.tsx` |
-| Public layout and theme ("Studio": near-black, warm off-white, one blue; Inter Tight + JetBrains Mono, hairline rows, `FIG. 01 /` mono labels, two-tone titles) | `resources/js/components/site-layout.tsx`, theme tokens in `resources/css/app.css`. Token *names* (maple, navy, royal, led...) are kept from the old basketball theme; the basketball look itself is now the Hardwood demo (`/demos/hardwood`). |
+| Public layout and theme ("Studio": near-black, warm off-white, one blue; Inter Tight + JetBrains Mono, hairline rows, `FIG. 01 /` mono labels, two-tone titles, slanted `PillLink`/`Chip` buttons and tags, dotted `Spec` rows, a once-per-visit `Intro` screen on the home page) | `resources/js/components/site-layout.tsx`, theme tokens in `resources/css/app.css`. Token *names* (maple, navy, royal, led...) are kept from the old basketball theme; the basketball look itself is now the Hardwood demo (`/demos/hardwood`). |
 | Demo sites | `resources/js/pages/demos/*.tsx`, routes in `routes/web.php`, listed in `config/portfolio.php` → `demos` |
 | Admin dashboard (`/dashboard`, login required) | `resources/js/pages/admin/**`, controllers in `app/Http/Controllers/Admin/` |
 | Client demo approvals (`/p/{token}`) | `PreviewReviewController`, `resources/js/pages/previews/*`. Uploaded HTML is served sandboxed. |

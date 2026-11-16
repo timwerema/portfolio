@@ -32,12 +32,14 @@ function Choice({ selected, onClick, children }: { selected: boolean; onClick: (
             type="button"
             aria-pressed={selected}
             onClick={onClick}
-            className={`font-cond flex min-h-12 items-center gap-2 rounded-full border px-5 font-medium transition-colors ${
+            className={`slant font-cond flex min-h-12 items-center border px-5 font-medium transition-colors ${
                 selected ? 'border-royal bg-royal text-maple' : 'border-maple-line text-ink hover:border-ink'
             }`}
         >
-            {selected && <Check className="size-4" />}
-            {children}
+            <span className="slant-undo items-center gap-2">
+                {selected && <Check className="size-4" />}
+                {children}
+            </span>
         </button>
     );
 }
@@ -337,10 +339,12 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                                     <button
                                         type="submit"
                                         disabled={processing}
-                                        className="bg-royal hover:bg-royal-dark font-cond inline-flex min-h-[54px] items-center gap-2 rounded-full px-8 text-xl font-medium text-white disabled:opacity-60"
+                                        className="slant bg-royal hover:bg-royal-dark font-cond inline-flex min-h-[54px] items-center px-8 text-xl font-medium text-white disabled:opacity-60"
                                     >
-                                        {processing && <LoaderCircle className="size-5 animate-spin" />}
-                                        {step < 2 ? 'Next' : 'Send request'} {!processing && <ArrowRight className="size-5" />}
+                                        <span className="slant-undo items-center gap-2">
+                                            {processing && <LoaderCircle className="size-5 animate-spin" />}
+                                            {step < 2 ? 'Next' : 'Send request'} {!processing && <ArrowRight className="size-5" />}
+                                        </span>
                                     </button>
                                 </div>
                             </form>

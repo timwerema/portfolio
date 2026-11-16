@@ -260,6 +260,8 @@ return [
             'repo' => null,
             'image' => null,
             'on_resume' => false, // already covered under Experience
+            // Spec rows on the home page (label => value).
+            'spec' => ['Type' => 'Internal web tool', 'Built for' => 'Nokia 5G RAN engineers', 'Status' => 'Delivered'],
             'bullets' => [],
         ],
         [
@@ -271,6 +273,8 @@ return [
             'url' => null,
             'repo' => null,
             'image' => null,
+            // Spec rows on the home page (label => value).
+            'spec' => ['Type' => 'AI assistant (RAG)', 'Built for' => 'Capstone team', 'Status' => 'In development'],
             'bullets' => [
                 'Contributed to a retrieval-augmented generation (RAG) assistant that surfaces approved SOP guidance using Amazon Bedrock Knowledge Bases and S3-backed vector storage.',
                 'Built and evaluated keyword-query tests and "insufficient evidence" responses so the assistant declines rather than guesses when sources are missing.',
@@ -286,6 +290,8 @@ return [
             'url' => 'https://galacticalssc.com',
             'repo' => null,
             'image' => null,
+            // Spec rows on the home page (label => value).
+            'spec' => ['Type' => 'Client website', 'Built for' => 'Soccer club in Frisco', 'Status' => 'Live'],
             'bullets' => [
                 'Built and refined a JavaScript club website for events, training sessions, and member information, with Supabase-backed authentication and data.',
                 'Moved protected data access into Netlify Functions, separating client authentication from club data.',
@@ -301,6 +307,8 @@ return [
             'url' => null,
             'repo' => null,
             'image' => null,
+            // Spec rows on the home page (label => value).
+            'spec' => ['Type' => 'Developer tooling', 'Built for' => 'Code reviewers', 'Status' => 'Ongoing'],
             'bullets' => [
                 'Created AI-assisted code review and test-generation workflows that surface security, logic, and style issues.',
                 'Documented reusable quality checks and review patterns for developers.',

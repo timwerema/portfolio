@@ -116,6 +116,10 @@ export function PlayDiagram({ icon, className = '' }: { icon: Service['icon']; c
 }
 
 /** Button link. `solid` = blue, `outline` = hairline, `outline-light` = hairline on a dark band. */
+/**
+ * Slanted button (a parallelogram): the box is skewed and the label skewed back, so text stays upright.
+ * Solid = blue, outline = hairline border.
+ */
 export function PillLink({
     href,
     children,
@@ -132,15 +136,119 @@ export function PillLink({
         outline: 'border border-rule text-ink hover:border-ink',
         'outline-light': 'border border-navy-line text-on-navy hover:border-on-navy',
     }[variant];
-    const className = `font-cond inline-flex min-h-12 items-center gap-2 rounded-sm px-5 !text-[12px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-royal ${styles}`;
+    const className = `slant font-cond inline-flex min-h-12 items-center px-6 !text-[12px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-royal ${styles}`;
+    const label = <span className="slant-undo inline-flex items-center gap-2">{children}</span>;
     return internal ? (
         <Link href={href} className={className}>
-            {children}
+            {label}
         </Link>
     ) : (
         <a href={href} className={className}>
-            {children}
+            {label}
         </a>
+    );
+}
+
+/** Small slanted tag, e.g. a tech on a project. */
+export function Chip({ children, tone = 'muted' }: { children: ReactNode; tone?: 'muted' | 'royal' }) {
+    return (
+        <span
+            className={`slant font-cond inline-flex items-center border px-2.5 py-1 !text-[10.5px] ${tone === 'royal' ? 'border-royal/50 text-royal' : 'border-maple-line text-ink-muted'}`}
+        >
+            <span className="slant-undo">{children}</span>
+        </span>
+    );
+}
+
+/**
+ * Spec sheet rows: "TYPE ······ CLIENT WEBSITE". A "Live" status gets a blue dot.
+ */
+export function Spec({ rows, className = '' }: { rows: [string, string][]; className?: string }) {
+    return (
+        <dl className={`font-cond ${className}`}>
+            {rows.map(([label, value]) => {
+                const live = /^live$/i.test(value);
+                return (
+                    <div key={label} className="flex items-baseline gap-2 py-1">
+                        <dt className="text-ink-muted shrink-0">{label}</dt>
+                        <span aria-hidden="true" className="border-maple-line min-w-4 flex-1 border-b border-dotted" />
+                        <dd className={`inline-flex items-center gap-1.5 text-right ${live ? 'text-royal' : 'text-ink'}`}>
+                            {live && <span aria-hidden="true" className="live-dot bg-royal size-1.5 rounded-full" />}
+                            {value}
+                        </dd>
+                    </div>
+                );
+            })}
+        </dl>
+    );
+}
+
+/**
+ * Intro screen on the home page: "FIG. 00 / Portfolio" + name + a blue bar that counts to 100%,
+ * then wipes away left to right. Under a second, once per visit (sessionStorage), never with reduced motion.
+ * Click or any key skips it.
+ */
+export function Intro({ name }: { name: string }) {
+    const [state, setState] = useState<'on' | 'leaving' | 'off'>(() => {
+        try {
+            if (sessionStorage.getItem('intro-seen') || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return 'off';
+        } catch {
+            return 'off';
+        }
+        return 'on';
+    });
+    const [pct, setPct] = useState(0);
+
+    useEffect(() => {
+        if (state !== 'on') return;
+        try {
+            sessionStorage.setItem('intro-seen', '1');
+        } catch {
+            /* private mode: show it anyway */
+        }
+        const start = performance.now();
+        const DURATION = 850;
+        let raf = 0;
+        let done = 0;
+        const tick = (t: number) => {
+            const p = Math.min(1, (t - start) / DURATION);
+            setPct(Math.round(100 * (1 - (1 - p) ** 3)));
+            if (p < 1) raf = requestAnimationFrame(tick);
+            else done = window.setTimeout(() => setState('leaving'), 180);
+        };
+        raf = requestAnimationFrame(tick);
+        const skip = () => setState('leaving');
+        window.addEventListener('keydown', skip);
+        return () => {
+            cancelAnimationFrame(raf);
+            clearTimeout(done);
+            window.removeEventListener('keydown', skip);
+        };
+    }, [state]);
+
+    useEffect(() => {
+        if (state !== 'leaving') return;
+        const t = window.setTimeout(() => setState('off'), 700); // matches the wipe in app.css
+        return () => clearTimeout(t);
+    }, [state]);
+
+    if (state === 'off') return null;
+    return (
+        <div
+            aria-hidden="true"
+            onClick={() => setState('leaving')}
+            data-leaving={state === 'leaving' ? '' : undefined}
+            className="intro-screen bg-maple text-ink fixed inset-0 z-[100] flex items-center justify-center px-6"
+        >
+            <div className="w-full max-w-md">
+                <p className="font-cond text-royal">FIG. 00 / Portfolio</p>
+                <p className="font-display mt-3 text-4xl sm:text-5xl">{name}</p>
+                <div className="bg-maple-line relative mt-8 h-px">
+                    <span className="bg-royal absolute inset-y-0 left-0" style={{ width: `${pct}%` }} />
+                </div>
+                <p className="font-cond text-ink-muted mt-3 text-right tabular-nums">{String(pct).padStart(3, '0')} %</p>
+            </div>
+        </div>
     );
 }
 
@@ -221,116 +329,120 @@ export function SiteLayout({
     );
 
     return (
-        <div className="hardwood page-fade bg-maple text-ink font-body min-h-screen text-[15px] leading-relaxed sm:text-[16px]">
-            <Cursor />
-            <header className="border-maple-line bg-maple/85 sticky top-0 z-40 border-b backdrop-blur">
-                <nav className="mx-auto flex max-w-[1280px] items-center justify-between gap-6 px-5 py-3 sm:px-8 lg:px-10">
-                    {home ? (
-                        <a href="#top" className="flex items-center gap-3">
-                            {brand}
-                        </a>
-                    ) : (
-                        <Link href="/" className="flex items-center gap-3">
-                            {brand}
-                        </Link>
-                    )}
-                    <div ref={navRef} className="relative hidden items-center gap-7 md:flex">
-                        {sections.map((s, i) => (
-                            <a
-                                key={s.id}
-                                href={href(s.id)}
-                                data-nav={s.id}
-                                aria-current={home && active === s.id ? 'location' : undefined}
-                                className={`${navLink} ${home && active === s.id ? 'text-ink' : ''}`}
-                            >
-                                <span className="text-ink-muted/60 mr-1.5">0{i + 1}</span>
-                                {s.label}
+        <>
+            {/* Outside the page-fade wrapper so the intro is fully visible from the first frame. */}
+            {home && <Intro name={name} />}
+            <div className="hardwood page-fade bg-maple text-ink font-body min-h-screen text-[15px] leading-relaxed sm:text-[16px]">
+                <Cursor />
+                <header className="border-maple-line bg-maple/85 sticky top-0 z-40 border-b backdrop-blur">
+                    <nav className="mx-auto flex max-w-[1280px] items-center justify-between gap-6 px-5 py-3 sm:px-8 lg:px-10">
+                        {home ? (
+                            <a href="#top" className="flex items-center gap-3">
+                                {brand}
                             </a>
-                        ))}
-                        {resumeUrl && (
-                            <a href={resumeUrl} className={navLink}>
-                                Resume
-                            </a>
+                        ) : (
+                            <Link href="/" className="flex items-center gap-3">
+                                {brand}
+                            </Link>
                         )}
-                        <Link href="/start" data-nav="start" className="font-cond text-ink inline-flex items-center gap-1 py-3">
-                            Start a project <ArrowUpRight className="size-3.5" />
-                        </Link>
-                        <span
-                            aria-hidden="true"
-                            className="bg-royal absolute bottom-1 h-px transition-[left,width] duration-500 ease-[cubic-bezier(.2,.7,.2,1)] motion-reduce:transition-none"
-                            style={bar ? { left: bar.left, width: bar.width } : { left: 0, width: 0, opacity: 0 }}
-                        />
-                    </div>
-                    <button
-                        type="button"
-                        className="text-ink flex size-11 items-center justify-center md:hidden"
-                        aria-label="Menu"
-                        aria-expanded={menuOpen}
-                        onClick={() => setMenuOpen((o) => !o)}
-                    >
-                        {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
-                    </button>
-                </nav>
-                {menuOpen && (
-                    <div className="border-maple-line border-t px-5 pb-4 md:hidden">
-                        {sections.map((s) => (
-                            <a key={s.id} href={href(s.id)} onClick={() => setMenuOpen(false)} className={`${navLink} block`}>
-                                {s.label}
-                            </a>
-                        ))}
-                        {resumeUrl && (
-                            <a href={resumeUrl} className={`${navLink} block`}>
-                                Resume
-                            </a>
-                        )}
-                        <Link href="/start" className="font-cond text-ink block py-3">
-                            Start a project →
-                        </Link>
-                    </div>
-                )}
-            </header>
-
-            {children}
-
-            <footer className="border-maple-line border-t">
-                {/* Studio clock row: where I am, what time it is, and whether I'm likely awake. */}
-                <div className="border-maple-line border-b">
-                    <dl className="font-cond text-ink-muted mx-auto grid max-w-[1280px] grid-cols-2 gap-x-8 gap-y-5 px-5 py-6 sm:grid-cols-4 sm:px-8 lg:px-10">
-                        {[
-                            ['DAL / Dallas', 'America/Chicago', 'Home base · UT Dallas'],
-                            ['NYC / New York', 'America/New_York', 'Remote clients'],
-                            ['SFO / San Francisco', 'America/Los_Angeles', 'Remote clients'],
-                            ['LON / London', 'Europe/London', 'Remote clients'],
-                        ].map(([label, zone, note]) => (
-                            <div key={zone}>
-                                <dt>
-                                    <span className="text-royal">{label.split(' / ')[0]}</span> / {label.split(' / ')[1]}
-                                </dt>
-                                <dd className="text-ink mt-1 text-2xl">
-                                    <LiveClock zone={zone} />
-                                </dd>
-                                <dd className="mt-0.5">{note}</dd>
-                            </div>
-                        ))}
-                    </dl>
-                </div>
-                <div className="font-cond text-ink-muted mx-auto flex max-w-[1280px] flex-col items-start justify-between gap-3 px-5 py-8 sm:flex-row sm:items-center sm:px-8 lg:px-10">
-                    <p>
-                        © {new Date().getFullYear()} {name} · Dallas, TX
-                    </p>
-                    <nav aria-label="Footer" className="flex flex-wrap gap-x-6 gap-y-1">
-                        <Link href="/start" className="hover:text-ink py-2">
-                            Start a project
-                        </Link>
-                        <Link href="/privacy" className="hover:text-ink py-2">
-                            Privacy
-                        </Link>
-                        <Link href="/terms" className="hover:text-ink py-2">
-                            Terms
-                        </Link>
+                        <div ref={navRef} className="relative hidden items-center gap-7 md:flex">
+                            {sections.map((s, i) => (
+                                <a
+                                    key={s.id}
+                                    href={href(s.id)}
+                                    data-nav={s.id}
+                                    aria-current={home && active === s.id ? 'location' : undefined}
+                                    className={`${navLink} ${home && active === s.id ? 'text-ink' : ''}`}
+                                >
+                                    <span className="text-ink-muted/60 mr-1.5">0{i + 1}</span>
+                                    {s.label}
+                                </a>
+                            ))}
+                            {resumeUrl && (
+                                <a href={resumeUrl} className={navLink}>
+                                    Resume
+                                </a>
+                            )}
+                            <Link href="/start" data-nav="start" className="font-cond text-ink inline-flex items-center gap-1 py-3">
+                                Start a project <ArrowUpRight className="size-3.5" />
+                            </Link>
+                            <span
+                                aria-hidden="true"
+                                className="bg-royal absolute bottom-1 h-px transition-[left,width] duration-500 ease-[cubic-bezier(.2,.7,.2,1)] motion-reduce:transition-none"
+                                style={bar ? { left: bar.left, width: bar.width } : { left: 0, width: 0, opacity: 0 }}
+                            />
+                        </div>
+                        <button
+                            type="button"
+                            className="text-ink flex size-11 items-center justify-center md:hidden"
+                            aria-label="Menu"
+                            aria-expanded={menuOpen}
+                            onClick={() => setMenuOpen((o) => !o)}
+                        >
+                            {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+                        </button>
                     </nav>
-                </div>
-            </footer>
-        </div>
+                    {menuOpen && (
+                        <div className="border-maple-line border-t px-5 pb-4 md:hidden">
+                            {sections.map((s) => (
+                                <a key={s.id} href={href(s.id)} onClick={() => setMenuOpen(false)} className={`${navLink} block`}>
+                                    {s.label}
+                                </a>
+                            ))}
+                            {resumeUrl && (
+                                <a href={resumeUrl} className={`${navLink} block`}>
+                                    Resume
+                                </a>
+                            )}
+                            <Link href="/start" className="font-cond text-ink block py-3">
+                                Start a project →
+                            </Link>
+                        </div>
+                    )}
+                </header>
+
+                {children}
+
+                <footer className="border-maple-line border-t">
+                    {/* Studio clock row: where I am, what time it is, and whether I'm likely awake. */}
+                    <div className="border-maple-line border-b">
+                        <dl className="font-cond text-ink-muted mx-auto grid max-w-[1280px] grid-cols-2 gap-x-8 gap-y-5 px-5 py-6 sm:grid-cols-4 sm:px-8 lg:px-10">
+                            {[
+                                ['DAL / Dallas', 'America/Chicago', 'Home base · UT Dallas'],
+                                ['NYC / New York', 'America/New_York', 'Remote clients'],
+                                ['SFO / San Francisco', 'America/Los_Angeles', 'Remote clients'],
+                                ['LON / London', 'Europe/London', 'Remote clients'],
+                            ].map(([label, zone, note]) => (
+                                <div key={zone}>
+                                    <dt>
+                                        <span className="text-royal">{label.split(' / ')[0]}</span> / {label.split(' / ')[1]}
+                                    </dt>
+                                    <dd className="text-ink mt-1 text-2xl">
+                                        <LiveClock zone={zone} />
+                                    </dd>
+                                    <dd className="mt-0.5">{note}</dd>
+                                </div>
+                            ))}
+                        </dl>
+                    </div>
+                    <div className="font-cond text-ink-muted mx-auto flex max-w-[1280px] flex-col items-start justify-between gap-3 px-5 py-8 sm:flex-row sm:items-center sm:px-8 lg:px-10">
+                        <p>
+                            © {new Date().getFullYear()} {name} · Dallas, TX
+                        </p>
+                        <nav aria-label="Footer" className="flex flex-wrap gap-x-6 gap-y-1">
+                            <Link href="/start" className="hover:text-ink py-2">
+                                Start a project
+                            </Link>
+                            <Link href="/privacy" className="hover:text-ink py-2">
+                                Privacy
+                            </Link>
+                            <Link href="/terms" className="hover:text-ink py-2">
+                                Terms
+                            </Link>
+                        </nav>
+                    </div>
+                </footer>
+            </div>
+        </>
     );
 }
