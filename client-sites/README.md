@@ -28,6 +28,24 @@ Built with **Astro** (plain, fast HTML pages; free to host; great for Google) an
 | **Fast & accessible** | Fonts bundled (no outside font services), keyboard focus styles, skip link, works without JavaScript. |
 | **One-file demo** | `npm run demo` packs the homepage into `demo/index.html` (styles, fonts, photos included) with a "Demo" banner, ready to upload to your dashboard. |
 
+## Shortcuts: /starter, /business, /custom
+
+In a Claude session on this repo, type the package name and the client:
+
+```
+/starter Lone Star Lawn Care, lawn care in Garland, (972) 555-0100
+/business Glow Nail Studio, salon in Plano, uses Booksy
+/custom Joshua's label wants CD print-on-demand orders routed from online stores
+```
+
+Each one follows **[PACKAGES.md](PACKAGES.md)** (what the package includes, the look per business
+type, deposit amounts) and the skill files in `.claude/skills/`. Add `finish` after approval to
+build the full site (`/starter Lone Star Lawn Care finish`). Change a baseline in `PACKAGES.md`
+and the shortcut follows it.
+
+The script behind Starter and Business takes `--package`:
+`npm run client:new -- "Glow Nail Studio" --type studio --package business`.
+
 ## Quick-turnaround demo: request to approval in a day
 
 1. **Request comes in.** The client fills out *Start a project* (`/start`). It lands in

@@ -83,7 +83,6 @@ Route::get('/demos/galacticals', fn () => Inertia::render('demos/galacticals'))-
 Route::get('/demos/fourth-quarter', fn () => Inertia::render('demos/fourth-quarter'))->name('demos.fourth-quarter');
 Route::get('/demos/lateshift', fn () => Inertia::render('demos/lateshift'))->name('demos.lateshift');
 Route::get('/demos/studyloop', fn () => Inertia::render('demos/studyloop'))->name('demos.studyloop');
-Route::get('/demos/encore', fn () => Inertia::render('demos/encore'))->name('demos.encore');
 
 // Encore Live: real R&B shows near you from your Spotify listening (Ticketmaster search runs server-side).
 Route::get('/live', [LiveShowsController::class, 'page'])->name('live');

@@ -65,6 +65,7 @@ SQLite · Vite. Fonts are bundled with `@fontsource` (no external font CDNs).
 | Scheduled jobs | `routes/console.php` (times are **UTC**, the box's clock) |
 | Routes | `routes/web.php` |
 | **Client website baseline** (Astro starter, one content file `src/site.ts`, 3 style presets, business types services/restaurant/studio, optional booking, pricing, menu, location, announcement; one-file demo build) | `client-sites/_starter/`, new client: `npm run client:new -- "Name" --type restaurant`, workflow in `client-sites/README.md` |
+| **Package shortcuts** `/starter`, `/business`, `/custom` (type one + the client to run that package's playbook) | Skills in `.claude/skills/*/SKILL.md`; baselines in `client-sites/PACKAGES.md` |
 | Tests | `tests/Feature/*` (PHPUnit) |
 
 ## Commands
@@ -113,7 +114,7 @@ It pulls `main`, installs, builds, migrates and rebuilds caches. Then check
 - Own domain not bought yet (GitHub Student Developer Pack may include one).
 - Demos built: Clearcoat (detailing, PPF & wraps), 4th Quarter (gym), Galacticals v3
   (club concept), LATESHIFT (streetwear store), StudyLoop (slides-to-learning),
-  Encore (concert finder), Rundown (league stats), Deskbot (AI agent: pixel robot office
+  Encore Live (`/live`, Spotify + Ticketmaster), Rundown (league stats), Deskbot (AI agent: pixel robot office
   helper, scripted), Hardwood Performance Lab (the original basketball portfolio look). No ideas queued.
 - "Look official" pages live in code: `/start` project questionnaire
   (`ProjectRequestController`, saved as a message with `source = start`), `/privacy`,

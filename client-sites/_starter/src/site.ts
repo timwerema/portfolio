@@ -12,6 +12,9 @@ export type Style = 'classic' | 'bold' | 'minimal';
 export type Section = 'hero' | 'services' | 'pricing' | 'menu' | 'steps' | 'about' | 'work' | 'testimonials' | 'faq' | 'location' | 'contact';
 
 export const site = {
+    /** Which package the client bought (see client-sites/PACKAGES.md). Set by `npm run client:new -- --package`. */
+    package: 'starter' as 'starter' | 'business',
+
     business: {
         name: 'Northline Home Services',
         tagline: 'Honest repairs, on time, every time.',
@@ -158,6 +161,9 @@ export const site = {
         { label: 'Our work', page: 'work' },
         { label: 'Contact', page: 'contact' },
     ],
+
+    /** Visitor stats (Business package). Paste the token from Cloudflare > Web Analytics > Add a site. Empty = off. */
+    analytics: { cloudflareToken: '' },
 
     /** Shown on the demo build only. */
     demo: { by: 'Timasi Werema', link: 'https://timasi.sterango.com' },

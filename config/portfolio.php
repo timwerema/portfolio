@@ -347,16 +347,9 @@ return [
             'package' => 'Custom',
         ],
         [
-            'title' => 'Encore',
-            'type' => 'Concert finder app',
-            'description' => 'Finds upcoming DFW shows by the artists you actually listen to: match scores, distance and price filters, a venue map and add-to-calendar.',
-            'url' => '/demos/encore',
-            'package' => 'Custom',
-        ],
-        [
             'title' => 'Encore Live',
             'type' => 'Spotify + Ticketmaster app',
-            'description' => 'The real version of Encore: connect Spotify and it finds upcoming shows near you from the R&B artists you actually play, with tickets and add-to-calendar.',
+            'description' => 'Connect Spotify and it finds upcoming shows near you from the R&B artists you actually play, with tickets and add-to-calendar.',
             'url' => '/live',
             'package' => 'Custom',
         ],

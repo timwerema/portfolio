@@ -65,6 +65,16 @@ const initials = b.name
             href={`data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='${site.theme.brand}'/><text x='32' y='42' font-family='Arial' font-weight='700' font-size='28' fill='white' text-anchor='middle'>${initials}</text></svg>`)}`}
         />
         <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+        {
+            !DEMO && site.analytics.cloudflareToken && (
+                <script
+                    is:inline
+                    defer
+                    src="https://static.cloudflareinsights.com/beacon.min.js"
+                    data-cf-beacon={JSON.stringify({ token: site.analytics.cloudflareToken })}
+                />
+            )
+        }
     </head>
     <body class="min-h-screen text-[17px] leading-relaxed antialiased">
         <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-paper focus:p-3">Skip to content</a>

@@ -91,10 +91,6 @@ class Seo
                 $meta['description'] = "Connect Spotify and find upcoming R&B and soul shows near you, built by {$name}.";
                 $meta['noindex'] = true;
                 break;
-            case 'demos/encore':
-                $meta['title'] = 'Encore (demo app)';
-                $meta['description'] = "A demo concert-finder app with sample data, built by {$name}.";
-                break;
             case 'demos/galacticals':
                 $meta['title'] = 'Galacticals SC · concept redesign';
                 $meta['description'] = "A concept redesign of a youth soccer academy website by {$name}.";

@@ -4,6 +4,12 @@
  *   npm run client:new -- "Lone Star Lawn Care"
  *   npm run client:new -- "Lone Star Lawn Care" --style bold --brand "#2e7d32" --phone "(972) 555-0100"
  *   npm run client:new -- "Casa Verde Tacos" --type restaurant
+ *   npm run client:new -- "Glow Nail Studio" --type studio --package business
+ *
+ * --package (see client-sites/PACKAGES.md):
+ *   starter    (default) up to 5 pages: the type's core sections, no extras
+ *   business   adds pricing/menu, location & hours, booking button, testimonials, FAQ, analytics
+ *   (Custom projects are web apps, not this starter: use the /custom shortcut instead.)
  *
  * --type sets which sections and menu pages the site starts with:
  *   services   (default) trades, cleaners, repair, lawn care: services, how it works, work photos
@@ -28,7 +34,7 @@ const opt = (key) => {
 
 if (!name) {
     console.log(
-        'Usage: npm run client:new -- "Business Name" [--type services|restaurant|studio] [--style classic|bold|minimal] [--brand "#hex"] [--phone "(214) 555-0100"] [--no-install]',
+        'Usage: npm run client:new -- "Business Name" [--type services|restaurant|studio] [--package starter|business] [--style classic|bold|minimal] [--brand "#hex"] [--phone "(214) 555-0100"] [--no-install]',
     );
     process.exit(1);
 }
@@ -89,6 +95,33 @@ if (kit) {
     site = site.replace(/primary: \{ label: '[^']*', href: '[^']*' \}/, `primary: { label: '${kit.primary[0]}', href: '${kit.primary[1]}' }`);
     site = site.replace(/secondary: \{ label: '[^']*', href: '[^']*' \}/, `secondary: { label: '${kit.secondary[0]}', href: '${kit.secondary[1]}' }`);
 }
+
+// Package: Starter keeps the homepage to the essentials; Business turns on the extras.
+const pack = opt('package') ?? 'starter';
+const PACKAGES = {
+    starter: {
+        services: ['hero', 'services', 'steps', 'about', 'work', 'contact'],
+        restaurant: ['hero', 'menu', 'about', 'location', 'contact'],
+        studio: ['hero', 'services', 'about', 'location', 'contact'],
+    },
+    business: {
+        services: ['hero', 'services', 'steps', 'pricing', 'about', 'work', 'testimonials', 'faq', 'location', 'contact'],
+        restaurant: ['hero', 'menu', 'about', 'work', 'testimonials', 'faq', 'location', 'contact'],
+        studio: ['hero', 'pricing', 'services', 'about', 'work', 'testimonials', 'faq', 'location', 'contact'],
+    },
+};
+if (!(pack in PACKAGES)) {
+    console.log(`Unknown --package "${pack}". Use starter or business. Custom projects use the /custom shortcut.`);
+    process.exit(1);
+}
+site = site.replace(/package: '[a-z]+' as/, `package: '${pack}' as`);
+site = site.replace(/home: \[[^\]]*\] as Section\[\]/, `home: [${PACKAGES[pack][type].map((h) => `'${h}'`).join(', ')}] as Section[]`);
+if (pack === 'business' && type === 'services') {
+    site = site.replace(/(nav: \[\n {8}\{ label: 'Services', page: 'services' \},)/, `$1\n        { label: 'Pricing', page: 'pricing' },`);
+}
+if (pack === 'starter' && type === 'studio') {
+    site = site.replace(/\n {8}\{ label: 'Pricing', page: 'pricing' \},/, '');
+}
 writeFileSync(sitePath, site);
 
 const pkgPath = join(target, 'package.json');
@@ -96,7 +129,7 @@ const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
 pkg.name = slug;
 writeFileSync(pkgPath, JSON.stringify(pkg, null, 4) + '\n');
 
-console.log(`Created client-sites/${slug} (type: ${type})`);
+console.log(`Created client-sites/${slug} (type: ${type}, package: ${pack})`);
 if (!args.includes('--no-install')) {
     console.log('Installing packages (about a minute)...');
     execSync('npm install --no-audit --no-fund', { cwd: target, stdio: 'inherit' });
