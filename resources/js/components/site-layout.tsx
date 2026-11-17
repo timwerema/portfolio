@@ -1,4 +1,4 @@
-import { Cursor, LiveClock, useActiveSection } from '@/components/motion';
+import { LiveClock, useActiveSection } from '@/components/motion';
 import { type Service } from '@/types/portfolio';
 import { Link, router } from '@inertiajs/react';
 import { ArrowUpRight, Menu, X } from 'lucide-react';
@@ -333,7 +333,6 @@ export function SiteLayout({
             {/* Outside the page-fade wrapper so the intro is fully visible from the first frame. */}
             {home && <Intro name={name} />}
             <div className="hardwood page-fade bg-maple text-ink font-body min-h-screen text-[15px] leading-relaxed sm:text-[16px]">
-                <Cursor />
                 <header className="border-maple-line bg-maple/85 sticky top-0 z-40 border-b backdrop-blur">
                     <nav className="mx-auto flex max-w-[1280px] items-center justify-between gap-6 px-5 py-3 sm:px-8 lg:px-10">
                         {home ? (
