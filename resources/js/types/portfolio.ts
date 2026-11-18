@@ -55,7 +55,7 @@ export type Portfolio = {
     links: { email?: string | null; github?: string | null; linkedin?: string | null; phone?: string | null };
     education: Education[];
     services: Service[];
-    packages: { name: string; price: string; summary: string; featured: boolean }[];
+    packages: { name: string; price: string; summary: string; includes?: string[]; best_for?: string; featured: boolean }[];
     care_plan: { price: string; summary: string };
     stats: { value: string; label: string; note: string }[];
     /** Home page copy for business owners. */

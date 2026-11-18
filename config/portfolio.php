@@ -24,7 +24,7 @@ return [
     'client' => [
         'title' => 'Websites & software for local businesses',
         'eyebrow' => 'Taking new projects',
-        'tagline' => 'I build websites and simple software for local businesses. You see a free demo of your homepage before you pay anything.',
+        'tagline' => 'I build websites and simple software for local businesses. After a quick call, you see a free demo of your homepage before you pay anything.',
         'typing' => [
             'websites that bring in customers',
             'booking pages that fill your calendar',
@@ -34,7 +34,7 @@ return [
         ],
         // Spec rows beside the headline.
         'facts' => [
-            ['First step', 'A free demo of your homepage'],
+            ['First step', 'A 15-minute call, then a free demo'],
             ['Launch in', '1-4 weeks'],
             ['Starts at', '$750'],
             ['After launch', 'Hosting & updates handled'],
@@ -238,25 +238,32 @@ return [
             'name' => 'Starter',
             'price' => '$750',
             'summary' => 'A polished site of up to five pages for a small business - mobile-first, contact form, basic SEO, launched on your domain.',
+            // What the price covers (shown under each package; keep in step with client-sites/PACKAGES.md).
+            'includes' => ['Up to 5 pages', 'Custom design from your brand', 'Tap-to-call and contact form', 'Shows up on Google (basic SEO)', '2 rounds of changes', 'Live in about 1 week'],
+            'best_for' => 'Businesses that need to be found and called.',
             'featured' => false,
         ],
         [
             'name' => 'Business',
             'price' => '$1,750',
             'summary' => 'A fully custom site with more pages, bookings or a small store, easy content updates and analytics.',
+            'includes' => ['Everything in Starter', 'Up to 10 pages', 'Online booking button', 'Price list or menu', 'Sell up to 10 items with payment links', 'Visitor stats', '3 rounds of changes', 'Live in 2-3 weeks'],
+            'best_for' => 'Businesses that take bookings, orders or payments online.',
             'featured' => true,
         ],
         [
             'name' => 'Custom',
             'price' => '$3,500+',
             'summary' => 'Custom software - web apps, client portals, dashboards, integrations or AI task bots. Scoped together.',
+            'includes' => ['Paid planning phase first (credited to the build)', 'Clickable prototype you approve', 'Built in milestones you can see', 'Logins, payments and data handled safely', 'Tests on anything that touches money'],
+            'best_for' => 'Work that off-the-shelf tools do not fit.',
             'featured' => false,
         ],
     ],
 
     'care_plan' => [
         'price' => '$79-$149/month',
-        'summary' => 'Optional care plan: hosting, updates, backups and small changes.',
+        'summary' => 'Optional care plan: hosting, updates, backups and small changes each month, so you never have to touch the site.',
     ],
 
     // Shown on the home page scoreboard.

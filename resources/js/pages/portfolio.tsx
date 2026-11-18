@@ -235,7 +235,8 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                         <div className={`${wrap} py-20 lg:py-28`}>
                             <SectionHeading n={5} eyebrow="Packages" title="Clear prices," dim="no surprises." className="mb-4" />
                             <p className="text-ink-soft mb-12 max-w-xl">
-                                Every website starts with a free demo homepage. You approve it before we go any further.
+                                Every website starts with a 15-minute call. If we are a fit, I build a free demo of your homepage, and you approve it
+                                before paying a deposit. One free demo per business.
                             </p>
                             <div className="border-maple-line border-t">
                                 {packages.map((pkg, i) => (
@@ -251,9 +252,22 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                         <div className="min-w-0">
                                             <h3 className="font-display flex flex-wrap items-center gap-3 text-2xl sm:text-3xl">
                                                 {pkg.name}
-                                                {pkg.featured && <Chip tone="royal">Most chosen</Chip>}
+                                                {pkg.featured && <Chip tone="royal">Recommended</Chip>}
                                             </h3>
                                             <p className="text-ink-soft mt-1 max-w-2xl">{pkg.summary}</p>
+                                            {pkg.includes && (
+                                                <ul className="text-ink-soft mt-4 grid max-w-2xl gap-x-8 gap-y-1.5 text-sm sm:grid-cols-2">
+                                                    {pkg.includes.map((item) => (
+                                                        <li key={item} className="flex gap-2">
+                                                            <span aria-hidden="true" className="text-royal">
+                                                                +
+                                                            </span>
+                                                            {item}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                            {pkg.best_for && <p className="font-cond text-ink-muted mt-4">Best for: {pkg.best_for}</p>}
                                         </div>
                                         <p className="font-display text-3xl tabular-nums sm:text-right sm:text-4xl">{pkg.price}</p>
                                     </div>
