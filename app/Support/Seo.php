@@ -97,9 +97,9 @@ class Seo
                 $meta['description'] = "Connect Spotify and find upcoming R&B and soul shows near you, built by {$name}.";
                 $meta['noindex'] = true;
                 break;
-            case 'demos/galacticals':
-                $meta['title'] = 'Galacticals SC · concept redesign';
-                $meta['description'] = "A concept redesign of a youth soccer academy website by {$name}.";
+            case 'demos/orbit-city':
+                $meta['title'] = 'Orbit City FC (demo site)';
+                $meta['description'] = "A demo website for a fictional youth soccer club, built by {$name}.";
                 break;
             default:
                 if ($meta['noindex']) {

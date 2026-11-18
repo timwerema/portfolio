@@ -82,7 +82,8 @@ Route::get('/sitemap.xml', function () {
 
 // Demo sites for fictional businesses, to show prospective clients what's possible.
 Route::get('/demos/clearcoat', fn () => Inertia::render('demos/clearcoat'))->name('demos.clearcoat');
-Route::get('/demos/galacticals', fn () => Inertia::render('demos/galacticals'))->name('demos.galacticals');
+Route::get('/demos/orbit-city', fn () => Inertia::render('demos/orbit-city'))->name('demos.orbit-city');
+Route::permanentRedirect('/demos/galacticals', '/demos/orbit-city'); // old name of the same demo
 Route::get('/demos/fourth-quarter', fn () => Inertia::render('demos/fourth-quarter'))->name('demos.fourth-quarter');
 Route::get('/demos/lateshift', fn () => Inertia::render('demos/lateshift'))->name('demos.lateshift');
 Route::get('/demos/studyloop', fn () => Inertia::render('demos/studyloop'))->name('demos.studyloop');

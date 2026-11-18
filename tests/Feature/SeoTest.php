@@ -39,7 +39,7 @@ class SeoTest extends TestCase
     {
         $preview = Preview::create(['client_name' => 'Joe', 'title' => 'Concept', 'demo_url' => 'https://example.com']);
 
-        foreach (['/demos/clearcoat', '/demos/galacticals', '/login', "/p/{$preview->token}"] as $url) {
+        foreach (['/demos/clearcoat', '/demos/orbit-city', '/login', "/p/{$preview->token}"] as $url) {
             $this->get($url)->assertOk()->assertSee('<meta name="robots" content="noindex, nofollow">', false);
         }
     }
