@@ -138,7 +138,9 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                     <Link
                                         key={d.url}
                                         href={d.url}
-                                        data-reveal="left"
+                                        // Only the first five slide in on scroll. Rows added by "Show all" appear after the
+                                        // reveal observer has run, so they must not start hidden.
+                                        data-reveal={i < 5 ? 'left' : undefined}
                                         style={stagger(i % 3)}
                                         className="group border-maple-line hover:bg-maple-light grid gap-x-8 gap-y-4 border-b py-6 transition-colors sm:grid-cols-[220px_1fr] lg:grid-cols-[3rem_240px_1fr_260px]"
                                     >
