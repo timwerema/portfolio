@@ -53,7 +53,7 @@ class Seo
                 break;
             case 'start':
                 $meta['title'] = "Start a project · {$name}";
-                $meta['description'] = 'Tell me what you need in about two minutes. Every website project starts with a free demo homepage you approve before paying.';
+                $meta['description'] = 'Tell me what you need in about two minutes. We start with a free 15-minute call; website projects get a free homepage concept before you pay.';
                 break;
             case 'legal':
                 $doc = $props['doc'] ?? 'privacy';
@@ -135,7 +135,8 @@ class Seo
                     'image' => asset('og-image.png'),
                     'founder' => ['@id' => url('/#person')],
                     'areaServed' => 'Dallas-Fort Worth, TX',
-                    'description' => $p['tagline'],
+                    'description' => $p['client']['tagline'] ?? $p['tagline'],
+                    'priceRange' => '$750 - $3,500+',
                     'makesOffer' => array_map(fn ($s) => [
                         '@type' => 'Offer',
                         'itemOffered' => ['@type' => 'Service', 'name' => $s['title'], 'description' => $s['description'], 'url' => route('services.show', $s['slug'])],

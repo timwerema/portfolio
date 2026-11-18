@@ -13,7 +13,7 @@ Context for Claude sessions working on this repository. Read this first.
 - **Live:** https://timasi.sterango.com, running on **timasi-box**, a Docker container
   on his friend Collin's Sterango server. The live app folder is **`~/apps/portfolio`**
   (Apache serves its `public/`). Run `php artisan` from there. See `DEPLOY.md`.
-- **Business model:** packages Starter $750 / Business $1,750 / Custom $3,500+, optional
+- **Business model:** packages Starter $750 (up to 3 pages) / **Business Website $1,750 (recommended**: up to 5 pages, form, SEO, analytics, 2 revision rounds, launch support, 14-day defect warranty) / Custom $3,500+, optional
   care plan $79-$149/month. Services: Websites, Software, Growth, AI Agents (task bots).
   Clients may pay with Square, Stripe or PayPal (invoices take any payment link).
 
@@ -39,6 +39,7 @@ Context for Claude sessions working on this repository. Read this first.
   Prefer rows, lists, tables and editorial layouts.
 - **Two audiences, two pages.** Keep job-hunting content (school, Nokia, stats, tech jargon) off the home page; it goes on `/hire`.
 - **Galacticals SC:** Timasi built a site for the club in 2026, but the club's live site is no longer his. Never link to it or call it his live work.
+- **Sales process on the site:** qualification call → one free homepage concept → signed agreement + 50% deposit → build. Never promise sales or rankings; no invented testimonials, clients or numbers.
 - Demo sites are for **fictional** businesses: label them as demos, keep them `noindex`,
   never use fake reviews, and simulate (never collect) passwords or card details.
   Don't copy real clients' code, photos or branding.
@@ -68,6 +69,7 @@ SQLite · Vite. Fonts are bundled with `@fontsource` (no external font CDNs).
 | Routes | `routes/web.php` |
 | **Client website baseline** (Astro starter, one content file `src/site.ts`, 3 style presets, business types services/restaurant/studio, optional booking, pricing, menu, location, announcement; one-file demo build) | `client-sites/_starter/`, new client: `npm run client:new -- "Name" --type restaurant`, workflow in `client-sites/README.md` |
 | **Package shortcuts** `/starter`, `/business`, `/custom` (type one + the client to run that package's playbook) | Skills in `.claude/skills/*/SKILL.md`; baselines in `client-sites/PACKAGES.md` |
+| Conversion tracking hooks (`cta_click`, `inquiry_sent`). **Nothing is sent until an analytics script is added to the site**; mark buttons with `cta="name"` on `PillLink` or `data-cta` | `resources/js/lib/track.ts` |
 | Tests | `tests/Feature/*` (PHPUnit) |
 
 ## Commands

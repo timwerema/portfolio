@@ -7,8 +7,8 @@
  *   npm run client:new -- "Glow Nail Studio" --type studio --package business
  *
  * --package (see client-sites/PACKAGES.md):
- *   starter    (default) up to 5 pages: the type's core sections, no extras
- *   business   adds pricing/menu, location & hours, booking button, testimonials, FAQ, analytics
+ *   starter    (default) up to 3 pages: the type's core sections, no extras
+ *   business   up to 5 pages: adds pricing/menu, location & hours, booking button, testimonials, FAQ, analytics
  *   (Custom projects are web apps, not this starter: use the /custom shortcut instead.)
  *
  * --type sets which sections and menu pages the site starts with:

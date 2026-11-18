@@ -41,10 +41,10 @@ Read first: `client-sites/PACKAGES.md` (baseline, look table) and `client-sites/
 
 Do not commit the client folder unless Timasi asks.
 
-## Finish the site (after approval and deposit)
+## Finish the site (only after a signed agreement and the deposit)
 
 1. Apply the preview comments Timasi pastes.
-2. Fill every page in `nav`; add pages for main services or locations if it helps (max 10 total).
+2. Fill every page in `nav` (max 5 pages total; 2 revision rounds; 14-day defect warranty after launch).
 3. **Booking:** set `booking.url`, click through it once in a screenshot run.
 4. **Store (if any):** up to ~10 products as Square or Stripe payment links on Services or Pricing.
    Timasi or the client creates the links in their own account; never handle card details.

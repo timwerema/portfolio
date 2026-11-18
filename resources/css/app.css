@@ -427,3 +427,11 @@ html:has(.hardwood) {
         display: none;
     }
 }
+
+/* Keyboard focus on public pages: one clear ring everywhere. */
+.hardwood a:focus-visible,
+.hardwood button:focus-visible,
+.hardwood summary:focus-visible {
+    outline: 2px solid var(--color-royal);
+    outline-offset: 3px;
+}

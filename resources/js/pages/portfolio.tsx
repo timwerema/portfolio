@@ -20,14 +20,26 @@ const num = (i: number) => String(i + 1).padStart(2, '0');
 const previewFor = (url: string) => `/images/previews/${url.split('/').filter(Boolean).pop()}.jpg`;
 
 const STEPS = [
-    ['Quick call', '15 minutes to talk through your business, your customers and what you need the site to do.', 'Free'],
     [
-        'Free demo homepage',
-        'Within a week you get a private link to a real demo of your homepage. Approve it or tell me what to change, right on the page.',
+        'Qualification call',
+        '15 minutes to talk through your business, your customers and what the site needs to do. If I am not the right fit, I will say so.',
         'Free',
     ],
-    ['Build & launch', 'Once you approve, I send a clear quote, take a deposit and build the full site, with check-ins along the way.', '1–4 weeks'],
-    ['Care & grow', 'Hosting, updates, backups and small changes on a simple monthly plan, so you never have to think about it.', 'Optional'],
+    [
+        'Free homepage concept',
+        'If we are a fit, I design one concept of your homepage and send it as a private link. You get one round of comments on it. One concept per business.',
+        'Free',
+    ],
+    [
+        'Agreement and deposit',
+        'You get a written quote and a short agreement listing exactly what is included. A signed agreement and a 50% deposit start the full build.',
+        'Before any build',
+    ],
+    [
+        'Build and launch',
+        'I build the rest of the site with check-ins along the way, then launch it on your domain and fix anything that is not right.',
+        '1-4 weeks',
+    ],
 ] as const;
 
 /** Process steps with a hairline that fills as you scroll; each step brightens as the line reaches it. */
@@ -60,7 +72,7 @@ function Process() {
 }
 
 export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
-    const { name, location, client, resume_url, links, services, packages, care_plan, demos } = portfolio;
+    const { name, location, client, resume_url, links, services, packages, package_notes, care_plan, demos } = portfolio;
     useReveal();
     // Five example sites to start with; the rest open with one tap (keeps the page short on phones).
     const [allDemos, setAllDemos] = useState(false);
@@ -91,16 +103,16 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                     <br />
                                     <span className="title-dim">your next customer.</span>
                                 </h1>
-                                <p className="font-display text-ink mt-8 min-h-[1.4em] text-xl sm:text-2xl">
+                                <p className="font-display text-ink mt-8 min-h-[2.8em] text-xl sm:min-h-[1.4em] sm:text-2xl">
                                     <span className="text-ink-muted">I build </span>
                                     <Typewriter phrases={client.typing} />
                                 </p>
                                 <p className="text-ink-soft mt-4 max-w-xl">{client.tagline}</p>
                                 <div className="mt-9 flex flex-wrap gap-3">
-                                    <PillLink href="/start" internal>
-                                        Get a free demo homepage <ArrowUpRight className="size-3.5" />
+                                    <PillLink href="/start" internal cta="hero_start">
+                                        Start with a free call <ArrowUpRight className="size-3.5" />
                                     </PillLink>
-                                    <PillLink href="#work" variant="outline">
+                                    <PillLink href="#work" variant="outline" cta="hero_examples">
                                         See example sites
                                     </PillLink>
                                 </div>
@@ -128,7 +140,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                         <div className={`${wrap} py-16 lg:py-24`}>
                             <SectionHeading
                                 n={2}
-                                eyebrow="Example sites · made for fictional businesses"
+                                eyebrow="Example sites · fictional businesses unless marked"
                                 title="What your site"
                                 dim="could look like."
                                 className="mb-10"
@@ -158,6 +170,12 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                         <div className="min-w-0">
                                             <h3 className="font-display text-xl sm:text-2xl">{d.title}</h3>
                                             <p className="text-ink-soft mt-2 max-w-2xl text-sm">{d.description}</p>
+                                            {d.goal && (
+                                                <p className="text-ink-soft mt-2 max-w-2xl text-sm">
+                                                    <span className="font-cond text-ink-muted mr-2">Design goal</span>
+                                                    {d.goal}
+                                                </p>
+                                            )}
                                             <span className="font-cond text-ink group-hover:text-royal mt-3 inline-flex min-h-11 items-center gap-1">
                                                 Open it{' '}
                                                 <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -168,6 +186,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                             rows={[
                                                 ['Type', d.type],
                                                 ['Package', d.package],
+                                                ['Business', d.fictional === false ? 'Real tool I built' : 'Fictional'],
                                                 ['Status', d.url.startsWith('/demos/') ? 'Demo' : 'Live'],
                                             ]}
                                         />
@@ -183,6 +202,14 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                     Show all {demos.length} example sites <span aria-hidden="true">+</span>
                                 </button>
                             )}
+                            <div className="border-maple-line mt-12 flex flex-wrap items-center justify-between gap-6 border-t pt-8">
+                                <p className="font-display max-w-xl text-xl sm:text-2xl">
+                                    Want one of these for your business? <span className="title-dim">It starts with a 15-minute call.</span>
+                                </p>
+                                <PillLink href="/start" internal cta="examples_start">
+                                    Start a project <ArrowUpRight className="size-3.5" />
+                                </PillLink>
+                            </div>
                         </div>
                     </section>
 
@@ -237,8 +264,8 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                         <div className={`${wrap} py-20 lg:py-28`}>
                             <SectionHeading n={5} eyebrow="Packages" title="Clear prices," dim="no surprises." className="mb-4" />
                             <p className="text-ink-soft mb-12 max-w-xl">
-                                Every website starts with a 15-minute call. If we are a fit, I build a free demo of your homepage, and you approve it
-                                before paying a deposit. One free demo per business.
+                                Fixed prices for websites, with what is and is not included written down. Most established businesses choose the
+                                Business Website.
                             </p>
                             <div className="border-maple-line border-t">
                                 {packages.map((pkg, i) => (
@@ -253,7 +280,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                         </span>
                                         <div className="min-w-0">
                                             <h3 className="font-display flex flex-wrap items-center gap-3 text-2xl sm:text-3xl">
-                                                {pkg.name}
+                                                {pkg.label ?? pkg.name}
                                                 {pkg.featured && <Chip tone="royal">Recommended</Chip>}
                                             </h3>
                                             <p className="text-ink-soft mt-1 max-w-2xl">{pkg.summary}</p>
@@ -284,9 +311,32 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                     </div>
                                 )}
                             </div>
+                            {package_notes && (
+                                <div className="mt-12 grid gap-x-16 gap-y-8 lg:grid-cols-[5fr_7fr]">
+                                    <div>
+                                        <Fig className="border-maple-line mb-3 border-b pb-3">Every website includes</Fig>
+                                        <p className="text-ink-soft max-w-md">{package_notes.included}</p>
+                                        <p className="text-ink-soft mt-4 max-w-md text-sm">{package_notes.warranty}</p>
+                                    </div>
+                                    <div>
+                                        <Fig className="border-maple-line border-b pb-3">Not included in the price</Fig>
+                                        <dl>
+                                            {package_notes.not_included.map(([item, note]) => (
+                                                <div
+                                                    key={item}
+                                                    className="border-maple-line grid gap-x-6 gap-y-1 border-b py-3 sm:grid-cols-[11rem_1fr]"
+                                                >
+                                                    <dt className="text-ink">{item}</dt>
+                                                    <dd className="text-ink-soft text-sm">{note}</dd>
+                                                </div>
+                                            ))}
+                                        </dl>
+                                    </div>
+                                </div>
+                            )}
                             <div className="mt-10">
-                                <PillLink href="/start" internal>
-                                    Get a free demo homepage <ArrowUpRight className="size-3.5" />
+                                <PillLink href="/start" internal cta="packages_start">
+                                    Start with a free call <ArrowUpRight className="size-3.5" />
                                 </PillLink>
                             </div>
                         </div>
@@ -302,7 +352,17 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                         {p}
                                     </p>
                                 ))}
-                                <Link href="/hire" className="font-cond text-ink hover:text-royal mt-2 inline-flex min-h-11 items-center gap-1">
+                                {client.about_facts && (
+                                    <dl className="font-cond border-maple-line mt-6 border-t">
+                                        {client.about_facts.map(([k, v]) => (
+                                            <div key={k} className="border-maple-line flex justify-between gap-4 border-b py-3">
+                                                <dt className="text-ink-muted">{k}</dt>
+                                                <dd className="text-ink text-right">{v}</dd>
+                                            </div>
+                                        ))}
+                                    </dl>
+                                )}
+                                <Link href="/hire" className="font-cond text-ink hover:text-royal mt-4 inline-flex min-h-11 items-center gap-1">
                                     My engineering work and resume <ArrowUpRight className="size-3.5" />
                                 </Link>
                             </div>
@@ -316,7 +376,8 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                             <div className="grid gap-12 lg:grid-cols-[5fr_7fr]">
                                 <div>
                                     <p className="text-ink-soft max-w-md">
-                                        Tell me about your business. For websites, you'll get a free demo homepage to approve before we tip off.
+                                        Tell me about your business and what you need. I reply within a day or two, and we start with a free 15-minute
+                                        call.
                                     </p>
                                     <ul className="font-cond mt-8 space-y-1">
                                         {links.email && (

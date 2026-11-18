@@ -55,12 +55,21 @@ export type Portfolio = {
     links: { email?: string | null; github?: string | null; linkedin?: string | null; phone?: string | null };
     education: Education[];
     services: Service[];
-    packages: { name: string; price: string; summary: string; includes?: string[]; best_for?: string; featured: boolean }[];
+    packages: { name: string; label?: string; price: string; summary: string; includes?: string[]; best_for?: string; featured: boolean }[];
+    package_notes?: { included: string; not_included: [string, string][]; warranty: string };
     care_plan: { price: string; summary: string };
     stats: { value: string; label: string; note: string }[];
     /** Home page copy for business owners. */
-    client: { title: string; eyebrow: string; tagline: string; typing: string[]; facts: [string, string][]; about: string[] };
-    demos: { title: string; type: string; description: string; url: string; package: string }[];
+    client: {
+        title: string;
+        eyebrow: string;
+        tagline: string;
+        typing: string[];
+        facts: [string, string][];
+        about: string[];
+        about_facts?: [string, string][];
+    };
+    demos: { title: string; type: string; description: string; url: string; package: string; goal?: string; fictional?: boolean }[];
     skills: Record<string, string[]>;
     projects: Project[];
     experience: Experience[];

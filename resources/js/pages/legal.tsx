@@ -87,10 +87,11 @@ function Terms({ name, email }: { name: string; email: string }) {
                     with these terms, is our agreement.
                 </p>
             </Section>
-            <Section title="Free demo homepage">
+            <Section title="Free homepage concept">
                 <p>
-                    For website projects I may build a free demo homepage so you can see the direction before committing. You're under no obligation
-                    to go ahead, and the demo stays mine unless the project goes forward.
+                    For website projects, after a first call, I may design one free concept of your homepage so you can see the direction before
+                    committing. It includes one round of comments. You're under no obligation to go ahead, and the concept stays mine unless the
+                    project goes forward. The full build starts once an agreement is signed and the deposit is paid.
                 </p>
             </Section>
             <Section title="Payment">
@@ -104,6 +105,10 @@ function Terms({ name, email }: { name: string; email: string }) {
                 <p>
                     Each package includes the revision rounds listed in its quote. Changes beyond the agreed scope are quoted separately before I do
                     them, so there are no surprise charges.
+                </p>
+                <p>
+                    Website packages that list a 14-day defect warranty are covered for 14 days after launch: if something does not work as agreed, I
+                    fix it at no charge. New features, design changes and content updates are not defects.
                 </p>
             </Section>
             <Section title="Your content & ownership">
