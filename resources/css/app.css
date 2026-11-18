@@ -435,3 +435,198 @@ html:has(.hardwood) {
     outline: 2px solid var(--color-royal);
     outline-offset: 3px;
 }
+
+/* ------------------------------------------------------------------
+   Dashboard "workspace" look: Notion-style neutrals with frosted glass.
+   Applies only while body.workspace is set (components/app-shell.tsx), so the public
+   site and the login pages are untouched. Change colours here, not in the pages.
+------------------------------------------------------------------- */
+/* Colour variables go on the root element: Tailwind reads them there, so setting them on <body> would not reach buttons. */
+html:has(body.workspace) {
+    --background: #ffffff;
+    --foreground: #37352f;
+    --card: #ffffff;
+    --card-foreground: #37352f;
+    --popover: #ffffff;
+    --popover-foreground: #37352f;
+    --primary: #2383e2;
+    --primary-foreground: #ffffff;
+    --secondary: #f1f1ef;
+    --secondary-foreground: #37352f;
+    --muted: #f7f7f5;
+    --muted-foreground: #787774;
+    --accent: #efefed;
+    --accent-foreground: #37352f;
+    --border: #e9e9e7;
+    --input: #dfdfdc;
+    --ring: #2383e2;
+    --radius: 0.375rem;
+    --sidebar-background: #f7f7f5;
+    --sidebar-foreground: #5f5e5b;
+    --sidebar-primary: #37352f;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #ebebe9;
+    --sidebar-accent-foreground: #37352f;
+    --sidebar-border: #e9e9e7;
+    --sidebar-ring: #2383e2;
+    /* frost: how see-through the glass is, and the colour glow behind it */
+    --frost: rgba(255, 255, 255, 0.62);
+    --frost-side: rgba(247, 247, 245, 0.7);
+    --frost-edge: rgba(55, 53, 47, 0.09);
+    --glow-a: rgba(35, 131, 226, 0.16);
+    --glow-b: rgba(155, 109, 255, 0.13);
+    --glow-c: rgba(255, 170, 110, 0.12);
+}
+body.workspace {
+    font-family:
+        ui-sans-serif,
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        Helvetica,
+        Arial,
+        sans-serif;
+    color: var(--foreground);
+    background-color: var(--background);
+}
+html.dark:has(body.workspace) {
+    --background: #191919;
+    --foreground: #e6e6e4;
+    --card: #202020;
+    --card-foreground: #e6e6e4;
+    --popover: #252525;
+    --popover-foreground: #e6e6e4;
+    --primary: #2f8ef0;
+    --primary-foreground: #ffffff;
+    --secondary: #2a2a2a;
+    --secondary-foreground: #e6e6e4;
+    --muted: #222222;
+    --muted-foreground: #9b9b98;
+    --accent: #2c2c2c;
+    --accent-foreground: #e6e6e4;
+    --border: #2f2f2f;
+    --input: #373737;
+    --ring: #2f8ef0;
+    --sidebar-background: #202020;
+    --sidebar-foreground: #b4b4b1;
+    --sidebar-primary: #e6e6e4;
+    --sidebar-primary-foreground: #191919;
+    --sidebar-accent: #2c2c2c;
+    --sidebar-accent-foreground: #e6e6e4;
+    --sidebar-border: #2a2a2a;
+    --frost: rgba(37, 37, 37, 0.58);
+    --frost-side: rgba(32, 32, 32, 0.66);
+    --frost-edge: rgba(255, 255, 255, 0.09);
+    --glow-a: rgba(47, 142, 240, 0.22);
+    --glow-b: rgba(155, 109, 255, 0.18);
+    --glow-c: rgba(255, 150, 90, 0.1);
+}
+
+/* The colour glow the glass blurs. Fixed, behind everything, never in the way of clicks. */
+body.workspace::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(38rem 26rem at 12% 8%, var(--glow-a), transparent 70%),
+        radial-gradient(34rem 24rem at 88% 18%, var(--glow-b), transparent 70%),
+        radial-gradient(40rem 26rem at 60% 100%, var(--glow-c), transparent 70%);
+}
+body.workspace [data-sidebar='sidebar'],
+body.workspace main {
+    position: relative;
+}
+body.workspace main.bg-background {
+    background: transparent;
+}
+
+/* Frosted glass: sidebar, top bar, panels, menus and dialogs. */
+body.workspace [data-sidebar='sidebar'],
+body.workspace .frost-bar,
+body.workspace main .rounded-xl.border,
+body.workspace main .rounded-lg.border,
+body.workspace [role='menu'],
+body.workspace [role='dialog'],
+body.workspace [role='listbox'] {
+    background-color: var(--frost);
+    -webkit-backdrop-filter: blur(22px) saturate(1.6);
+    backdrop-filter: blur(22px) saturate(1.6);
+    border-color: var(--frost-edge);
+}
+body.workspace [data-sidebar='sidebar'] {
+    background-color: var(--frost-side);
+    border-right: 1px solid var(--frost-edge);
+}
+body.workspace main .rounded-xl.border,
+body.workspace main .rounded-lg.border {
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.35) inset,
+        0 8px 24px -16px rgba(15, 15, 15, 0.25);
+}
+.dark body.workspace main .rounded-xl.border,
+.dark body.workspace main .rounded-lg.border {
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.06) inset,
+        0 10px 30px -18px rgba(0, 0, 0, 0.8);
+}
+
+/* Notion-style details: compact sidebar rows, big page titles, hairline tables. */
+body.workspace [data-sidebar='menu-button'] {
+    height: 1.875rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+}
+body.workspace [data-sidebar='menu-button'][data-size='lg'] {
+    height: 2.75rem;
+}
+body.workspace [data-sidebar='menu-button'] > svg {
+    opacity: 0.75;
+}
+body.workspace [data-sidebar='menu-button'][data-active='true'] {
+    background: var(--sidebar-accent);
+    color: var(--sidebar-accent-foreground);
+    font-weight: 600;
+}
+body.workspace [data-sidebar='group-label'] {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--muted-foreground);
+}
+body.workspace main h1 {
+    font-size: 1.875rem;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+body.workspace main table th {
+    font-weight: 500;
+    font-size: 0.8125rem;
+    color: var(--muted-foreground);
+}
+body.workspace main table tbody tr {
+    transition: background-color 0.12s;
+}
+body.workspace main table tbody tr:hover {
+    background: color-mix(in srgb, var(--foreground) 4%, transparent);
+}
+
+/* Browsers without blur support, or visitors who ask for less transparency, get solid panels. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    html:has(body.workspace) {
+        --frost: var(--card);
+        --frost-side: var(--sidebar-background);
+    }
+}
+@media (prefers-reduced-transparency: reduce) {
+    html:has(body.workspace) {
+        --frost: var(--card);
+        --frost-side: var(--sidebar-background);
+    }
+    body.workspace::before {
+        display: none;
+    }
+}

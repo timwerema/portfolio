@@ -1,5 +1,5 @@
 import { SidebarProvider } from '@/components/ui/sidebar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface AppShellProps {
     children: React.ReactNode;
@@ -8,6 +8,14 @@ interface AppShellProps {
 
 export function AppShell({ children, variant = 'header' }: AppShellProps) {
     const [isOpen, setIsOpen] = useState(() => (typeof window !== 'undefined' ? localStorage.getItem('sidebar') !== 'false' : true));
+
+    // The dashboard look ("workspace": Notion-style neutrals with frosted glass) lives in app.css under body.workspace.
+    // It is set on <body> so menus and dialogs, which render outside this component, pick it up too.
+    useEffect(() => {
+        if (variant !== 'sidebar') return;
+        document.body.classList.add('workspace');
+        return () => document.body.classList.remove('workspace');
+    }, [variant]);
 
     const handleSidebarChange = (open: boolean) => {
         setIsOpen(open);
