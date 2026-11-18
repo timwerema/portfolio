@@ -1,4 +1,5 @@
 import { LiveClock, useActiveSection } from '@/components/motion';
+import { trackCtaClicks } from '@/lib/track';
 import { type Service } from '@/types/portfolio';
 import { Link, router } from '@inertiajs/react';
 import { ArrowUpRight, Menu, X } from 'lucide-react';
@@ -13,6 +14,7 @@ import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 're
 const sections = [
     { id: 'work', label: 'Work' },
     { id: 'services', label: 'Services' },
+    { id: 'process', label: 'Process' },
     { id: 'packages', label: 'Packages' },
     { id: 'about', label: 'About' },
 ];
@@ -125,11 +127,14 @@ export function PillLink({
     children,
     variant = 'solid',
     internal = false,
+    cta,
 }: {
     href: string;
     children: ReactNode;
     variant?: 'solid' | 'outline' | 'outline-light';
     internal?: boolean;
+    /** Name for conversion tracking (see lib/track.ts). Nothing is sent unless an analytics script is installed. */
+    cta?: string;
 }) {
     const styles = {
         solid: 'bg-royal text-maple hover:bg-royal-dark',
@@ -139,11 +144,11 @@ export function PillLink({
     const className = `slant font-cond inline-flex min-h-12 items-center px-6 !text-[12px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-royal ${styles}`;
     const label = <span className="slant-undo inline-flex items-center gap-2">{children}</span>;
     return internal ? (
-        <Link href={href} className={className}>
+        <Link href={href} className={className} data-cta={cta}>
             {label}
         </Link>
     ) : (
-        <a href={href} className={className}>
+        <a href={href} className={className} data-cta={cta}>
             {label}
         </a>
     );
@@ -308,6 +313,9 @@ export function SiteLayout({
         return () => window.removeEventListener('resize', measure);
     }, [active, home]);
 
+    // Count clicks on marked buttons (only reaches an analytics script if one is installed).
+    useEffect(() => trackCtaClicks(), []);
+
     // Fade out before Inertia navigates to another page, fade in on arrival (the page-fade class).
     useEffect(() => {
         const off = router.on('start', (e) => {
@@ -344,7 +352,7 @@ export function SiteLayout({
                                 {brand}
                             </Link>
                         )}
-                        <div ref={navRef} className="relative hidden items-center gap-7 md:flex">
+                        <div ref={navRef} className="relative hidden items-center gap-6 lg:flex">
                             {sections.map((s, i) => (
                                 <a
                                     key={s.id}
@@ -360,7 +368,12 @@ export function SiteLayout({
                             <Link href="/hire" className={navLink}>
                                 For recruiters
                             </Link>
-                            <Link href="/start" data-nav="start" className="font-cond text-ink inline-flex items-center gap-1 py-3">
+                            <Link
+                                href="/start"
+                                data-nav="start"
+                                data-cta="nav_start"
+                                className="font-cond text-ink inline-flex items-center gap-1 py-3"
+                            >
                                 Start a project <ArrowUpRight className="size-3.5" />
                             </Link>
                             <span
@@ -371,7 +384,7 @@ export function SiteLayout({
                         </div>
                         <button
                             type="button"
-                            className="text-ink flex size-11 items-center justify-center md:hidden"
+                            className="text-ink flex size-11 items-center justify-center lg:hidden"
                             aria-label="Menu"
                             aria-expanded={menuOpen}
                             onClick={() => setMenuOpen((o) => !o)}
@@ -380,7 +393,7 @@ export function SiteLayout({
                         </button>
                     </nav>
                     {menuOpen && (
-                        <div className="border-maple-line border-t px-5 pb-4 md:hidden">
+                        <div className="border-maple-line border-t px-5 pb-4 lg:hidden">
                             {sections.map((s) => (
                                 <a key={s.id} href={href(s.id)} onClick={() => setMenuOpen(false)} className={`${navLink} block`}>
                                     {s.label}

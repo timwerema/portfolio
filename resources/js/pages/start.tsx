@@ -1,5 +1,6 @@
 import InputError from '@/components/input-error';
 import { PillLink, SiteLayout } from '@/components/site-layout';
+import { track } from '@/lib/track';
 import { type Portfolio } from '@/types/portfolio';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { ArrowLeft, ArrowRight, Check, CircleCheck, LoaderCircle } from 'lucide-react';
@@ -85,6 +86,7 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
         if (step < 2) return next();
         post(route('start.store'), {
             preserveScroll: true,
+            onSuccess: () => track('inquiry_sent', { form: 'start' }),
             onError: (errs) => {
                 if (errs.services || errs.budget || errs.timeline) setStep(0);
                 else if (errs.message || errs.business || errs.business_website) setStep(1);
@@ -135,8 +137,8 @@ export default function StartProject({ portfolio, budgets, timelines }: Props) {
                             <p className="font-cond text-royal font-medium">Start a project</p>
                             <h1 className="font-display mt-2 text-4xl leading-[1.05] sm:text-5xl">Let's build something.</h1>
                             <p className="text-ink-soft mt-4 max-w-xl text-xl">
-                                Three quick steps, about two minutes. Every website project starts with a <strong>free demo homepage</strong> you
-                                approve before paying.
+                                Three quick steps, about two minutes. I reply within a day or two to set up a <strong>free 15-minute call</strong>. If
+                                we are a fit, website projects get a free homepage concept before you pay anything.
                             </p>
 
                             <ol className="mt-10 flex flex-wrap gap-x-6 gap-y-2" aria-label="Progress">

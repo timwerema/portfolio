@@ -24,25 +24,32 @@ return [
     'client' => [
         'title' => 'Websites & software for local businesses',
         'eyebrow' => 'Taking new projects',
-        'tagline' => 'I build websites and simple software for local businesses. After a quick call, you see a free demo of your homepage before you pay anything.',
+        'tagline' => 'I build websites and business software for Dallas-Fort Worth businesses, designed to make it easier for your customers to ask a question, request a quote or book.',
         'typing' => [
-            'websites that bring in customers',
-            'booking pages that fill your calendar',
+            'websites that make it easy to reach you',
+            'booking pages that are easy to use',
             'dashboards that save hours a week',
             'AI helpers that do the busywork',
             'software shaped around how you work',
         ],
         // Spec rows beside the headline.
         'facts' => [
-            ['First step', 'A 15-minute call, then a free demo'],
+            ['First step', 'A free 15-minute call'],
             ['Launch in', '1-4 weeks'],
-            ['Starts at', '$750'],
-            ['After launch', 'Hosting & updates handled'],
+            ['Websites from', '$750'],
+            ['After launch', 'Optional care plan'],
             ['Based in', 'Dallas, TX'],
         ],
+        // Verified background only: UT Dallas CS, Nokia internship, full-stack, cloud infrastructure, automation.
         'about' => [
-            'I\'m Timasi, a software engineer finishing my Computer Science degree at UT Dallas. You work with me directly: I design, build and look after your site myself, so nothing gets lost between people.',
-            'Before this I built internal tools at Nokia and spent four seasons keeping the payment systems running at the American Airlines Center through sold-out games and concerts. I\'m used to things that have to work on a busy night.',
+            'I\'m Timasi Werema, a software engineer studying Computer Science at the University of Texas at Dallas. You work with me directly: I plan, design, build and look after your site myself, so nothing gets lost between people.',
+            'During my internship at Nokia I built a full-stack tool that automated checks on cloud infrastructure, replacing work engineers had been doing by hand. I bring the same habits to small-business sites: clear structure, fast pages, and automation wherever it saves you time.',
+        ],
+        'about_facts' => [
+            ['Studying', 'Computer Science, UT Dallas'],
+            ['Internship', 'Nokia'],
+            ['Works across', 'Front end, back end, cloud'],
+            ['Based in', 'Dallas-Fort Worth'],
         ],
     ],
 
@@ -237,33 +244,55 @@ return [
         [
             'name' => 'Starter',
             'price' => '$750',
-            'summary' => 'A polished site of up to five pages for a small business - mobile-first, contact form, basic SEO, launched on your domain.',
+            'summary' => 'A clean, fast site of up to three pages that tells people what you do and how to reach you.',
             // What the price covers (shown under each package; keep in step with client-sites/PACKAGES.md).
-            'includes' => ['Up to 5 pages', 'Custom design from your brand', 'Tap-to-call and contact form', 'Shows up on Google (basic SEO)', '2 rounds of changes', 'Live in about 1 week'],
-            'best_for' => 'Businesses that need to be found and called.',
+            'includes' => ['Up to 3 responsive pages', 'Design based on your brand', 'Contact form and tap-to-call', 'Basic on-page SEO', '1 revision round', 'Launch support'],
+            'best_for' => 'New businesses that need a professional home online.',
             'featured' => false,
         ],
         [
-            'name' => 'Business',
+            'name' => 'Business', // the name used in forms and the dashboard
+            'label' => 'Business Website', // the name shown on the home page
             'price' => '$1,750',
-            'summary' => 'A fully custom site with more pages, bookings or a small store, easy content updates and analytics.',
-            'includes' => ['Everything in Starter', 'Up to 10 pages', 'Online booking button', 'Price list or menu', 'Sell up to 10 items with payment links', 'Visitor stats', '3 rounds of changes', 'Live in 2-3 weeks'],
-            'best_for' => 'Businesses that take bookings, orders or payments online.',
+            'summary' => 'The full website most established local businesses need: every key page, built around getting inquiries and bookings.',
+            'includes' => [
+                'Up to 5 responsive pages',
+                'Contact or quote-request form',
+                'Basic on-page SEO',
+                'Visitor analytics set up',
+                '2 revision rounds',
+                'Launch support',
+                '14-day defect warranty',
+            ],
+            'best_for' => 'Established businesses that want more inquiries and bookings from their site.',
             'featured' => true,
         ],
         [
             'name' => 'Custom',
             'price' => '$3,500+',
-            'summary' => 'Custom software - web apps, client portals, dashboards, integrations or AI task bots. Scoped together.',
-            'includes' => ['Paid planning phase first (credited to the build)', 'Clickable prototype you approve', 'Built in milestones you can see', 'Logins, payments and data handled safely', 'Tests on anything that touches money'],
+            'summary' => 'Business software: web apps, client portals, dashboards, integrations or AI task bots. Scoped together.',
+            'includes' => ['Paid planning phase first (credited to the build)', 'Clickable prototype you approve', 'Built in milestones you can see', 'Logins, payments and data handled carefully', 'Tests on anything that touches money'],
             'best_for' => 'Work that off-the-shelf tools do not fit.',
             'featured' => false,
         ],
     ],
 
+    // Shown under the packages so nobody is surprised later.
+    'package_notes' => [
+        'included' => 'Design, build, testing on phones and desktops, and launch on your domain.',
+        'not_included' => [
+            ['Domain name', 'You buy and own it (about $12-$20 a year). I help you set it up.'],
+            ['Hosting and maintenance', 'Covered by the optional care plan, or you host it yourself.'],
+            ['Copywriting', 'You provide the wording; I tidy it up. Writing it from scratch is quoted separately.'],
+            ['Photography', 'You provide photos, or we use ones you have the rights to.'],
+            ['Advanced integrations', 'Online stores, customer accounts, custom booking systems and software connections are Custom work.'],
+        ],
+        'warranty' => 'The 14-day defect warranty means I fix anything that does not work as agreed, free, for 14 days after launch. New features and content changes are separate.',
+    ],
+
     'care_plan' => [
         'price' => '$79-$149/month',
-        'summary' => 'Optional care plan: hosting, updates, backups and small changes each month, so you never have to touch the site.',
+        'summary' => 'Optional care plan: hosting, updates, backups and small changes each month. Not part of the package price.',
     ],
 
     // Shown on the home page scoreboard.
@@ -355,23 +384,29 @@ return [
         [
             'title' => 'Clearcoat',
             'type' => 'Ceramic, PPF & wraps studio',
-            'description' => 'A chrome-luxury site for a protection and wrap studio: a live wrap colour visualizer, services you add to a quote, a filterable work log and clear policies.',
+            'description' => 'A site for a car protection and wrap studio. Visitors try wrap colours on a car, add services to a quote and see clear policies before they call.',
             'url' => '/demos/clearcoat',
             'package' => 'Business',
+            'goal' => 'Make a premium service feel worth its price, and turn browsing into a quote request.',
+            'fictional' => true,
         ],
         [
             'title' => '4th Quarter Performance',
             'type' => 'Gym & athletic training',
-            'description' => 'A gym site built to fill classes: expandable programs, a weekly class schedule with reservations, monthly/annual pricing and a 3-step free-session booking.',
+            'description' => 'A gym site built around booking. Programs open up for detail, the weekly schedule takes reservations, and pricing switches between monthly and annual.',
             'url' => '/demos/fourth-quarter',
             'package' => 'Business',
+            'goal' => 'Get a first-time visitor from the homepage to a booked free session in three steps.',
+            'fictional' => true,
         ],
         [
             'title' => 'LATESHIFT',
             'type' => 'Streetwear online store',
-            'description' => 'A drop-based clothing store: countdown to the next drop, quick view with colours and sizes, a bag with a free-shipping meter, and checkout.',
+            'description' => 'A clothing store that sells in limited drops: a countdown to the next release, quick view with colours and sizes, a bag with a free-shipping meter, and a simulated checkout.',
             'url' => '/demos/lateshift',
             'package' => 'Custom',
+            'goal' => 'Show a small online store with a clear path from product to checkout.',
+            'fictional' => true,
         ],
         [
             'title' => 'StudyLoop',
@@ -379,6 +414,8 @@ return [
             'description' => 'Drop in lecture slides (PowerPoint or PDF) and get a study plan that adapts to the exam: closed notes, one cheat sheet or open notes, multiple choice or written. Tracks trouble spots, pop-quiz drills, printable cheat sheet. I use it for my own classes.',
             'url' => '/demos/studyloop',
             'package' => 'Custom',
+            'goal' => 'Show working software, not just a design: a tool I built and use for my own classes.',
+            'fictional' => false,
         ],
         [
             'title' => 'Encore Live',
@@ -386,6 +423,8 @@ return [
             'description' => 'Connect Spotify and it finds upcoming shows near you from the R&B artists you actually play, with tickets and add-to-calendar.',
             'url' => '/live',
             'package' => 'Custom',
+            'goal' => 'Show a real integration with two outside services (Spotify and Ticketmaster).',
+            'fictional' => false,
         ],
         [
             'title' => 'Rundown',
@@ -393,6 +432,8 @@ return [
             'description' => 'Stats hub for a rec basketball league: scores and box scores, sortable standings and player stats, league leaders, shot charts and head-to-head compare.',
             'url' => '/demos/rundown',
             'package' => 'Custom',
+            'goal' => 'Make a lot of numbers easy to read on a phone.',
+            'fictional' => true,
         ],
         [
             'title' => 'Deskbot',
@@ -400,6 +441,8 @@ return [
             'description' => 'A pixel-art office robot that chases invoices, books jobs and answers emails, walking to each tool. Built safe: it asks before anything goes out, follows a visible permissions table and catches scam emails that try to trick it.',
             'url' => '/demos/deskbot',
             'package' => 'Custom',
+            'goal' => 'Explain what an AI helper would do for an office, and how it stays safe, without jargon.',
+            'fictional' => true,
         ],
         [
             'title' => 'Hardwood Performance Lab',
@@ -407,6 +450,8 @@ return [
             'description' => 'Maple court, navy and LED scoreboard: programs, a facility tour, a scroll-driven game plan, memberships and a free-evaluation form. The original look of this portfolio, kept for sports and fitness clients.',
             'url' => '/demos/hardwood',
             'package' => 'Business',
+            'goal' => 'Give a sports business a bold identity while keeping the sign-up path obvious.',
+            'fictional' => true,
         ],
         [
             'title' => 'Orbit City FC',
@@ -414,6 +459,8 @@ return [
             'description' => 'A club site parents can run from their phone: Apple/Google sign-in, a schedule hub with calendar, upcoming and payment tabs, and one-tap registration.',
             'url' => '/demos/orbit-city',
             'package' => 'Custom',
+            'goal' => 'Let parents see the schedule, register and pay from a phone in under a minute.',
+            'fictional' => true,
         ],
     ],
 

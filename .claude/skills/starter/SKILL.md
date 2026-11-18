@@ -27,7 +27,7 @@ The rules in `CLAUDE.md` apply: no fake reviews, awards or numbers; never commit
 4. **Fill `client-sites/<slug>/src/site.ts`:** replace every sample line (search for "Northline",
    "example.com", the sample services, menu, FAQ, steps and work). Write in plain, friendly English for
    their customers. Set `theme.mode` and `theme.accent`. Keep `testimonials` empty unless the client
-   gave real quotes. Keep `home` and `nav` as the package set them (Starter = up to 5 pages).
+   gave real quotes. Keep `home` and `nav` as the package set them (Starter = up to 3 pages, 1 revision round).
 5. **Photos:** the client's own photos if Timasi provided them (resize to ~1600px wide, ~200 KB, into
    `public/images/`). Otherwise keep the placeholders and list the photos to ask for.
 5b. **Design pass (do not skip).** The starter sections with the client's colors look like a template, and
@@ -50,7 +50,7 @@ The rules in `CLAUDE.md` apply: no fake reviews, awards or numbers; never commit
 
 Do not commit the client folder unless Timasi asks (it holds client details).
 
-## Finish the site (after approval and deposit)
+## Finish the site (only after a signed agreement and the deposit)
 
 1. Apply the client's comments from the preview page (Timasi pastes them).
 2. Fill every page in `nav` (Services, About, Our work or Menu, Contact): real text and photos.

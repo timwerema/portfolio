@@ -9,17 +9,25 @@ here and the shortcut changes with it. Prices match `config/portfolio.php` → `
 | | Starter · $750 | Business · $1,750 | Custom · $3,500+ |
 |---|---|---|---|
 | **Built with** | Astro starter (`_starter/`) | Astro starter (`_starter/`) | Web app (see Custom below) |
-| **Pages** | Up to 5 (Home + 4) | Up to 10 | Scoped together |
+| **Pages** | Up to 3 | Up to 5 | Scoped together |
 | **Homepage** | The type's core sections | Core + pricing/menu, location, FAQ, testimonials | Clickable prototype first |
 | **Booking / store** | Booking link only if they already have one | Booking button; small store via Square or Stripe payment links | Real accounts, payments, data |
-| **Analytics** | No | Cloudflare Web Analytics | Built in |
+| **Analytics** | No | Visitor analytics set up (Cloudflare Web Analytics) | Built in |
 | **Content updates** | Through the care plan | Through the care plan, plus a short "how to change" guide | Admin screens |
 | **Demo turnaround** | Same or next day | 1-2 days | Prototype in about a week, after a paid planning phase |
 | **Build time after approval** | About 1 week | 2-3 weeks | Milestones, usually 4-8 weeks |
-| **Revision rounds** | 1 on the demo, 1 before launch | 2 on the demo, 1 before launch | One per milestone |
+| **Revision rounds** | 1 | 2 | One per milestone |
+| **Warranty** | None listed | 14-day defect warranty after launch | Per agreement |
 | **Deposit** | 50% | 50% | Planning phase paid up front, then 50% per milestone plan |
 
 Care plan ($79-$149/month) is optional for all three: hosting, updates, backups, small changes.
+
+**Not included in any package price** (say this to every client; it is on the home page too): the domain name, hosting
+and maintenance (that is the care plan), copywriting from scratch, photography, and advanced integrations (stores,
+customer accounts, custom booking, software connections: those are Custom).
+
+**The order of things:** qualification call → one free homepage concept (one round of comments, one per business) →
+signed agreement and 50% deposit → full build. Never start the full build before the agreement and deposit.
 
 ## The look (pick by business type)
 
@@ -34,13 +42,13 @@ Colors: `brand` from their logo (main buttons), `accent` a second logo color or 
 If they have no logo, use a deep color that suits the trade (green for lawn, navy for trades,
 warm red for food) and say so in the summary.
 
-## Starter · $750: "a polished site that brings in calls"
+## Starter · $750: "a clean, professional home online"
 
 - **Homepage sections** (set by `--package starter`):
   - services: hero, services, how it works, about, recent work, contact
   - restaurant: hero, menu, about, location & hours, contact
   - studio: hero, services, about, location & hours, contact
-- **Pages:** Home + up to 4 from `nav` (Services, About, Our work / Menu, Contact).
+- **Pages:** up to 3 (usually Home, Services or Menu, Contact).
 - **Always:** tap-to-call bar, hours and service area in the footer, SEO titles, Google business
   info, sitemap, contact form (connected at launch), scroll motion on.
 - **Not included:** pricing tables, announcement bar, analytics, extra pages. Those are Business.
@@ -60,7 +68,7 @@ Everything in Starter, plus:
   Pricing page. Anything bigger is Custom.
 - **Analytics:** Cloudflare Web Analytics token in `analytics.cloudflareToken` (free, no cookie banner).
 - **Announcement bar** set up for holiday hours or specials.
-- **Up to 10 pages:** add pages for each main service or location when it helps Google.
+- **Up to 5 pages**, a contact or quote-request form, 2 revision rounds, launch support and a 14-day defect warranty.
 - **Hand-off guide:** a short `HOW-TO-UPDATE.md` in their folder (what to send you, what changes are covered).
 - **Done means:** all of Starter's, plus booking tested, analytics showing visits, payment links tested.
 

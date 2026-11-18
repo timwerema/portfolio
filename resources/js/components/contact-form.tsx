@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { track } from '@/lib/track';
 import { useForm } from '@inertiajs/react';
 import { CircleCheck, LoaderCircle, Send } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
@@ -33,6 +34,7 @@ export default function ContactForm({ services, defaultService = '' }: { service
             onSuccess: () => {
                 reset();
                 setSent(true);
+                track('inquiry_sent', { form: 'contact' });
             },
         });
     };
