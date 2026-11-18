@@ -23,3 +23,11 @@ Homestead.json
 Homestead.yaml
 npm-debug.log
 yarn-error.log
+
+# Client site folders hold client details and photos: they live in the private repo
+# timwerema/client-sites, never in this public one. Only the starter and docs are tracked here.
+/client-sites/*
+!/client-sites/_starter/
+!/client-sites/README.md
+!/client-sites/PACKAGES.md
+!/client-sites/new-client.mjs

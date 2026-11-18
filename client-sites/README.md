@@ -1,7 +1,9 @@
 # Client sites
 
 Every website you sell starts as a copy of **`_starter/`** (the baseline). Each client gets
-their own folder here (`client-sites/<business-name>/`) until it launches; then it moves to its
+their own folder here (`client-sites/<business-name>/`) until it launches. Client folders are **not saved in this
+public repo** (they hold client details and photos): they are git-ignored here and pushed to the private repo
+`timwerema/client-sites`; then it moves to its
 own GitHub repo so the client can own it (see "Launch & handover").
 
 ## What the baseline includes
