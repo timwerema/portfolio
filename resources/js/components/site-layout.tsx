@@ -280,12 +280,12 @@ export function BallMark({ className = '' }: { className?: string }) {
  */
 export function SiteLayout({
     name,
-    resumeUrl,
     home = false,
     children,
 }: {
     name: string;
-    resumeUrl: string | null;
+    /** No longer shown in the menu (the resume is linked from /hire); kept so pages don't need changing. */
+    resumeUrl?: string | null;
     home?: boolean;
     children: ReactNode;
 }) {
@@ -357,11 +357,9 @@ export function SiteLayout({
                                     {s.label}
                                 </a>
                             ))}
-                            {resumeUrl && (
-                                <a href={resumeUrl} className={navLink}>
-                                    Resume
-                                </a>
-                            )}
+                            <Link href="/hire" className={navLink}>
+                                For recruiters
+                            </Link>
                             <Link href="/start" data-nav="start" className="font-cond text-ink inline-flex items-center gap-1 py-3">
                                 Start a project <ArrowUpRight className="size-3.5" />
                             </Link>
@@ -388,11 +386,9 @@ export function SiteLayout({
                                     {s.label}
                                 </a>
                             ))}
-                            {resumeUrl && (
-                                <a href={resumeUrl} className={`${navLink} block`}>
-                                    Resume
-                                </a>
-                            )}
+                            <Link href="/hire" className={`${navLink} block`}>
+                                For recruiters
+                            </Link>
                             <Link href="/start" className="font-cond text-ink block py-3">
                                 Start a project →
                             </Link>

@@ -58,6 +58,8 @@ export type Portfolio = {
     packages: { name: string; price: string; summary: string; featured: boolean }[];
     care_plan: { price: string; summary: string };
     stats: { value: string; label: string; note: string }[];
+    /** Home page copy for business owners. */
+    client: { title: string; eyebrow: string; tagline: string; typing: string[]; facts: [string, string][]; about: string[] };
     demos: { title: string; type: string; description: string; url: string; package: string }[];
     skills: Record<string, string[]>;
     projects: Project[];

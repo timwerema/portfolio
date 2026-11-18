@@ -22,6 +22,9 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+// For recruiters and hiring managers: engineering work, experience, skills, resume.
+Route::get('/hire', fn () => Inertia::render('hire', ['portfolio' => config('portfolio')]))->name('hire');
+
 Route::get('/services/{slug}', function (string $slug) {
     $service = collect(config('portfolio.services'))->firstWhere('slug', $slug);
 
@@ -62,7 +65,7 @@ Route::get('/robots.txt', function () {
 })->name('robots');
 
 Route::get('/sitemap.xml', function () {
-    $urls = [url('/'), route('start'), route('resume'), route('privacy'), route('terms')];
+    $urls = [url('/'), route('start'), route('hire'), route('resume'), route('privacy'), route('terms')];
     foreach (config('portfolio.services') as $service) {
         $urls[] = route('services.show', $service['slug']);
     }

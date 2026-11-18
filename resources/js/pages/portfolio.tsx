@@ -1,5 +1,5 @@
 import ContactForm from '@/components/contact-form';
-import { CountUp, HoverPreview, Typewriter, useReveal, useScrollProgress } from '@/components/motion';
+import { Typewriter, useReveal, useScrollProgress } from '@/components/motion';
 import { Chip, Fig, PillLink, PlayDiagram, SectionHeading, SiteLayout, Spec } from '@/components/site-layout';
 import { type Portfolio } from '@/types/portfolio';
 import { Head, Link } from '@inertiajs/react';
@@ -7,7 +7,8 @@ import { ArrowUpRight, Github, Linkedin, Mail } from 'lucide-react';
 import { type CSSProperties, useRef, useState } from 'react';
 
 /*
- * Home page, "Studio" look. Content comes from config/portfolio.php.
+ * Home page, "Studio" look, written for business owners (clients). Recruiters get /hire (pages/hire.tsx).
+ * Content comes from config/portfolio.php (`client` for the hero and about text).
  * Layout rules: hairline rows instead of cards, mono "FIG." labels, two-tone section titles,
  * left-to-right reveals, lots of air. The basketball version lives on at /demos/hardwood.
  */
@@ -59,54 +60,31 @@ function Process() {
 }
 
 export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
-    const {
-        name,
-        availability,
-        role,
-        location,
-        tagline,
-        about,
-        resume_url,
-        links,
-        education,
-        services,
-        packages,
-        care_plan,
-        stats,
-        demos,
-        skills,
-        projects,
-        experience,
-    } = portfolio;
+    const { name, location, client, resume_url, links, services, packages, care_plan, demos } = portfolio;
     useReveal();
-    const school = education[0];
-    const typing = [
-        'websites that bring in customers',
-        'dashboards that save hours a week',
-        'AI bots that do the busywork',
-        'tools that cut validation time 65%',
-        'software shaped around how you work',
-    ];
+    // Five example sites to start with; the rest open with one tap (keeps the page short on phones).
+    const [allDemos, setAllDemos] = useState(false);
+    const shownDemos = allDemos ? demos : demos.slice(0, 5);
     const wrap = 'mx-auto max-w-[1280px] px-5 sm:px-8 lg:px-10';
 
     return (
         <>
-            <Head title={`${name} · ${role}`}>
-                <meta name="description" content={tagline} />
+            <Head title={`${name} · ${client.title}`}>
+                <meta name="description" content={client.tagline} />
             </Head>
 
             <SiteLayout name={name} resumeUrl={resume_url} home>
                 <main id="top">
                     {/* Hero */}
                     <section className="border-maple-line border-b">
-                        <div className={`${wrap} grid gap-10 py-20 sm:py-28 lg:grid-cols-[7fr_5fr] lg:py-36`}>
+                        <div className={`${wrap} grid gap-10 py-16 sm:py-24 lg:grid-cols-[7fr_5fr] lg:py-32`}>
                             <div>
                                 <Fig n={1} className="mb-8 flex items-center gap-2">
                                     <span className="relative flex size-1.5">
                                         <span className="bg-royal absolute inline-flex size-full animate-ping rounded-full opacity-60" />
                                         <span className="bg-royal relative inline-flex size-1.5 rounded-full" />
                                     </span>
-                                    {availability} · {location}
+                                    {client.eyebrow} · {location}
                                 </Fig>
                                 <h1 className="font-display max-w-4xl text-5xl leading-[1.02] sm:text-6xl lg:text-[80px]">
                                     Built to win
@@ -115,165 +93,93 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                                 </h1>
                                 <p className="font-display text-ink mt-8 min-h-[1.4em] text-xl sm:text-2xl">
                                     <span className="text-ink-muted">I build </span>
-                                    <Typewriter phrases={typing} />
+                                    <Typewriter phrases={client.typing} />
                                 </p>
-                                <p className="text-ink-soft mt-4 max-w-xl">{tagline}</p>
+                                <p className="text-ink-soft mt-4 max-w-xl">{client.tagline}</p>
                                 <div className="mt-9 flex flex-wrap gap-3">
                                     <PillLink href="/start" internal>
-                                        Start a project <ArrowUpRight className="size-3.5" />
+                                        Get a free demo homepage <ArrowUpRight className="size-3.5" />
                                     </PillLink>
                                     <PillLink href="#work" variant="outline">
-                                        See the work
+                                        See example sites
                                     </PillLink>
                                 </div>
                             </div>
 
-                            {/* Spec sheet */}
-                            <dl className="font-cond border-maple-line self-end border-t">
-                                {[
-                                    ['Role', role],
-                                    ['School', school ? `${school.school} · ${school.period}` : '—'],
-                                    ['Last team', experience[0]?.company ?? '—'],
-                                    ['Based in', location],
-                                    ['Open to', (availability ?? 'New projects').replace(/^open to /i, '')],
-                                ].map(([k, v]) => (
-                                    <div key={k} className="border-maple-line flex justify-between gap-4 border-b py-3">
-                                        <dt className="text-ink-muted">{k}</dt>
-                                        <dd className="text-ink text-right">{v}</dd>
-                                    </div>
-                                ))}
-                            </dl>
+                            {/* What working together looks like */}
+                            <div className="self-end">
+                                <dl className="font-cond border-maple-line border-t">
+                                    {client.facts.map(([k, v]) => (
+                                        <div key={k} className="border-maple-line flex justify-between gap-4 border-b py-3">
+                                            <dt className="text-ink-muted">{k}</dt>
+                                            <dd className="text-ink text-right">{v}</dd>
+                                        </div>
+                                    ))}
+                                </dl>
+                                <Link href="/hire" className="font-cond text-ink-muted hover:text-royal mt-4 inline-flex min-h-11 items-center gap-1">
+                                    Hiring an engineer? See my engineering work <ArrowUpRight className="size-3.5" />
+                                </Link>
+                            </div>
                         </div>
                     </section>
 
-                    {/* Readings */}
-                    <section aria-label="Readings" className="border-maple-line border-b">
-                        <dl className={`${wrap} grid grid-cols-2 gap-x-8 gap-y-8 py-10 md:grid-cols-4`}>
-                            {stats.map((s, i) => (
-                                <div key={s.label} data-reveal style={stagger(i)}>
-                                    <dt className="font-cond text-ink-muted">
-                                        <span className="text-royal">{String.fromCharCode(65 + i)} /</span> {s.label}
-                                    </dt>
-                                    <dd className="font-display mt-2 text-4xl tabular-nums sm:text-5xl">
-                                        <CountUp value={s.value} />
-                                    </dd>
-                                    <dd className="text-ink-muted mt-1 text-sm">{s.note}</dd>
-                                </div>
-                            ))}
-                        </dl>
-                    </section>
-
-                    {/* Manifesto */}
-                    <section className="border-maple-line border-b">
-                        <div className={`${wrap} grid gap-8 py-20 lg:grid-cols-[3fr_9fr] lg:py-28`}>
-                            <Fig n={2}>Manifesto</Fig>
-                            <p data-reveal="mask" className="font-display text-ink-soft max-w-3xl text-2xl leading-snug sm:text-3xl lg:text-4xl">
-                                {about[0]}
-                            </p>
-                        </div>
-                    </section>
-
-                    {/* Work */}
+                    {/* Work: demo sites, each with its screenshot (visible on phones too) */}
                     <section id="work" className="border-maple-line scroll-mt-16 border-b">
-                        <div className={`${wrap} py-20 lg:py-28`}>
-                            <SectionHeading n={3} eyebrow="Selected work · still in service" title="Three projects," dim="three kinds of problem." />
+                        <div className={`${wrap} py-16 lg:py-24`}>
+                            <SectionHeading
+                                n={2}
+                                eyebrow="Example sites · made for fictional businesses"
+                                title="What your site"
+                                dim="could look like."
+                                className="mb-10"
+                            />
                             <div className="border-maple-line border-t">
-                                {projects.map((p, i) => (
-                                    <article
-                                        key={p.title}
+                                {shownDemos.map((d, i) => (
+                                    <Link
+                                        key={d.url}
+                                        href={d.url}
                                         data-reveal="left"
-                                        className="border-maple-line grid gap-x-8 gap-y-5 border-b py-8 sm:grid-cols-[3rem_1fr] lg:grid-cols-[3rem_1fr_300px]"
+                                        style={stagger(i % 3)}
+                                        className="group border-maple-line hover:bg-maple-light grid gap-x-8 gap-y-4 border-b py-6 transition-colors sm:grid-cols-[220px_1fr] lg:grid-cols-[3rem_240px_1fr_260px]"
                                     >
-                                        <span aria-hidden="true" className="font-cond text-ink-muted pt-1.5">
+                                        <span aria-hidden="true" className="font-cond text-ink-muted hidden pt-1 lg:block">
                                             {num(i)}
                                         </span>
+                                        <img
+                                            src={previewFor(d.url)}
+                                            alt={`Screenshot of the ${d.title} site`}
+                                            width={640}
+                                            height={400}
+                                            loading="lazy"
+                                            className="border-maple-line aspect-[16/10] w-full rounded-sm border object-cover object-top"
+                                        />
                                         <div className="min-w-0">
-                                            <h3 className="font-display text-2xl sm:text-3xl">{p.title}</h3>
-                                            <p className="font-cond text-ink-muted mt-1">{[p.subtitle, p.period].filter(Boolean).join(' · ')}</p>
-                                            <p className="text-ink-soft mt-3 max-w-2xl">{p.description}</p>
-                                            <div className="mt-4 flex flex-wrap gap-2 pl-1">
-                                                {p.tags.map((t) => (
-                                                    <Chip key={t}>{t}</Chip>
-                                                ))}
-                                            </div>
+                                            <h3 className="font-display text-xl sm:text-2xl">{d.title}</h3>
+                                            <p className="text-ink-soft mt-2 max-w-2xl text-sm">{d.description}</p>
+                                            <span className="font-cond text-ink group-hover:text-royal mt-3 inline-flex min-h-11 items-center gap-1">
+                                                Open it{' '}
+                                                <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                                            </span>
                                         </div>
-                                        <div className="sm:col-start-2 lg:col-start-auto">
-                                            {p.spec && <Spec rows={Object.entries(p.spec)} />}
-                                            {(p.url || p.repo) && (
-                                                <div className="font-cond mt-2 flex items-start gap-5">
-                                                    {p.url && (
-                                                        <a
-                                                            href={p.url}
-                                                            target="_blank"
-                                                            rel="noreferrer"
-                                                            className="text-ink hover:text-royal inline-flex min-h-11 items-center gap-1"
-                                                        >
-                                                            Visit site <ArrowUpRight className="size-3.5" />
-                                                        </a>
-                                                    )}
-                                                    {p.repo && (
-                                                        <a
-                                                            href={p.repo}
-                                                            target="_blank"
-                                                            rel="noreferrer"
-                                                            className="text-ink hover:text-royal inline-flex min-h-11 items-center gap-1"
-                                                        >
-                                                            <Github className="size-3.5" /> Code
-                                                        </a>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </article>
+                                        <Spec
+                                            className="sm:col-span-2 lg:col-span-1"
+                                            rows={[
+                                                ['Type', d.type],
+                                                ['Package', d.package],
+                                                ['Status', d.url.startsWith('/demos/') ? 'Demo' : 'Live'],
+                                            ]}
+                                        />
+                                    </Link>
                                 ))}
                             </div>
-
-                            {demos.length > 0 && (
-                                <div className="mt-20">
-                                    <SectionHeading
-                                        n={4}
-                                        eyebrow="Demo sites · fictional businesses"
-                                        title="What your site"
-                                        dim="could look like."
-                                        className="mb-10"
-                                    />
-                                    <HoverPreview>
-                                        {(bind) => (
-                                            <div className="border-maple-line border-t">
-                                                {demos.map((d, i) => (
-                                                    <Link
-                                                        key={d.url}
-                                                        href={d.url}
-                                                        data-reveal="left"
-                                                        style={stagger(i % 3)}
-                                                        {...bind(previewFor(d.url))}
-                                                        className="group border-maple-line hover:bg-maple-light grid gap-x-8 gap-y-3 border-b py-6 transition-colors sm:grid-cols-[3rem_1fr_auto] lg:grid-cols-[3rem_1fr_300px_auto]"
-                                                    >
-                                                        <span aria-hidden="true" className="font-cond text-ink-muted pt-1">
-                                                            {num(i)}
-                                                        </span>
-                                                        <div className="min-w-0">
-                                                            <h4 className="font-display text-xl sm:text-2xl">{d.title}</h4>
-                                                            <p className="text-ink-soft mt-2 max-w-2xl text-sm">{d.description}</p>
-                                                        </div>
-                                                        <Spec
-                                                            className="sm:col-start-2 sm:row-start-2 lg:col-start-auto lg:row-start-auto"
-                                                            rows={[
-                                                                ['Type', d.type],
-                                                                ['Package', d.package],
-                                                                ['Status', d.url.startsWith('/demos/') ? 'Demo' : 'Live'],
-                                                            ]}
-                                                        />
-                                                        <span className="font-cond text-ink group-hover:text-royal inline-flex items-center gap-1 pt-1">
-                                                            Open{' '}
-                                                            <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                                                        </span>
-                                                    </Link>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </HoverPreview>
-                                </div>
+                            {!allDemos && demos.length > shownDemos.length && (
+                                <button
+                                    type="button"
+                                    onClick={() => setAllDemos(true)}
+                                    className="font-cond text-ink hover:text-royal mt-6 inline-flex min-h-11 items-center gap-2"
+                                >
+                                    Show all {demos.length} example sites <span aria-hidden="true">+</span>
+                                </button>
                             )}
                         </div>
                     </section>
@@ -281,7 +187,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                     {/* Services */}
                     <section id="services" className="border-maple-line scroll-mt-16 border-b">
                         <div className={`${wrap} py-20 lg:py-28`}>
-                            <SectionHeading n={5} eyebrow="What I build" title="Four services," dim="one way of working." className="mb-4" />
+                            <SectionHeading n={3} eyebrow="What I build" title="Four services," dim="one way of working." className="mb-4" />
                             <p className="text-ink-soft mb-12 max-w-xl">Every one starts with your goal and ends with something you can measure.</p>
                             <div className="border-maple-line border-t">
                                 {services.map((s, i) => (
@@ -314,7 +220,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                     <section id="process" className="border-maple-line scroll-mt-16 border-b">
                         <div className={`${wrap} grid gap-x-16 gap-y-10 py-20 lg:grid-cols-[5fr_7fr] lg:py-28`}>
                             <div className="lg:sticky lg:top-24 lg:self-start">
-                                <SectionHeading n={6} eyebrow="How I work" title="Simple, honest," dim="and fast." className="mb-4" />
+                                <SectionHeading n={4} eyebrow="How I work" title="Simple, honest," dim="and fast." className="mb-4" />
                                 <p className="text-ink-soft mb-8 max-w-md">You see your new homepage before you pay a thing.</p>
                                 <PillLink href="/start" internal>
                                     Start a project <ArrowUpRight className="size-3.5" />
@@ -327,7 +233,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                     {/* Packages */}
                     <section id="packages" className="border-maple-line scroll-mt-16 border-b">
                         <div className={`${wrap} py-20 lg:py-28`}>
-                            <SectionHeading n={7} eyebrow="Packages" title="Clear prices," dim="no surprises." className="mb-4" />
+                            <SectionHeading n={5} eyebrow="Packages" title="Clear prices," dim="no surprises." className="mb-4" />
                             <p className="text-ink-soft mb-12 max-w-xl">
                                 Every website starts with a free demo homepage. You approve it before we go any further.
                             </p>
@@ -370,47 +276,19 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                         </div>
                     </section>
 
-                    {/* About */}
+                    {/* About: who the client works with (the engineering story is on /hire) */}
                     <section id="about" className="border-maple-line scroll-mt-16 border-b">
-                        <div className={`${wrap} grid gap-x-16 gap-y-12 py-20 lg:grid-cols-[5fr_7fr] lg:py-28`}>
-                            <div>
-                                <SectionHeading n={8} eyebrow="About" title="Notes from" dim="the field." className="mb-8" />
-                                {about.map((p, i) => (
-                                    <p key={i} className="text-ink-soft mb-4 max-w-md">
+                        <div className={`${wrap} grid gap-x-16 gap-y-8 py-16 lg:grid-cols-[5fr_7fr] lg:py-24`}>
+                            <SectionHeading n={6} eyebrow="About" title="Who you'll" dim="work with." className="!mb-0" />
+                            <div className="max-w-xl">
+                                {client.about.map((p, i) => (
+                                    <p key={i} data-reveal className="text-ink-soft mb-4">
                                         {p}
                                     </p>
                                 ))}
-                            </div>
-                            <div className="grid gap-12 sm:grid-cols-2">
-                                <div>
-                                    <Fig className="border-maple-line mb-2 border-b pb-3">Career</Fig>
-                                    <ol>
-                                        {experience.map((job) => (
-                                            <li key={job.role + job.company} data-reveal className="border-maple-line border-b py-4">
-                                                <p className="font-display text-lg">{job.role}</p>
-                                                <p className="text-ink-soft text-sm">{job.company}</p>
-                                                <p className="font-cond text-ink-muted mt-1">{job.period}</p>
-                                                <p className="text-ink-soft mt-2 text-sm">{job.summary}</p>
-                                            </li>
-                                        ))}
-                                        {school && (
-                                            <li data-reveal className="border-maple-line border-b py-4">
-                                                <p className="font-display text-lg">{school.degree}</p>
-                                                <p className="text-ink-soft text-sm">{school.school}</p>
-                                                <p className="font-cond text-ink-muted mt-1">{school.period}</p>
-                                            </li>
-                                        )}
-                                    </ol>
-                                </div>
-                                <div>
-                                    <Fig className="border-maple-line mb-2 border-b pb-3">Stack</Fig>
-                                    {Object.entries(skills).map(([group, items]) => (
-                                        <div key={group} data-reveal className="border-maple-line border-b py-4">
-                                            <p className="font-cond text-ink-muted">{group}</p>
-                                            <p className="text-ink-soft mt-1 text-sm">{items.join(' · ')}</p>
-                                        </div>
-                                    ))}
-                                </div>
+                                <Link href="/hire" className="font-cond text-ink hover:text-royal mt-2 inline-flex min-h-11 items-center gap-1">
+                                    My engineering work and resume <ArrowUpRight className="size-3.5" />
+                                </Link>
                             </div>
                         </div>
                     </section>
@@ -418,7 +296,7 @@ export default function PortfolioPage({ portfolio }: { portfolio: Portfolio }) {
                     {/* Contact */}
                     <section id="contact" className="scroll-mt-16">
                         <div className={`${wrap} py-20 lg:py-28`}>
-                            <SectionHeading n={9} eyebrow="Engage the studio" title="Let's build" dim="something." className="mb-12" />
+                            <SectionHeading n={7} eyebrow="Get started" title="Let's build" dim="something." className="mb-12" />
                             <div className="grid gap-12 lg:grid-cols-[5fr_7fr]">
                                 <div>
                                     <p className="text-ink-soft max-w-md">

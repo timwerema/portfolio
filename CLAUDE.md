@@ -37,6 +37,8 @@ Context for Claude sessions working on this repository. Read this first.
 - Timasi reads left to right: reveals enter from the left. Inspiration for the main site: norrvik-template.modulify.website.
 - Public pages must not use AI-looking repeated card grids. Timasi dislikes them.
   Prefer rows, lists, tables and editorial layouts.
+- **Two audiences, two pages.** Keep job-hunting content (school, Nokia, stats, tech jargon) off the home page; it goes on `/hire`.
+- **Galacticals SC:** Timasi built a site for the club in 2026, but the club's live site is no longer his. Never link to it or call it his live work.
 - Demo sites are for **fictional** businesses: label them as demos, keep them `noindex`,
   never use fake reviews, and simulate (never collect) passwords or card details.
   Don't copy real clients' code, photos or branding.
@@ -53,7 +55,7 @@ SQLite · Vite. Fonts are bundled with `@fontsource` (no external font CDNs).
 | What | Where |
 |---|---|
 | **All portfolio content** (bio, services, packages, projects, experience, demos, alert/reminder settings) | `config/portfolio.php` (edit content here, not in React) |
-| Public pages | `resources/js/pages/portfolio.tsx`, `service.tsx`, `resume.tsx` |
+| Public pages | `resources/js/pages/portfolio.tsx` (**home, written for business owners only**: hero, example sites with screenshots, services, process, packages, short about; copy in `config/portfolio.php` → `client`), `hire.tsx` (**`/hire`, for recruiters**: stats, engineering projects, experience, skills, resume link), `service.tsx`, `resume.tsx` |
 | Public layout and theme ("Studio": near-black, warm off-white, one blue; Inter Tight + JetBrains Mono, hairline rows, `FIG. 01 /` mono labels, two-tone titles, slanted `PillLink`/`Chip` buttons and tags, dotted `Spec` rows, a once-per-visit `Intro` screen on the home page) | `resources/js/components/site-layout.tsx`, theme tokens in `resources/css/app.css`. Token *names* (maple, navy, royal, led...) are kept from the old basketball theme; the basketball look itself is now the Hardwood demo (`/demos/hardwood`). |
 | Demo sites | `resources/js/pages/demos/*.tsx`, routes in `routes/web.php`, listed in `config/portfolio.php` → `demos` |
 | Admin dashboard (`/dashboard`, login required) | `resources/js/pages/admin/**`, controllers in `app/Http/Controllers/Admin/` |

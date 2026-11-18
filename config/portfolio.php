@@ -20,6 +20,32 @@ return [
     'availability' => 'Open to full-time, internships & freelance',
     'tagline' => 'I build full-stack tools that automate the tedious parts of work - from 5G infrastructure validation at Nokia to AI assistants that find answers fast.',
 
+    // Home page (for business owners). The engineering/recruiter story lives on /hire.
+    'client' => [
+        'title' => 'Websites & software for local businesses',
+        'eyebrow' => 'Taking new projects',
+        'tagline' => 'I build websites and simple software for local businesses. You see a free demo of your homepage before you pay anything.',
+        'typing' => [
+            'websites that bring in customers',
+            'booking pages that fill your calendar',
+            'dashboards that save hours a week',
+            'AI helpers that do the busywork',
+            'software shaped around how you work',
+        ],
+        // Spec rows beside the headline.
+        'facts' => [
+            ['First step', 'A free demo of your homepage'],
+            ['Launch in', '1-4 weeks'],
+            ['Starts at', '$750'],
+            ['After launch', 'Hosting & updates handled'],
+            ['Based in', 'Dallas, TX'],
+        ],
+        'about' => [
+            'I\'m Timasi, a software engineer finishing my Computer Science degree at UT Dallas. You work with me directly: I design, build and look after your site myself, so nothing gets lost between people.',
+            'Before this I built internal tools at Nokia and spent four seasons keeping the payment systems running at the American Airlines Center through sold-out games and concerts. I\'m used to things that have to work on a busy night.',
+        ],
+    ],
+
     'about' => [
         'I\'m a Computer Science student at the University of Texas at Dallas, graduating in May 2027. '
             .'I like building software that removes busywork. At Nokia, I built a full-stack portal that automated '
@@ -285,13 +311,14 @@ return [
             'title' => 'Galacticals SC',
             'subtitle' => 'Youth soccer academy website · Frisco, TX',
             'period' => '2026',
-            'description' => 'The live website for a youth soccer academy: pricing, drop-in schedule, camps and coach profiles, with Square payment links and a private admin editor so the club can update its own content.',
+            // The club now runs a simpler site that is not mine: no link, and say so plainly.
+            'description' => 'A website I built for a youth soccer academy: pricing, drop-in schedule, camps and coach profiles, with Square payment links and a private editor for the club. The club later went with a simpler site, which taught me to keep things simple for the people who run them.',
             'tags' => ['React', 'Supabase', 'Netlify Functions', 'Square'],
-            'url' => 'https://galacticalssc.com',
+            'url' => null,
             'repo' => null,
             'image' => null,
             // Spec rows on the home page (label => value).
-            'spec' => ['Type' => 'Client website', 'Built for' => 'Soccer club in Frisco', 'Status' => 'Live'],
+            'spec' => ['Type' => 'Client website', 'Built for' => 'Soccer club in Frisco', 'Status' => 'Built 2026'],
             'bullets' => [
                 'Built and refined a JavaScript club website for events, training sessions, and member information, with Supabase-backed authentication and data.',
                 'Moved protected data access into Netlify Functions, separating client authentication from club data.',

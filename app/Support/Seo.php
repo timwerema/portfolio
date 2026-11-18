@@ -37,8 +37,14 @@ class Seo
 
         switch ($component) {
             case 'portfolio':
+                $meta['title'] = "{$name} · ".($p['client']['title'] ?? $p['role']);
+                $meta['description'] = $p['client']['tagline'] ?? $meta['description'];
                 $meta['url'] = url('/');
                 $meta['jsonLd'] = self::homeJsonLd($p);
+                break;
+            case 'hire':
+                $meta['title'] = "{$name} · {$p['role']}";
+                $meta['description'] = $p['summary'] ?? $meta['description'];
                 break;
             case 'service':
                 $service = $props['service'] ?? [];
