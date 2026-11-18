@@ -30,6 +30,8 @@ Read first: `client-sites/PACKAGES.md` (baseline, look table) and `client-sites/
    hides) and note it. `testimonials`: real quotes only, else empty.
 5. **Photos:** the client's own (resize to ~1600px, ~200 KB, into `public/images/`), else placeholders
    plus a list of shots to ask for (storefront, team, 3-6 jobs or dishes).
+5b. **Design pass (do not skip):** same as step 5b in the `/starter` skill: a custom home page drawn from the
+   client's own look, never the plain template.
 6. **Build and check:** `cd client-sites/<slug> && npm run build && npm run demo`. Screenshot the demo
    at 1440 and 390 wide with Playwright, look at every section, fix anything that looks unfinished.
 7. **Hand it over:** SendUserFile `demo/index.html` plus a phone screenshot; upload steps

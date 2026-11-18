@@ -30,6 +30,13 @@ The rules in `CLAUDE.md` apply: no fake reviews, awards or numbers; never commit
    gave real quotes. Keep `home` and `nav` as the package set them (Starter = up to 5 pages).
 5. **Photos:** the client's own photos if Timasi provided them (resize to ~1600px wide, ~200 KB, into
    `public/images/`). Otherwise keep the placeholders and list the photos to ask for.
+5b. **Design pass (do not skip).** The starter sections with the client's colors look like a template, and
+   Timasi rejected a demo for that. Before building, load the `frontend-design:frontend-design` skill if it
+   is available and give the home page a look that comes from the client's own world: their truck, sign,
+   flyers, logo lettering, materials. Write a custom `src/pages/index.astro` for the client (own fonts via
+   `@fontsource`, own layout) that still reads all text from `site.ts`. Keep it one clear idea, mobile first,
+   no card grids. For the demo packer to keep the fonts, list the font families in `--font-display` /
+   `--font-body` on `<html>`. Example: `client-sites/la-tacotrona` (chalkboard menu, taped photos, banner flags).
 6. **Build and check:**
    ```bash
    cd client-sites/<slug> && npm run build && npm run demo
