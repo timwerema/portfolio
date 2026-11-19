@@ -28,7 +28,8 @@ const C = {
 };
 const THEME = `:root:has(.sl){color-scheme:dark;--sl-bg:#0d0e1a;--sl-card:#161829;--sl-ink:#ecedf8;--sl-soft:#a3a6c4;--sl-line:#2a2d48;--sl-brand:#6d65f5;--sl-mint:#34d399;--sl-mintBg:#0f2e25;--sl-red:#fb923c;--sl-redBg:#3a1d10;--sl-gold:#fbbf24;--sl-banner:#1c1e36}
 @media (prefers-color-scheme: light){:root:has(.sl){color-scheme:light;--sl-bg:#f6f7fb;--sl-card:#ffffff;--sl-ink:#16163a;--sl-soft:#55577a;--sl-line:#dfe1ee;--sl-brand:#4f46e5;--sl-mint:#0f9d76;--sl-mintBg:#e3f6ef;--sl-red:#c2410c;--sl-redBg:#fdeee6;--sl-gold:#b45309;--sl-banner:#16163a}}
-@media print{body *{visibility:hidden!important}#print-area,#print-area *{visibility:visible!important;color:#000!important;background:#fff!important}#print-area{position:absolute;inset:0;padding:0}}`;
+@media print{body *{visibility:hidden!important}#print-area,#print-area *{visibility:visible!important;color:#000!important;background:#fff!important}#print-area{position:absolute;inset:0;padding:0}}
+.sl input[type=date]:focus-within,.sl input:focus-visible,.sl textarea:focus-visible,.sl select:focus-visible,.sl button:focus-visible,.sl a:focus-visible,.sl summary:focus-visible{outline:2px solid var(--sl-brand);outline-offset:2px}`;
 
 const SAMPLE = `# Processes
 - Process: a program in execution, with its own address space, registers and open files.
@@ -262,7 +263,7 @@ function Review({ cards, grade, toggleStar }: { cards: Card[]; grade: Grade; tog
                 <button
                     type="button"
                     onClick={() => setFlipped((f) => !f)}
-                    className="flex min-h-56 flex-1 flex-col items-center justify-center rounded-3xl border p-8 text-center"
+                    className="flex min-h-56 min-w-0 flex-1 flex-col items-center justify-center rounded-3xl border p-5 text-center [overflow-wrap:anywhere] sm:p-8"
                     style={flipped ? { background: C.ink, color: C.card, borderColor: C.ink } : { ...panel, color: C.ink }}
                     aria-label={flipped ? `Definition: ${card.def}. Tap to see the term.` : `Term: ${card.term}. Tap to see the definition.`}
                 >
@@ -1126,6 +1127,7 @@ export default function StudyLoop() {
                                 <input
                                     type="file"
                                     accept=".pptx,.pdf,.txt,.md,.markdown,.ppt"
+                                    aria-label="Choose lecture slides or notes"
                                     className="sr-only"
                                     onChange={onFile}
                                     disabled={busy}
@@ -1139,6 +1141,7 @@ export default function StudyLoop() {
                             <textarea
                                 value={paste}
                                 onChange={(e) => setPaste(e.target.value)}
+                                aria-label="Paste your notes"
                                 rows={5}
                                 className={`${field} mt-2 w-full py-2 font-mono text-sm`}
                                 style={fieldStyle}

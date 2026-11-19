@@ -222,7 +222,7 @@ html:has(.hardwood) {
         --color-maple-line: #ddd7cb;
         --color-ink: #141210;
         --color-ink-soft: #4a463f;
-        --color-ink-muted: #76706a;
+        --color-ink-muted: #666059;
         --color-navy: #141210;
         --color-navy-deep: #0a0908;
         --color-navy-line: #2e2b26;
@@ -628,5 +628,14 @@ body.workspace main table tbody tr:hover {
     }
     body.workspace::before {
         display: none;
+    }
+}
+
+/* Looping attention animations (pulsing dots) stop for visitors who ask for reduced motion. Loading spinners keep turning. */
+@media (prefers-reduced-motion: reduce) {
+    .animate-ping,
+    .animate-pulse,
+    .animate-bounce {
+        animation: none !important;
     }
 }

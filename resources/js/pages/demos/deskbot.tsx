@@ -30,7 +30,7 @@ const C = {
     woodDark: 'var(--db-wood-dark)',
 };
 const THEME = `:root:has(.db){color-scheme:dark;--db-bg:#0d0b1a;--db-panel:#161328;--db-line:#2c2749;--db-text:#ece8ff;--db-soft:#a7a1c8;--db-accent:#7cf29c;--db-hot:#ff6b8b;--db-gold:#ffd166;--db-floor-a:#1c1838;--db-floor-b:#211c42;--db-wood:#6b4f3a;--db-wood-dark:#46331f}
-@media (prefers-color-scheme: light){:root:has(.db){color-scheme:light;--db-bg:#f6f3ea;--db-panel:#ffffff;--db-line:#ddd5c2;--db-text:#1d1a2e;--db-soft:#5d5874;--db-accent:#0f8a57;--db-hot:#d23a5a;--db-gold:#a86b12;--db-floor-a:#efe6d2;--db-floor-b:#e6dbc2;--db-wood:#b98a5e;--db-wood-dark:#8a6440}}
+@media (prefers-color-scheme: light){:root:has(.db){color-scheme:light;--db-bg:#f6f3ea;--db-panel:#ffffff;--db-line:#ddd5c2;--db-text:#1d1a2e;--db-soft:#5d5874;--db-accent:#0b7347;--db-hot:#c22f4f;--db-gold:#8f5a0c;--db-floor-a:#efe6d2;--db-floor-b:#e6dbc2;--db-wood:#b98a5e;--db-wood-dark:#8a6440}}
 @keyframes db-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1px)}}
 .db-bob{animation:db-bob 1.2s steps(2) infinite}
 @keyframes db-glow{0%,100%{opacity:1}50%{opacity:.45}}
