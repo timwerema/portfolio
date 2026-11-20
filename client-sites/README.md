@@ -22,6 +22,8 @@ Built with **Astro** (plain, fast HTML pages; free to host; great for Google) an
 | **Location** | Address, hours table, "Get directions" (opens Google Maps, no embedded map). |
 | **Scroll movement** | Sections fade and slide in, headings rise into view, the `bold` hero photo drifts. `motion: true` in `theme`; automatically off for visitors who ask for reduced motion. |
 | **Announcement bar** | One line at the top for holiday hours, specials or "Now hiring" (`announcement`). |
+| **Pattern band** | A strip in the brand colours under the hero: `stripes` (trades, barbers, sport), `checks` (food), `dots` (studios), `waves` (cleaning, spas) or `none`. Set with `--pattern` or `theme.pattern` in `site.ts`. |
+| **Readable buttons on any colour** | Button text turns dark or white automatically to suit the brand colour, so a yellow brand still reads. |
 | **3 style presets** | `classic` (serif headings, photo beside the text), `bold` (big uppercase over a full photo), `minimal` (clean and centered). Plus `mode: 'light' \| 'dark'` and two brand colors. |
 | **Sections** | Hero, services and prices list, how it works, about, recent work photos, real testimonials (hidden when empty), FAQ, contact form. |
 | **Built for local businesses** | Tap-to-call bar on phones, hours and service area in the footer, click-to-call everywhere. |

@@ -9,6 +9,7 @@
  */
 
 export type Style = 'classic' | 'bold' | 'minimal';
+export type Pattern = 'none' | 'stripes' | 'dots' | 'checks' | 'waves';
 export type Section = 'hero' | 'services' | 'pricing' | 'menu' | 'steps' | 'about' | 'work' | 'testimonials' | 'faq' | 'location' | 'contact';
 
 export const site = {
@@ -39,6 +40,9 @@ export const site = {
         mode: 'light' as 'light' | 'dark',
         brand: '#1f5f8b', // main color: buttons, links
         accent: '#f2a541', // highlights
+        // A band in the brand colours under the hero: 'stripes' (barbers, sport, trades), 'checks' (food, diners),
+        // 'dots' (studios, kids), 'waves' (cleaning, pools, spas) or 'none'. A cheap way to make the site feel like theirs.
+        pattern: 'stripes' as Pattern,
         motion: true, // gentle scroll movement (sections fade/slide in, hero photo drifts). Off for visitors who ask for reduced motion.
     },
 
@@ -53,6 +57,8 @@ export const site = {
         secondary: { label: 'Call us', href: 'tel' },
         image: '/images/hero.svg',
         imageAlt: 'A technician at work',
+        // Which part of the photo to keep in view when it is cropped: 'center', 'top', 'bottom', 'left', 'right' or e.g. '70% 30%'.
+        focus: 'center',
     },
 
     services: [

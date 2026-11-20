@@ -7,9 +7,9 @@ const directions = href('directions');
 ---
 
 <section id="location" class="border-line scroll-mt-20 border-t">
-    <div class="mx-auto flex max-w-6xl flex-wrap gap-x-16 gap-y-8 px-5 py-16">
+    <div class="mx-auto flex max-w-6xl flex-wrap gap-x-16 gap-y-8 px-5 section-y">
         <div class="min-w-0 flex-[1_1_280px]">
-            <h2 data-reveal="mask" class="text-3xl font-semibold sm:text-4xl">{l.title}</h2>
+            <h2 data-reveal="mask" class="h-section rule">{l.title}</h2>
             <p class="mt-4 text-lg">
                 {b.address.street && <>{b.address.street}<br /></>}
                 {b.address.city}, {b.address.region} {b.address.postal}

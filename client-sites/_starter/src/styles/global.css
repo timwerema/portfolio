@@ -4,6 +4,8 @@
 @theme inline {
     --color-brand: var(--brand);
     --color-accent: var(--accent);
+    --color-on-brand: var(--on-brand);
+    --color-on-accent: var(--on-accent);
     --color-paper: var(--paper);
     --color-surface: var(--surface);
     --color-ink: var(--ink);
@@ -56,7 +58,107 @@ html[data-style='bold'] h2 {
     }
     .btn-primary {
         background: var(--brand);
-        color: #fff;
+        color: var(--on-brand);
+    }
+    .btn-accent {
+        background: var(--accent);
+        color: var(--on-accent);
+    }
+    /* "bold" style buttons sit on a hard shadow and press down. */
+    html[data-style='bold'] .btn-primary,
+    html[data-style='bold'] .btn-accent {
+        box-shadow: 4px 4px 0 var(--ink);
+        transition:
+            transform 0.12s,
+            box-shadow 0.12s,
+            filter 0.15s;
+    }
+    html[data-style='bold'] .btn-primary:active,
+    html[data-style='bold'] .btn-accent:active {
+        transform: translate(3px, 3px);
+        box-shadow: 1px 1px 0 var(--ink);
+    }
+
+    /* Type scale: headings grow with the screen instead of jumping at breakpoints. */
+    .h-hero {
+        font-size: clamp(2.5rem, 7.2vw + 0.6rem, 5.6rem);
+        line-height: 0.98;
+        letter-spacing: -0.025em;
+    }
+    .h-section {
+        font-size: clamp(1.9rem, 3vw + 1rem, 3.1rem);
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+    }
+    html[data-style='classic'] .h-hero,
+    html[data-style='classic'] .h-section {
+        letter-spacing: -0.015em;
+        font-weight: 600;
+    }
+    html[data-style='bold'] .h-hero {
+        font-weight: 900;
+        font-stretch: 112%;
+    }
+    html[data-style='bold'] .h-section {
+        font-weight: 900;
+    }
+    html[data-style='minimal'] .h-hero,
+    html[data-style='minimal'] .h-section {
+        font-weight: 700;
+    }
+    /* Section spacing that breathes more on big screens. */
+    .section-y {
+        padding-block: clamp(3.5rem, 6vw + 1rem, 6.5rem);
+    }
+    /* A short accent rule under section headings. */
+    .rule::after {
+        content: '';
+        display: block;
+        width: 3.5rem;
+        height: 4px;
+        margin-top: 0.9rem;
+        background: var(--accent);
+        border-radius: var(--radius);
+    }
+    /* Dotted leader between a name and its price. */
+    .leader {
+        flex: 1;
+        min-width: 1.5rem;
+        border-bottom: 2px dotted var(--line);
+        transform: translateY(-0.35em);
+    }
+
+    /* Pattern bands in the brand colours (site.theme.pattern). */
+    .band {
+        height: 22px;
+        background-color: var(--brand);
+    }
+    .band-stripes {
+        background-image: repeating-linear-gradient(135deg, var(--brand) 0 18px, var(--paper) 18px 28px, var(--accent) 28px 46px, var(--paper) 46px 56px);
+    }
+    .band-checks {
+        height: 28px;
+        background-image:
+            linear-gradient(45deg, var(--brand) 25%, transparent 25%, transparent 75%, var(--brand) 75%),
+            linear-gradient(45deg, var(--brand) 25%, var(--paper) 25%, var(--paper) 75%, var(--brand) 75%);
+        background-size: 28px 28px;
+        background-position:
+            0 0,
+            14px 14px;
+    }
+    .band-dots {
+        background-color: var(--brand);
+        background-image: radial-gradient(var(--accent) 5px, transparent 5.5px);
+        background-size: 26px 22px;
+        background-position: 13px 11px;
+    }
+    .band-waves {
+        height: 26px;
+        background-color: var(--paper);
+        background-image:
+            radial-gradient(circle at 13px -4px, transparent 13px, var(--brand) 13.5px, var(--brand) 17px, transparent 17.5px),
+            radial-gradient(circle at 13px 30px, transparent 13px, var(--accent) 13.5px, var(--accent) 17px, transparent 17.5px);
+        background-size: 26px 26px;
     }
     .btn-outline {
         border: 2px solid currentColor;

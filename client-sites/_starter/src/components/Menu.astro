@@ -7,8 +7,8 @@ const used = [...new Set(m.sections.flatMap((s) => s.items.flatMap((i) => i.tags
 ---
 
 <section id="menu" class="scroll-mt-20">
-    <div class="mx-auto max-w-4xl px-5 py-16">
-        <h2 data-reveal="mask" class="text-3xl font-semibold sm:text-4xl">{m.title}</h2>
+    <div class="mx-auto max-w-4xl px-5 section-y">
+        <h2 data-reveal="mask" class="h-section rule">{m.title}</h2>
         {
             m.sections.length > 1 && (
                 <nav aria-label="Menu sections" class="mt-6 flex flex-wrap gap-2">

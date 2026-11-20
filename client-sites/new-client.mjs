@@ -34,7 +34,7 @@ const opt = (key) => {
 
 if (!name) {
     console.log(
-        'Usage: npm run client:new -- "Business Name" [--type services|restaurant|studio] [--package starter|business] [--style classic|bold|minimal] [--brand "#hex"] [--phone "(214) 555-0100"] [--no-install]',
+        'Usage: npm run client:new -- "Business Name" [--type services|restaurant|studio] [--package starter|business] [--pattern stripes|checks|dots|waves|none] [--style classic|bold|minimal] [--brand "#hex"] [--phone "(214) 555-0100"] [--no-install]',
     );
     process.exit(1);
 }
@@ -61,6 +61,7 @@ site = site.replace(/Northline/g, esc(name));
 if (opt('style')) site = site.replace(/style: '[a-z]+' as Style/, `style: '${opt('style')}' as Style`);
 if (opt('brand')) site = site.replace(/brand: '#[0-9a-fA-F]{3,8}'/, `brand: '${opt('brand')}'`);
 if (opt('phone')) site = site.replace(/phone: '[^']*'/, `phone: '${esc(opt('phone'))}'`);
+// Pattern band under the hero: --pattern stripes|checks|dots|waves|none. Default depends on the business type (set below).
 
 const TYPES = {
     services: null,
@@ -122,6 +123,14 @@ if (pack === 'business' && type === 'services') {
 if (pack === 'starter' && type === 'studio') {
     site = site.replace(/\n {8}\{ label: 'Pricing', page: 'pricing' \},/, '');
 }
+// Pattern band: stripes for trades, checks for food, dots for studios, unless --pattern says otherwise.
+const PATTERNS = ['none', 'stripes', 'dots', 'checks', 'waves'];
+const pattern = opt('pattern') ?? { services: 'stripes', restaurant: 'checks', studio: 'dots' }[type];
+if (!PATTERNS.includes(pattern)) {
+    console.log(`Unknown --pattern "${pattern}". Use ${PATTERNS.join(', ')}.`);
+    process.exit(1);
+}
+site = site.replace(/pattern: '[a-z]+' as Pattern/, `pattern: '${pattern}' as Pattern`);
 writeFileSync(sitePath, site);
 
 const pkgPath = join(target, 'package.json');
@@ -129,7 +138,7 @@ const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
 pkg.name = slug;
 writeFileSync(pkgPath, JSON.stringify(pkg, null, 4) + '\n');
 
-console.log(`Created client-sites/${slug} (type: ${type}, package: ${pack})`);
+console.log(`Created client-sites/${slug} (type: ${type}, package: ${pack}, pattern: ${pattern})`);
 if (!args.includes('--no-install')) {
     console.log('Installing packages (about a minute)...');
     execSync('npm install --no-audit --no-fund', { cwd: target, stdio: 'inherit' });
