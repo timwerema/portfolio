@@ -378,14 +378,16 @@ export default function OrbitCityDemo() {
 
                 {/* Header */}
                 <header className="sticky top-0 z-30 border-b backdrop-blur" style={{ borderColor: C.line, background: 'rgba(8,13,30,0.88)' }}>
-                    <nav className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-3 px-5 py-3 sm:px-8">
+                    <nav className="mx-auto flex max-w-[1200px] items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-8">
                         <a href="#top" className="flex items-center gap-3">
-                            <ClubMark />
-                            <span className="text-2xl font-black tracking-wide uppercase" style={display}>
+                            <span className="hidden min-[360px]:block">
+                                <ClubMark />
+                            </span>
+                            <span className="text-lg font-black tracking-wide whitespace-nowrap uppercase min-[420px]:text-2xl" style={display}>
                                 Orbit City <span style={{ color: C.gold }}>FC</span>
                             </span>
                         </a>
-                        <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm font-bold">
+                        <div className="flex shrink-0 items-center gap-x-2 text-sm font-bold sm:gap-x-5">
                             <a href="#programs" className="hidden py-2 hover:underline sm:inline" style={{ color: C.muted }}>
                                 Programs
                             </a>
@@ -425,7 +427,8 @@ export default function OrbitCityDemo() {
                                         className={btnGold}
                                         style={{ background: C.gold, color: C.space }}
                                     >
-                                        Join the club
+                                        <span className="min-[420px]:hidden">Join</span>
+                                        <span className="hidden min-[420px]:inline">Join the club</span>
                                     </button>
                                 </>
                             )}

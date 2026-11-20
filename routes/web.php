@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\PreviewController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\ContactMessageController;
@@ -151,6 +152,7 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('invoices/{invoice}/status', [InvoiceController::class, 'status'])->name('invoices.status');
         Route::patch('invoices/{invoice}/reminders', [InvoiceController::class, 'reminders'])->name('invoices.reminders');
         Route::resource('expenses', ExpenseController::class)->only(['index', 'store', 'destroy']);
+        Route::resource('leads', LeadController::class)->only(['index', 'store', 'update', 'destroy']);
     });
 });
 

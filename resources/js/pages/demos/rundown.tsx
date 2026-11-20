@@ -25,8 +25,8 @@ const C = {
     teal: 'var(--rd-teal)',
     court: 'var(--rd-court)',
 };
-const THEME = `:root:has(.rd){color-scheme:dark;--rd-bg:#0b0d10;--rd-panel:#12161b;--rd-panel2:#1a2027;--rd-line:#262e38;--rd-text:#eef2f6;--rd-soft:#9aa6b2;--rd-hot:#ff7a1a;--rd-teal:#2dd4bf;--rd-court:#151b22}
-@media (prefers-color-scheme: light){:root:has(.rd){color-scheme:light;--rd-bg:#f4f5f7;--rd-panel:#ffffff;--rd-panel2:#eef0f3;--rd-line:#dce0e6;--rd-text:#0e1116;--rd-soft:#56606c;--rd-hot:#d4570a;--rd-teal:#0d8a7d;--rd-court:#f7efe2}}`;
+const THEME = `:root:has(.rd){color-scheme:dark;--rd-bg:#0b0d10;--rd-panel:#12161b;--rd-panel2:#1a2027;--rd-line:#262e38;--rd-text:#eef2f6;--rd-soft:#9aa6b2;--rd-hot:#ff7a1a;--rd-on-hot:#0b0d10;--rd-teal:#2dd4bf;--rd-court:#151b22}
+@media (prefers-color-scheme: light){:root:has(.rd){color-scheme:light;--rd-bg:#f4f5f7;--rd-panel:#ffffff;--rd-panel2:#eef0f3;--rd-line:#dce0e6;--rd-text:#0e1116;--rd-soft:#56606c;--rd-hot:#ad4308;--rd-on-hot:#ffffff;--rd-teal:#0a7469;--rd-court:#f7efe2}}`;
 const display: CSSProperties = {
     fontFamily: "'Big Shoulders Display', Impact, sans-serif",
     fontWeight: 800,
@@ -687,7 +687,7 @@ export default function Rundown() {
     };
 
     const pill = (on: boolean): CSSProperties =>
-        on ? { background: C.hot, color: '#0b0d10', borderColor: 'transparent' } : { borderColor: C.line, color: C.soft };
+        on ? { background: C.hot, color: 'var(--rd-on-hot)', borderColor: 'transparent' } : { borderColor: C.line, color: C.soft };
     const input = 'min-h-11 rounded-lg border px-3 text-base outline-none focus-visible:ring-2';
     const a = avgById[cmpA];
     const b = avgById[cmpB];
@@ -725,7 +725,10 @@ export default function Rundown() {
                 >
                     <nav className="mx-auto flex max-w-[1180px] flex-wrap items-center justify-between gap-x-6 gap-y-1 px-5 py-3 sm:px-8">
                         <a href="#top" className="flex items-center gap-2 text-3xl" style={display}>
-                            <span className="flex size-9 items-center justify-center rounded-full" style={{ background: C.hot, color: '#0b0d10' }}>
+                            <span
+                                className="flex size-9 items-center justify-center rounded-full"
+                                style={{ background: C.hot, color: 'var(--rd-on-hot)' }}
+                            >
                                 <Trophy className="size-5" />
                             </span>
                             Rundown

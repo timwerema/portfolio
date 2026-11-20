@@ -639,7 +639,7 @@ export default function Live({ spotifyClientId, redirectUri, showsConfigured }: 
                                 onClick={() => void findShows()}
                                 disabled={busy === 'shows'}
                                 className={btn}
-                                style={{ background: C.gold, color: '#120a0e' }}
+                                style={{ background: C.gold, color: 'var(--el-bg)' }}
                             >
                                 {busy === 'shows' ? <LoaderCircle className="size-5 animate-spin" /> : <Ticket className="size-5" />}
                                 {chosen.length ? `Find shows for ${chosen.length} artist${chosen.length > 1 ? 's' : ''}` : 'Find R&B shows near me'}

@@ -538,11 +538,15 @@ export default function ClearcoatDemo() {
 
                 {/* Nav */}
                 <header className="sticky top-0 z-30 border-b backdrop-blur-md" style={{ borderColor: C.line, background: 'rgba(5,5,7,0.78)' }}>
-                    <nav className="mx-auto flex max-w-[1240px] items-center justify-between gap-4 px-5 py-4 sm:px-8">
-                        <a href="#top" className="cc-chrome text-2xl font-bold tracking-[0.3em]" style={serif}>
+                    <nav className="mx-auto flex max-w-[1240px] items-center justify-between gap-3 px-4 py-4 sm:gap-4 sm:px-8">
+                        <a
+                            href="#top"
+                            className="cc-chrome text-lg font-bold tracking-[0.18em] min-[380px]:text-2xl min-[380px]:tracking-[0.3em]"
+                            style={serif}
+                        >
                             CLEARCOAT
                         </a>
-                        <div className="flex items-center gap-6 text-xs font-medium tracking-[0.25em] uppercase" style={{ color: C.muted }}>
+                        <div className="flex shrink-0 items-center gap-6 text-xs font-medium tracking-[0.25em] uppercase" style={{ color: C.muted }}>
                             <a href="#services" className="hidden py-2 hover:text-white md:inline">
                                 Services
                             </a>
@@ -590,6 +594,8 @@ export default function ClearcoatDemo() {
                                 background: `linear-gradient(90deg, ${C.black} 0%, ${C.black} 28%, rgba(5,5,7,0.7) 46%, rgba(5,5,7,0.15) 72%, transparent 100%), linear-gradient(0deg, ${C.black} 0%, transparent 25%)`,
                             }}
                         />
+                        {/* On phones the text sits right on the photo, so dim it more there. */}
+                        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-black/55 lg:hidden" />
                         <div className="mx-auto max-w-[1240px] px-5 pt-20 pb-28 sm:px-8 lg:pt-32 lg:pb-40">
                             <div className="max-w-[640px]">
                                 <p className={eyebrow} style={{ color: C.gold }}>
@@ -613,7 +619,10 @@ export default function ClearcoatDemo() {
                                 </div>
                             </div>
                         </div>
-                        <p className="absolute right-5 bottom-20 text-xs sm:right-8" style={{ color: C.muted }}>
+                        <p
+                            className="mx-auto max-w-[1240px] px-5 pb-3 text-xs sm:px-8 lg:absolute lg:right-8 lg:bottom-20 lg:p-0"
+                            style={{ color: C.muted }}
+                        >
                             Sample photo, credited below.
                         </p>
                         <ul
