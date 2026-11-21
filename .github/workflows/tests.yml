@@ -39,6 +39,12 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
+      - name: Security audit (PHP packages)
+        run: composer audit
+
+      - name: Security audit (packages shipped to visitors)
+        run: npm audit --omit=dev
+
       - name: Type-check frontend
         run: npx tsc --noEmit
 
