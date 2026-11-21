@@ -31,11 +31,11 @@
         <meta name="theme-color" content="#f3efe7" media="(prefers-color-scheme: light)">
 
         @if ($seo['jsonLd'])
-        <script type="application/ld+json">{!! json_encode($seo['jsonLd'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
+        <script type="application/ld+json" nonce="{{ Vite::cspNonce() }}">{!! json_encode($seo['jsonLd'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
         @endif
 
 
-        @routes
+        @routes(nonce: Vite::cspNonce())
         @viteReactRefresh
         @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
         @inertiaHead

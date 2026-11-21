@@ -12,6 +12,7 @@ use App\Http\Controllers\LiveShowsController;
 use App\Http\Controllers\PreviewReviewController;
 use App\Http\Controllers\ProjectRequestController;
 use App\Http\Controllers\PublicInvoiceController;
+use App\Http\Middleware\RequireTwoFactor;
 use App\Models\ContactMessage;
 use App\Support\HealthChecks;
 use Illuminate\Support\Facades\Route;
@@ -121,7 +122,7 @@ Route::controller(PreviewReviewController::class)->where(['token' => '[A-Za-z0-9
     Route::post('/p/{token}/decision', 'decide')->name('previews.decide');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', RequireTwoFactor::class])->group(function () {
     // Demo approval portal - your side.
     Route::prefix('dashboard/previews')->name('admin.previews.')->controller(PreviewController::class)->group(function () {
         Route::get('/', 'index')->name('index');

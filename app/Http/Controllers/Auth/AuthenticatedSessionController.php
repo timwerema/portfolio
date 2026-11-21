@@ -31,6 +31,20 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
+        // Two-step login: the password was right, but the session only starts after the code.
+        $user = $request->user();
+        if ($user->hasTwoFactor()) {
+            Auth::guard('web')->logout();
+            $request->session()->regenerate();
+            $request->session()->put('two_factor_login', [
+                'id' => $user->getKey(),
+                'remember' => $request->boolean('remember'),
+                'expires' => now()->addMinutes(10)->timestamp,
+            ]);
+
+            return redirect()->route('two-factor.challenge');
+        }
+
         $request->session()->regenerate();
 
         return redirect()->intended(route('dashboard', absolute: false));

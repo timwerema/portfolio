@@ -244,3 +244,23 @@ MAANET_HEALTH_TOKEN=the HEALTH_TOKEN from the demo's own .env
 The portfolio's server calls `GET {MAANET_DEMO_URL}/api/health` with that token; the token is never sent to a
 browser. Until both lines are set, the dashboard shows the site as "Not connected". How to deploy the demo copy
 itself is in `maanet-gardens/docs/HANDOFF.md` in the private `client-sites` repo (branch `maanet-gardens`).
+
+## Two-step login (dashboard)
+
+The dashboard only opens for accounts with two-step login switched on.
+
+1. Sign in, then go to **Settings > Two-step login** (you are sent there automatically).
+2. Type your password, scan the QR code with an authenticator app, enter the 6-digit code.
+3. Save the 8 recovery codes somewhere safe. They are shown once.
+
+Lost your phone and the recovery codes? On the box:
+
+```bash
+cd ~/apps/portfolio && php artisan user:reset-2fa you@example.com
+```
+
+Then sign in with your password and set it up again. `REQUIRE_TWO_FACTOR=false` in `.env`
+switches the requirement off; keep it on in production.
+
+The secret is encrypted with `APP_KEY`. If `APP_KEY` ever changes, run the reset command above.
+

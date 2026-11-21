@@ -114,4 +114,11 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    | Two-step login (authenticator app). When true, the dashboard cannot be opened
+    | until the signed-in account has set it up under Settings > Two-step login.
+    */
+
+    'two_factor_required' => (bool) env('REQUIRE_TWO_FACTOR', true),
+
 ];

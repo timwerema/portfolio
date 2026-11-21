@@ -62,6 +62,7 @@ SQLite · Vite. Fonts are bundled with `@fontsource` (no external font CDNs).
 | Admin dashboard (`/dashboard`, login required). Look: "workspace" (Notion-style neutrals, compact sidebar, big page titles, frosted-glass sidebar, top bar, panels and menus over a soft colour glow; light and dark) | `resources/js/pages/admin/**`, controllers in `app/Http/Controllers/Admin/`. Theme: the `body.workspace` block at the end of `resources/css/app.css` (set by `components/app-shell.tsx`); colours are variables on `html:has(body.workspace)` |
 | Lead tracker (`/dashboard/leads`): who was contacted, through which channel, status, last contact, follow-up date; due follow-ups sort first | `app/Models/Lead.php`, `Admin/LeadController.php`, `resources/js/pages/admin/leads/index.tsx`, `tests/Feature/LeadTrackerTest.php` |
 | Client-site status on the dashboard overview (Maanet Gardens demo: server-side call to its `/api/health`; tokens live in `config/services.php` → `client_sites`, **never** in `config/portfolio.php`, which is sent to public pages) | `app/Support/ClientSiteHealth.php`, env `MAANET_DEMO_URL` + `MAANET_HEALTH_TOKEN` |
+| Security: two-step login for the dashboard (authenticator app + recovery codes; `REQUIRE_TWO_FACTOR`, lost phone: `php artisan user:reset-2fa <email>`), security headers and Content-Security-Policy (new outside hosts must be added there), package audits and secret scan in CI | `app/Support/TwoFactor.php`, `Settings/TwoFactorController.php`, `Auth/TwoFactorChallengeController.php`, `Middleware/RequireTwoFactor.php`, `Middleware/SecurityHeaders.php`, `.github/workflows/tests.yml` |
 | Client demo approvals (`/p/{token}`) | `PreviewReviewController`, `resources/js/pages/previews/*`. Uploaded HTML is served sandboxed. |
 | Client invoice page (`/i/{token}`) | `PublicInvoiceController`, `resources/js/pages/invoices/public.tsx` |
 | Server-rendered SEO and link previews | `app/Support/Seo.php`, `resources/views/app.blade.php` |
@@ -82,6 +83,7 @@ php artisan test                      # all tests
 php artisan serve                     # local dev server (plus `npm run dev` for hot reload)
 npm run build                         # build frontend
 php artisan user:create               # create an admin login (public sign-up is disabled)
+php artisan user:reset-2fa you@x.com  # lost phone: switch off two-step login for that account
 php artisan backup:run                # back up DB + uploaded demos to storage/backups
 php artisan health:check              # run health checks (alerts on change)
 php artisan invoices:remind --dry-run # see which overdue invoices would get reminders
