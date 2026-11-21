@@ -9,7 +9,7 @@ argument-hint: "<client + what they want, or pasted request> [prototype|build]"
 Input: `$ARGUMENTS`. The client and what they asked for (often a pasted LinkedIn message or
 Dashboard > Messages request). A trailing **prototype** or **build** jumps to that stage.
 
-Read first: `client-sites/PACKAGES.md` → "Custom". `CLAUDE.md` rules apply: never collect real
+Read first: `client-sites/PACKAGES.md` → "Custom", and `client-sites/MASTER-PROMPT.md` (the quality standard for the build: design, accessibility, no dead buttons, QA phases). `CLAUDE.md` rules apply: never collect real
 passwords or card details, never commit secrets, no fake reviews or numbers.
 
 ## Stage 1: Scope (planning phase, ~$300-$500, credited to the build)

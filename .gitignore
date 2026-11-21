@@ -30,4 +30,5 @@ yarn-error.log
 !/client-sites/_starter/
 !/client-sites/README.md
 !/client-sites/PACKAGES.md
+!/client-sites/MASTER-PROMPT.md
 !/client-sites/new-client.mjs

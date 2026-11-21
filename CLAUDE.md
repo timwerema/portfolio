@@ -71,6 +71,7 @@ SQLite · Vite. Fonts are bundled with `@fontsource` (no external font CDNs).
 | Routes | `routes/web.php` |
 | **Client website baseline** (Astro starter, one content file `src/site.ts`, 3 style presets, business types services/restaurant/studio, optional booking, pricing, menu, location, announcement; one-file demo build) | `client-sites/_starter/`, new client: `npm run client:new -- "Name" --type restaurant`, workflow in `client-sites/README.md` |
 | **Package shortcuts** `/starter`, `/business`, `/custom` (type one + the client to run that package's playbook) | Skills in `.claude/skills/*/SKILL.md`; baselines in `client-sites/PACKAGES.md` |
+| **Master prompt** (Timasi's standard brief for custom sites; demos are held to the same design and "no dead buttons" standard) | `client-sites/MASTER-PROMPT.md` |
 | Conversion tracking hooks (`cta_click`, `inquiry_sent`). **Nothing is sent until an analytics script is added to the site**; mark buttons with `cta="name"` on `PillLink` or `data-cta` | `resources/js/lib/track.ts` |
 | Tests | `tests/Feature/*` (PHPUnit) |
 
