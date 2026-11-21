@@ -594,6 +594,25 @@ At completion, provide:
 5. Outstanding configuration or client content.
 6. Instructions to run and deploy the project.
 
+## SECURITY REQUIREMENTS — MANDATORY FOR EVERY BUILD
+
+Implement defense-in-depth security appropriate to the website's risk level, aligned with OWASP Top 10:2025 and relevant OWASP ASVS controls.
+
+1. Use Laravel's supported authentication, CSRF protection, validation, authorization policies and password hashing. Require MFA for privileged admin accounts.
+2. Enforce server-side authorization on every protected route, action and resource. Use least privilege and prevent IDOR/broken access control.
+3. Prevent SQL injection with Eloquent/query-builder parameter binding; never concatenate untrusted input into raw SQL.
+4. Prevent XSS using safe React rendering, output encoding, and a tested Content Security Policy; avoid unsafe HTML injection.
+5. Add rate limiting to logins, password resets, contact forms, bookings and sensitive endpoints. Add anti-bot controls where justified.
+6. Enforce HTTPS, secure/HttpOnly/SameSite session cookies, appropriate CORS, HSTS where safe, and other security headers.
+7. Protect secrets using environment/secret management; never expose .env, API keys, credentials, stack traces or private logs. Set APP_DEBUG=false in production.
+8. Validate uploads by allowed type, size and content; store them safely outside executable paths and use controlled access.
+9. Use least-privilege database and cloud credentials; encrypt sensitive data where appropriate and minimize personal-data collection.
+10. Provide deployable recommendations for CDN/WAF/DDoS protection, backups, monitoring and alerting.
+11. Run composer audit, npm audit, secret scanning, static security analysis, and relevant automated authorization/input security tests in CI.
+12. For hotel bookings or ecommerce, implement server-side price and availability validation, atomic reservations, payment-provider-hosted payment flows, webhook signature verification and replay resistance. Never store raw card data.
+13. Provide a security checklist, relevant threat model, test evidence, remaining risks, patch plan and deployment instructions. Do not claim security controls are implemented unless verified in the code/configuration.
+14. Preserve legitimate user experience and accessibility; use controls proportionate to risk.
+
 ## FINAL OBJECTIVE
 
 Create a high-quality, visually distinctive, production-oriented custom website that combines professional creative direction with clean Laravel engineering.
