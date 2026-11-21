@@ -22,6 +22,27 @@ type Stats = {
     year: number;
 };
 
+type ClientSite = {
+    key: string;
+    name: string;
+    kind: string;
+    url: string | null;
+    status: 'ok' | 'warn' | 'fail' | 'stale' | 'unknown' | 'unreachable' | 'not_connected';
+    detail: string;
+    checked_at: string | null;
+    reservations: { pending: number; last_7_days: number } | null;
+};
+
+const SITE_STATUS: Record<ClientSite['status'], { label: string; className: string }> = {
+    ok: { label: 'Healthy', className: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-500/15 dark:text-emerald-200' },
+    warn: { label: 'Warning', className: 'bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-200' },
+    fail: { label: 'Broken', className: 'bg-red-100 text-red-900 dark:bg-red-500/15 dark:text-red-200' },
+    stale: { label: 'Not reporting', className: 'bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-200' },
+    unreachable: { label: 'No answer', className: 'bg-red-100 text-red-900 dark:bg-red-500/15 dark:text-red-200' },
+    unknown: { label: 'Unknown', className: 'bg-muted text-muted-foreground' },
+    not_connected: { label: 'Not connected', className: 'bg-muted text-muted-foreground' },
+};
+
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Overview', href: '/dashboard' }];
 
 function Stat({ label, value, note, tone }: { label: string; value: string; note?: string; tone?: 'bad' | 'good' }) {
@@ -38,7 +59,17 @@ function Stat({ label, value, note, tone }: { label: string; value: string; note
     );
 }
 
-export default function Overview({ stats, recentInvoices, activeProjects }: { stats: Stats; recentInvoices: Invoice[]; activeProjects: Project[] }) {
+export default function Overview({
+    stats,
+    recentInvoices,
+    activeProjects,
+    clientSites = [],
+}: {
+    stats: Stats;
+    recentInvoices: Invoice[];
+    activeProjects: Project[];
+    clientSites?: ClientSite[];
+}) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Overview" />
@@ -191,6 +222,43 @@ export default function Overview({ stats, recentInvoices, activeProjects }: { st
                         )}
                     </section>
                 </div>
+
+                {clientSites.length > 0 && (
+                    <section className="rounded-xl border">
+                        <div className="border-b p-4">
+                            <h2 className="font-semibold">Client sites</h2>
+                            <p className="text-muted-foreground text-sm">Live status of sites you look after, checked every few minutes.</p>
+                        </div>
+                        <ul className="divide-y">
+                            {clientSites.map((site) => (
+                                <li key={site.key} className="flex flex-wrap items-center justify-between gap-3 p-4">
+                                    <span className="min-w-0">
+                                        <span className="font-medium">{site.name}</span>
+                                        {site.kind && <span className="text-muted-foreground"> · {site.kind}</span>}
+                                        <span className="text-muted-foreground block text-xs">
+                                            {site.detail}
+                                            {site.reservations &&
+                                                ` ${site.reservations.pending} pending reservations, ${site.reservations.last_7_days} in the last 7 days.`}
+                                        </span>
+                                        {site.url && (
+                                            <a
+                                                href={site.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-muted-foreground text-xs underline underline-offset-2"
+                                            >
+                                                Open site
+                                            </a>
+                                        )}
+                                    </span>
+                                    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${SITE_STATUS[site.status].className}`}>
+                                        {SITE_STATUS[site.status].label}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
+                )}
             </div>
         </AppLayout>
     );

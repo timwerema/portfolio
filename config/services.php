@@ -33,6 +33,17 @@ return [
         'client_id' => env('SPOTIFY_CLIENT_ID'),
     ],
 
+    // Client sites whose health the dashboard shows (server-side only: tokens must never reach the browser,
+    // so they live here and NOT in config/portfolio.php, which is sent to public pages).
+    'client_sites' => [
+        'maanet' => [
+            'name' => 'Maanet Gardens',
+            'kind' => 'Hotel booking site · demo copy',
+            'url' => env('MAANET_DEMO_URL'), // e.g. https://maanet-demo.example.com (no trailing slash needed)
+            'token' => env('MAANET_HEALTH_TOKEN'), // the HEALTH_TOKEN set in that site's .env
+        ],
+    ],
+
     // Ticketmaster Discovery API key (free at developer.ticketmaster.com). Used server-side only.
     'ticketmaster' => [
         'key' => env('TICKETMASTER_KEY'),

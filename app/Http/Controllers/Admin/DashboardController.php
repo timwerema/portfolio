@@ -8,6 +8,7 @@ use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Preview;
 use App\Models\Project;
+use App\Support\ClientSiteHealth;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -41,6 +42,7 @@ class DashboardController extends Controller
             ],
             'recentInvoices' => $invoices->sortByDesc('issue_date')->take(5)->values(),
             'activeProjects' => Project::with('client:id,name')->whereIn('status', ['proposal', 'in_progress', 'review'])->orderBy('due_date')->take(6)->get(),
+            'clientSites' => ClientSiteHealth::all(),
         ]);
     }
 

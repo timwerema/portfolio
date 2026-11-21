@@ -230,3 +230,17 @@ Then reload the settings:
 ```bash
 php artisan config:cache
 ```
+
+## Client sites on the dashboard (Maanet Gardens demo)
+
+The dashboard overview shows the live status of client sites. For the Maanet Gardens demo copy, add two lines to
+`.env` on the box (type them yourself), then `php artisan config:cache`:
+
+```
+MAANET_DEMO_URL=https://the-demo-address
+MAANET_HEALTH_TOKEN=the HEALTH_TOKEN from the demo's own .env
+```
+
+The portfolio's server calls `GET {MAANET_DEMO_URL}/api/health` with that token; the token is never sent to a
+browser. Until both lines are set, the dashboard shows the site as "Not connected". How to deploy the demo copy
+itself is in `maanet-gardens/docs/HANDOFF.md` in the private `client-sites` repo (branch `maanet-gardens`).
