@@ -26,7 +26,7 @@ const C = {
     gold: 'var(--sl-gold)',
     banner: 'var(--sl-banner)',
 };
-const THEME = `:root:has(.sl){color-scheme:dark;--sl-bg:#0d0e1a;--sl-card:#161829;--sl-ink:#ecedf8;--sl-soft:#a3a6c4;--sl-line:#2a2d48;--sl-brand:#6d65f5;--sl-mint:#34d399;--sl-mintBg:#0f2e25;--sl-red:#fb923c;--sl-redBg:#3a1d10;--sl-gold:#fbbf24;--sl-banner:#1c1e36}
+const THEME = `:root:has(.sl){color-scheme:dark;--sl-bg:#0d0e1a;--sl-card:#161829;--sl-ink:#ecedf8;--sl-soft:#a3a6c4;--sl-line:#2a2d48;--sl-brand:#665ef3;--sl-mint:#34d399;--sl-mintBg:#0f2e25;--sl-red:#fb923c;--sl-redBg:#3a1d10;--sl-gold:#fbbf24;--sl-banner:#1c1e36}
 @media (prefers-color-scheme: light){:root:has(.sl){color-scheme:light;--sl-bg:#f6f7fb;--sl-card:#ffffff;--sl-ink:#16163a;--sl-soft:#55577a;--sl-line:#dfe1ee;--sl-brand:#4f46e5;--sl-mint:#0f9d76;--sl-mintBg:#e3f6ef;--sl-red:#c2410c;--sl-redBg:#fdeee6;--sl-gold:#b45309;--sl-banner:#16163a}}
 @media print{body *{visibility:hidden!important}#print-area,#print-area *{visibility:visible!important;color:#000!important;background:#fff!important}#print-area{position:absolute;inset:0;padding:0}}
 .sl input[type=date]:focus-within,.sl input:focus-visible,.sl textarea:focus-visible,.sl select:focus-visible,.sl button:focus-visible,.sl a:focus-visible,.sl summary:focus-visible{outline:2px solid var(--sl-brand);outline-offset:2px}`;
@@ -992,6 +992,7 @@ export default function StudyLoop() {
                                     value={newName}
                                     onChange={(e) => setNewName(e.target.value)}
                                     placeholder="New course, e.g. CS 3345"
+                                    required
                                     className={`${field} w-48`}
                                     style={fieldStyle}
                                 />

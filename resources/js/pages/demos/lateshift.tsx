@@ -366,7 +366,7 @@ export default function LateshiftDemo() {
                                     setStage('bag');
                                     setBagOpen(true);
                                 }}
-                                className="relative flex min-h-11 items-center gap-2"
+                                className="relative flex min-h-11 min-w-11 items-center justify-center gap-2"
                                 aria-label={`Bag, ${count} item${count === 1 ? '' : 's'}`}
                             >
                                 <ShoppingBag className="size-5" />

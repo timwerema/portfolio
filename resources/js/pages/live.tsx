@@ -521,6 +521,7 @@ export default function Live({ spotifyClientId, redirectUri, showsConfigured }: 
                                         value={typed}
                                         onChange={(e) => setTyped(e.target.value)}
                                         placeholder="e.g. SZA, Brent Faiyaz, Victoria Monét"
+                                        required
                                         className={`${field} w-full`}
                                         style={fieldStyle}
                                     />

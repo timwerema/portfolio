@@ -17,14 +17,14 @@ import { type CSSProperties, type ReactNode, useRef, useState } from 'react';
  */
 
 // Dark "court at night" by default; the maple-court look when the visitor's device is in light mode.
-const THEME = `:root:has(.hw){color-scheme:dark;--hw-maple:#0b0f17;--hw-maple-light:#131a26;--hw-line:#2a3548;--hw-ink:#eef1f6;--hw-soft:#c5ccd8;--hw-muted:#8f9aab;--hw-navy:#10284a;--hw-navy-deep:#0a1b33;--hw-navy-line:#2b4a75;--hw-royal:#3d8bff;--hw-royal-dark:#2a74e6;--hw-silver:#c4ccd3;--hw-led:#6cb8ff;--hw-rule:#3a5683;--hw-strong:#e6edf7;--hw-on-navy:#fbf4e6}
-@media (prefers-color-scheme: light){:root:has(.hw){color-scheme:light;--hw-maple:#f1e4cc;--hw-maple-light:#fbf4e6;--hw-line:#c9b999;--hw-ink:#17130e;--hw-soft:#3d3328;--hw-muted:#6b5d4c;--hw-navy:#0b2545;--hw-navy-deep:#071a33;--hw-navy-line:#26426b;--hw-royal:#0b5fcf;--hw-royal-dark:#084aa3;--hw-silver:#c4ccd3;--hw-led:#6cb8ff;--hw-rule:#0b2545;--hw-strong:#0b2545;--hw-on-navy:#fbf4e6}}
+const THEME = `:root:has(.hw){color-scheme:dark;--hw-maple:#0b0f17;--hw-maple-light:#131a26;--hw-line:#2a3548;--hw-ink:#eef1f6;--hw-soft:#c5ccd8;--hw-muted:#8f9aab;--hw-navy:#10284a;--hw-navy-deep:#0a1b33;--hw-navy-line:#2b4a75;--hw-royal:#3d8bff;--hw-royal-dark:#2a74e6;--hw-silver:#c4ccd3;--hw-led:#6cb8ff;--hw-rule:#3a5683;--hw-strong:#e6edf7;--hw-on-navy:#fbf4e6;--hw-on-royal:#04122b}
+@media (prefers-color-scheme: light){:root:has(.hw){color-scheme:light;--hw-maple:#f1e4cc;--hw-maple-light:#fbf4e6;--hw-line:#c9b999;--hw-ink:#17130e;--hw-soft:#3d3328;--hw-muted:#6b5d4c;--hw-navy:#0b2545;--hw-navy-deep:#071a33;--hw-navy-line:#26426b;--hw-royal:#0b5fcf;--hw-royal-dark:#084aa3;--hw-silver:#c4ccd3;--hw-led:#6cb8ff;--hw-rule:#0b2545;--hw-strong:#0b2545;--hw-on-navy:#fbf4e6;--hw-on-royal:#fff}}
 .hw{--font-display:'Anton','Impact',sans-serif;--font-cond:'Barlow Condensed','Arial Narrow',sans-serif;--font-body:'Barlow',system-ui,sans-serif;--font-led:'Share Tech Mono',ui-monospace,monospace}
 .hw .display{font-family:var(--font-display);text-transform:uppercase;line-height:.92}
 .hw .cond{font-family:var(--font-cond);text-transform:uppercase;letter-spacing:.1em;font-weight:700}
 .hw .led{font-family:var(--font-led)}
 .hw .pill{display:inline-flex;min-height:54px;align-items:center;gap:.5rem;border-radius:999px;padding:0 1.75rem;font-family:var(--font-cond);font-weight:700;font-size:1.25rem;letter-spacing:.06em;text-transform:uppercase;transition:background .15s,color .15s}
-.hw .pill-solid{background:var(--hw-royal);color:#fff}.hw .pill-solid:hover{background:var(--hw-royal-dark)}
+.hw .pill-solid{background:var(--hw-royal);color:var(--hw-on-royal)}.hw .pill-solid:hover{background:var(--hw-royal-dark)}
 .hw .pill-outline{border:2px solid var(--hw-rule);color:var(--hw-strong)}.hw .pill-outline:hover{background:var(--hw-navy);color:var(--hw-on-navy)}
 .hw .pill-light{border:2px solid var(--hw-silver);color:var(--hw-on-navy)}.hw .pill-light:hover{background:var(--hw-on-navy);color:var(--hw-navy)}
 .hw .sheen{color:var(--hw-royal);background:linear-gradient(100deg,var(--hw-royal),var(--hw-led) 55%,var(--hw-royal));background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:hw-sheen 6s ease-in-out infinite}
@@ -282,8 +282,8 @@ export default function HardwoodDemo() {
                     <nav className="mx-auto flex max-w-[1240px] items-center justify-between gap-6 px-5 py-3 sm:px-10 lg:px-16">
                         <a href="#top" className="flex items-center gap-3">
                             <span
-                                className="display flex size-11 items-center justify-center rounded-full text-lg text-white"
-                                style={{ background: C.royal }}
+                                className="display flex size-11 items-center justify-center rounded-full text-lg"
+                                style={{ background: C.royal, color: 'var(--hw-on-royal)' }}
                             >
                                 HP
                             </span>
@@ -540,8 +540,8 @@ export default function HardwoodDemo() {
                                         {pkg.name}
                                         {pkg.featured && (
                                             <span
-                                                className="cond ml-3 inline-block rounded-full px-2.5 py-1 align-middle text-xs text-white"
-                                                style={{ background: C.royal }}
+                                                className="cond ml-3 inline-block rounded-full px-2.5 py-1 align-middle text-xs"
+                                                style={{ background: C.royal, color: 'var(--hw-on-royal)' }}
                                             >
                                                 Most popular
                                             </span>

@@ -1093,7 +1093,7 @@ export default function Deskbot() {
                                 style={{ borderColor: C.line, background: C.panel, color: C.text }}
                             />
                         </label>
-                        <button type="submit" className={btn} style={{ borderColor: 'transparent', background: C.accent, color: '#0d0b1a' }}>
+                        <button type="submit" className={btn} style={{ borderColor: 'transparent', background: C.accent, color: C.bg }}>
                             Go
                         </button>
                     </form>
@@ -1219,7 +1219,7 @@ export default function Deskbot() {
                                                       ? { left: `${((x + w / 2) / COLS) * 100}%`, bottom: `${((ROWS - y) / ROWS) * 100}%` }
                                                       : { left: `${((x + w / 2) / COLS) * 100}%`, top: `${((y + h) / ROWS) * 100}%` }),
                                                 background: active === sid ? C.accent : C.bg,
-                                                color: active === sid ? '#0d0b1a' : C.soft,
+                                                color: active === sid ? C.bg : C.soft,
                                                 opacity: 0.92,
                                             }}
                                         >
@@ -1255,7 +1255,7 @@ export default function Deskbot() {
                                             type="button"
                                             onClick={() => answerRef.current?.(true)}
                                             className={btn}
-                                            style={{ borderColor: 'transparent', background: C.accent, color: '#0d0b1a' }}
+                                            style={{ borderColor: 'transparent', background: C.accent, color: C.bg }}
                                         >
                                             {pending.yes}
                                         </button>
@@ -1437,7 +1437,7 @@ export default function Deskbot() {
                                                 type="button"
                                                 onClick={() => answerRef.current?.(true)}
                                                 className={btn}
-                                                style={{ borderColor: 'transparent', background: C.accent, color: '#0d0b1a' }}
+                                                style={{ borderColor: 'transparent', background: C.accent, color: C.bg }}
                                             >
                                                 {pending.yes}
                                             </button>
