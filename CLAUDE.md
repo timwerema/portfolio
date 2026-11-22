@@ -49,7 +49,7 @@ Context for Claude sessions working on this repository. Read this first.
 ## Stack
 
 Laravel 12 · Inertia v2 · React 19 + TypeScript · Tailwind v4 · shadcn/ui (admin) ·
-SQLite · Vite. Fonts are bundled with `@fontsource` (no external font CDNs).
+SQLite locally and in tests, **MariaDB on the live box** (since 22 Nov 2026; `backup:run` handles both) · Vite. Fonts are bundled with `@fontsource` (no external font CDNs).
 
 ## Where things live
 

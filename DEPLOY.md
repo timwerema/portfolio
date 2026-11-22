@@ -148,6 +148,7 @@ and the uploaded client demos. The last 14 days are kept.
   ```bash
   mkdir /tmp/restore && tar -xzf storage/backups/<file>.tar.gz -C /tmp/restore
   cp /tmp/restore/database.sqlite database/database.sqlite
+  # live box (MariaDB): mariadb -u portfolio -p portfolio < /tmp/restore/database.sql
   cp -r /tmp/restore/previews storage/app/private/
   php artisan up
   ```

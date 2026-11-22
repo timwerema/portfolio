@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Process;
 use Tests\TestCase;
 
 class BackupTest extends TestCase
@@ -55,6 +56,46 @@ class BackupTest extends TestCase
         $this->assertGreaterThan(0, (int) $pdo->query('select count(*) from migrations')->fetchColumn());
 
         File::deleteDirectory($out);
+    }
+
+    public function test_backup_dumps_a_mysql_database_without_the_password_on_the_command_line(): void
+    {
+        config(['database.default' => 'mysql', 'database.connections.mysql' => [
+            'driver' => 'mysql', 'host' => '127.0.0.1', 'port' => '3306', 'database' => 'portfolio', 'username' => 'portfolio', 'password' => 'not-a-real-secret',
+        ]]);
+        Process::fake(['*--single-transaction*' => Process::result('CREATE TABLE users (id int);')]);
+
+        $this->artisan('backup:run')->assertSuccessful();
+
+        Process::assertRan(function ($process) {
+            $command = implode(' ', (array) $process->command);
+            if (! str_contains($command, '--single-transaction')) {
+                return false;
+            }
+
+            return str_contains($command, '--user=portfolio') && ! str_contains($command, 'not-a-real-secret')
+                && ($process->environment['MYSQL_PWD'] ?? null) === 'not-a-real-secret';
+        });
+
+        $files = File::glob($this->dir.'/backup-*.tar.gz');
+        $this->assertCount(1, $files);
+        $out = sys_get_temp_dir().'/backup-extract-'.uniqid();
+        mkdir($out);
+        exec('tar -xzf '.escapeshellarg($files[0]).' -C '.escapeshellarg($out));
+        $this->assertStringContainsString('CREATE TABLE users', file_get_contents($out.'/database.sql'));
+        File::deleteDirectory($out);
+    }
+
+    public function test_a_failed_database_dump_fails_the_backup_and_leaves_no_archive(): void
+    {
+        config(['database.default' => 'mysql', 'database.connections.mysql' => [
+            'driver' => 'mysql', 'host' => '127.0.0.1', 'port' => '3306', 'database' => 'portfolio', 'username' => 'portfolio', 'password' => 'x',
+        ]]);
+        Process::fake(['*--single-transaction*' => Process::result('', 'Access denied', 2)]);
+
+        $this->artisan('backup:run')->assertFailed();
+        $this->assertCount(0, File::glob($this->dir.'/backup-*.tar.gz'));
+        $this->assertCount(0, File::glob($this->dir.'/tmp-*'));
     }
 
     public function test_old_backups_are_pruned(): void
