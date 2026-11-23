@@ -428,12 +428,12 @@ return [
         ],
         [
             'title' => 'Rundown',
-            'type' => 'League stats site',
-            'description' => 'Stats hub for a rec basketball league: scores and box scores, sortable standings and player stats, league leaders, shot charts and head-to-head compare.',
+            'type' => 'Live sports analysis app',
+            'description' => 'Game analysis for the NFL, NBA, college football and men\'s college basketball. It reads live lines, injuries and headlines from ESPN\'s public feeds, then shows a simple model\'s lean for each game with every reason behind it. Analysis only, not betting advice.',
             'url' => '/demos/rundown',
             'package' => 'Custom',
-            'goal' => 'Make a lot of numbers easy to read on a phone.',
-            'fictional' => true,
+            'goal' => 'Turn messy live data from an outside source into something clear and honest on a phone, and stay standing when that source goes down.',
+            'fictional' => false,
         ],
         [
             'title' => 'Deskbot',

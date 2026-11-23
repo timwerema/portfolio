@@ -21,3 +21,6 @@ Schedule::command('invoices:remind')->dailyAt('09:20')->withoutOverlapping();
 
 // Weekly business summary to you, Mondays at 7:40.
 Schedule::command('business:weekly-summary')->weeklyOn(1, '07:40');
+
+// Rundown demo: every hour, save new model leans before kickoff and grade finished games (calls ESPN's public feeds).
+Schedule::command('rundown:refresh')->hourlyAt(7)->withoutOverlapping(10);

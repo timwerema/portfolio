@@ -89,8 +89,9 @@ class Seo
                 $meta['description'] = "A demo office-helper AI agent for a fictional business, built by {$name}.";
                 break;
             case 'demos/rundown':
-                $meta['title'] = 'Rundown (demo app)';
-                $meta['description'] = "A demo stats site for a fictional basketball league, built by {$name}.";
+                $meta['title'] = 'Rundown: game analysis (demo app)';
+                $meta['description'] = "Live lines, injuries and a transparent model for NFL, NBA and college games, built by {$name}. Analysis only, not betting advice.";
+                $meta['noindex'] = true;
                 break;
             case 'live':
                 $meta['title'] = 'Encore Live: R&B shows near you';

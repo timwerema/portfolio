@@ -1,16 +1,19 @@
 import '@fontsource-variable/archivo/wght';
 import '@fontsource/big-shoulders-display/800';
 
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
-import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
+import { useReveal } from '@/components/motion';
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, ArrowRight, ChevronDown, ChevronUp, Download, Search, Trophy } from 'lucide-react';
-import { type CSSProperties, type ReactNode, useMemo, useState } from 'react';
+import { ArrowLeft, ChevronDown, ExternalLink, RefreshCw } from 'lucide-react';
+import { type CSSProperties, type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 
 /*
- * DEMO for a fictional adult rec basketball league ("Trinity Run League") and its stats site ("Rundown").
- * Every team, player and game is made up and generated from a fixed seed, so the numbers are the same on every visit.
- * A real version would read scores entered by league staff (or a scorekeeping app) from a database.
+ * Rundown: game analysis for the NFL, NBA, college football and men's college basketball.
+ *
+ * This demo is NOT fictional. Games, lines, injuries and headlines are live, read on the server from
+ * ESPN's public feeds (app/Support/Rundown/EspnFeed.php). The leans come from fixed rules in
+ * app/Support/Rundown/PredictionModel.php, and the "How this works" text is built from the same numbers.
+ * Nothing on this page is made up: when a feed is down the page says so instead of filling in.
+ * Analysis only: no sportsbook links, no "best bets", no affiliate anything.
  */
 
 // Dark by default; a light look when the visitor's device is in light mode.
@@ -23,10 +26,13 @@ const C = {
     soft: 'var(--rd-soft)',
     hot: 'var(--rd-hot)',
     teal: 'var(--rd-teal)',
-    court: 'var(--rd-court)',
 };
-const THEME = `:root:has(.rd){color-scheme:dark;--rd-bg:#0b0d10;--rd-panel:#12161b;--rd-panel2:#1a2027;--rd-line:#262e38;--rd-text:#eef2f6;--rd-soft:#9aa6b2;--rd-hot:#ff7a1a;--rd-on-hot:#0b0d10;--rd-teal:#2dd4bf;--rd-court:#151b22}
-@media (prefers-color-scheme: light){:root:has(.rd){color-scheme:light;--rd-bg:#f4f5f7;--rd-panel:#ffffff;--rd-panel2:#eef0f3;--rd-line:#dce0e6;--rd-text:#0e1116;--rd-soft:#56606c;--rd-hot:#ad4308;--rd-on-hot:#ffffff;--rd-teal:#0a7469;--rd-court:#f7efe2}}`;
+const THEME = `:root:has(.rd){color-scheme:dark;--rd-bg:#0b0d10;--rd-panel:#12161b;--rd-panel2:#1a2027;--rd-line:#2a333e;--rd-text:#eef2f6;--rd-soft:#a3aebb;--rd-hot:#ff8a3d;--rd-on-hot:#0b0d10;--rd-teal:#3ddbc6;--rd-live:#ff6b6b}
+@media (prefers-color-scheme: light){:root:has(.rd){color-scheme:light;--rd-bg:#f4f5f7;--rd-panel:#ffffff;--rd-panel2:#e9ecf0;--rd-line:#d3d8df;--rd-text:#0e1116;--rd-soft:#4d5763;--rd-hot:#a23e06;--rd-on-hot:#ffffff;--rd-teal:#086459;--rd-live:#b3261e}}
+.rd :focus-visible{outline:2px solid var(--rd-hot);outline-offset:2px;border-radius:4px}
+.rd .rd-skel{animation:rd-pulse 1.4s ease-in-out infinite}
+@keyframes rd-pulse{50%{opacity:.45}}
+@media (prefers-reduced-motion: reduce){.rd *{animation:none!important;transition:none!important}}`;
 const display: CSSProperties = {
     fontFamily: "'Big Shoulders Display', Impact, sans-serif",
     fontWeight: 800,
@@ -34,676 +40,506 @@ const display: CSSProperties = {
     lineHeight: 0.95,
 };
 
-/* ---------------------------------------------------------------- data */
+/* ---------------------------------------------------------------- types (the server's compact shapes) */
 
-function rng(seed: number) {
-    let a = seed >>> 0;
-    return () => {
-        a = (a + 0x6d2b79f5) >>> 0;
-        let t = a;
-        t = Math.imul(t ^ (t >>> 15), t | 1);
-        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-}
-const binom = (n: number, p: number, r: () => number) => {
-    let k = 0;
-    for (let i = 0; i < n; i++) if (r() < p) k++;
-    return k;
-};
-
-type Team = { id: string; name: string; short: string; color: string; boost: number };
-const TEAMS: Team[] = [
-    { id: 'DEN', name: 'Deep Ellum Night Owls', short: 'Night Owls', color: '#8b5cf6', boost: 1.04 },
-    { id: 'BAB', name: 'Bishop Arts Bandits', short: 'Bandits', color: '#ef4444', boost: 1.03 },
-    { id: 'OCO', name: 'Oak Cliff Overtime', short: 'Overtime', color: '#f59e0b', boost: 1.0 },
-    { id: 'TRG', name: 'Trinity Groove', short: 'Groove', color: '#14b8a6', boost: 1.04 },
-    { id: 'LKW', name: 'Lakewood Lanterns', short: 'Lanterns', color: '#eab308', boost: 0.97 },
-    { id: 'CED', name: 'Cedars Cyclones', short: 'Cyclones', color: '#3b82f6', boost: 0.99 },
-    { id: 'UPT', name: 'Uptown Alley-Oops', short: 'Alley-Oops', color: '#ec4899', boost: 0.97 },
-    { id: 'DDD', name: 'Design District Drafters', short: 'Drafters', color: '#22c55e', boost: 1.01 },
-];
-const teamById = Object.fromEntries(TEAMS.map((t) => [t.id, t])) as Record<string, Team>;
-
-const FIRST = [
-    'Marcus',
-    'Andre',
-    'Jalen',
-    'Tyrese',
-    'Diego',
-    'Kofi',
-    'Ethan',
-    'Malik',
-    'Omar',
-    'Caleb',
-    'Darius',
-    'Luis',
-    'Isaiah',
-    'Trey',
-    'Nate',
-    'Jordan',
-    'Xavier',
-    'Ray',
-    'Devon',
-    'Mateo',
-    'Chris',
-    'Kendall',
-    'Sam',
-    'Theo',
-];
-const LAST = [
-    'Okafor',
-    'Delgado',
-    'Brooks',
-    'Nguyen',
-    'Haynes',
-    'Whitfield',
-    'Ramos',
-    'Adeyemi',
-    'Carter',
-    'Pham',
-    'Ellison',
-    'Moreno',
-    'Grant',
-    'Osei',
-    'Vance',
-    'Lowery',
-    'Ibarra',
-    'Mensah',
-    'Duarte',
-    'Sutton',
-    'Kimura',
-    'Fairley',
-    'Barnes',
-    'Quinlan',
-];
-const POS = ['G', 'G', 'F', 'F', 'C', 'G', 'F'];
-
-type Player = {
+type Team = {
     id: string;
+    abbr: string;
     name: string;
-    team: string;
-    pos: string;
-    num: number;
-    usage: number;
-    p2: number;
-    p3: number;
-    threeRate: number;
-    reb: number;
-    ast: number;
-    def: number;
+    short: string;
+    color: string | null;
+    record: string | null;
+    homeRecord: string | null;
+    roadRecord: string | null;
+    rank: number | null;
+    score: number | null;
+    winner: boolean;
 };
-
-type Line = {
-    pid: string;
-    fgm: number;
-    fga: number;
-    tpm: number;
-    tpa: number;
-    ftm: number;
-    fta: number;
-    reb: number;
-    ast: number;
-    stl: number;
-    blk: number;
-    tov: number;
-    pts: number;
+type Odds = {
+    provider: string;
+    spreadHome: number | null;
+    openSpreadHome: number | null;
+    total: number | null;
+    openTotal: number | null;
+    moneyHome: string | null;
+    moneyAway: string | null;
 };
-type Game = { id: string; week: number; date: string; home: string; away: string; hs: number; as: number; lines: Record<string, Line[]> };
+type Factor = { key: string; label: string; value: number; status: 'used' | 'neutral' | 'no_data'; note: string; favors: string | null };
+type Confidence = 'low' | 'medium' | 'high';
+type Prediction = {
+    lean: { side: 'home' | 'away'; team: string; line: number } | null;
+    confidence: Confidence | null;
+    adjustment: number | null;
+    modelLine: number | null;
+    factors: Factor[];
+    summary: string | null;
+};
+type Injury = { name: string; pos: string; status: string; comment: string; date: string | null };
+type Headline = { headline: string; description: string; published: string | null; url: string | null; teamIds: string[] };
+type Game = {
+    id: string;
+    league: string;
+    start: string;
+    state: 'pre' | 'in' | 'post';
+    final: boolean;
+    statusText: string;
+    neutral: boolean;
+    venue: string;
+    tv: string;
+    note: string;
+    home: Team;
+    away: Team;
+    odds: Odds | null;
+    prediction: Prediction;
+    injuries: { home: Injury[] | null; away: Injury[] | null };
+    headlines: Headline[];
+};
+type Graded = {
+    league: string;
+    matchup: string;
+    lean: string;
+    confidence: string;
+    score: string;
+    result: 'win' | 'loss' | 'push';
+    savedAt: string | null;
+};
+type RecordSummary = { wins: number; losses: number; pushes: number; pending: number; since: string | null; recent: Graded[] };
+type Board = {
+    league: string;
+    ok: boolean;
+    updatedAt: string | null;
+    lastGoodAt: string | null;
+    games: Game[];
+    headlines: Headline[];
+    injuries: { status: 'ok' | 'not_covered' | 'unavailable'; updatedAt: string | null };
+    notes: string[];
+    slateNote: string;
+    record: RecordSummary;
+};
+type League = { key: string; label: string; name: string };
+type Slot = { status: 'loading' } | { status: 'error'; message: string } | { status: 'ready'; board: Board };
+type Rule = { name: string; rule: string; max: string };
 
-function buildLeague() {
-    const r = rng(2026);
-    const players: Player[] = [];
-    const usedNames = new Set<string>();
-    TEAMS.forEach((t, ti) => {
-        const usages = Array.from({ length: 7 }, (_, i) => (i < 2 ? 1.6 : i < 5 ? 1 : 0.6) * (0.8 + r() * 0.4));
-        const total = usages.reduce((a, b) => a + b, 0);
-        for (let i = 0; i < 7; i++) {
-            let name = '';
-            do name = `${FIRST[Math.floor(r() * FIRST.length)]} ${LAST[Math.floor(r() * LAST.length)]}`;
-            while (usedNames.has(name));
-            usedNames.add(name);
-            const pos = POS[i];
-            players.push({
-                id: `${t.id}-${i}`,
-                name,
-                team: t.id,
-                pos,
-                num: [0, 1, 2, 3, 4, 5, 10, 11, 12, 13, 15, 20, 21, 22, 23, 24, 30, 32, 33, 34, 44][Math.floor(r() * 21)] + (ti % 2),
-                usage: usages[i] / total,
-                p2: (pos === 'C' ? 0.52 : 0.45) + r() * 0.1,
-                p3: pos === 'C' ? 0.22 + r() * 0.1 : 0.29 + r() * 0.13,
-                threeRate: pos === 'C' ? 0.05 + r() * 0.1 : pos === 'G' ? 0.35 + r() * 0.2 : 0.2 + r() * 0.2,
-                reb: pos === 'C' ? 1.8 : pos === 'F' ? 1.3 : 0.7,
-                ast: pos === 'G' ? 1.7 : pos === 'F' ? 0.9 : 0.6,
-                def: pos === 'C' ? 1.6 : 0.8,
-            });
-        }
-    });
+/* ---------------------------------------------------------------- formatting */
 
-    // Round robin (circle method): 7 weeks, 4 games a week, Sundays from Sept 13, 2026.
-    const ids = TEAMS.map((t) => t.id);
-    const games: Game[] = [];
-    for (let w = 0; w < 7; w++) {
-        const rot = [ids[0], ...ids.slice(1).map((_, i) => ids[1 + ((i + w) % 7)])];
-        const day = new Date(Date.UTC(2026, 8, 13 + w * 7));
-        const date = day.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' });
-        for (let g = 0; g < 4; g++) {
-            const [a, b] = w % 2 ? [rot[g], rot[7 - g]] : [rot[7 - g], rot[g]];
-            const lines: Record<string, Line[]> = {};
-            const score: Record<string, number> = {};
-            // Both teams play at the same pace, which keeps most games within ~15 points.
-            const teamFga = 56 + Math.floor(r() * 8);
-            for (const tid of [a, b]) {
-                const boost = teamById[tid].boost;
-                lines[tid] = players
-                    .filter((p) => p.team === tid)
-                    .map((p) => {
-                        const fga = Math.max(0, Math.round(p.usage * teamFga * (0.82 + r() * 0.36)));
-                        const tpa = Math.round(fga * p.threeRate);
-                        const tpm = binom(tpa, p.p3 * boost, r);
-                        const twm = binom(fga - tpa, Math.min(0.75, p.p2 * boost), r);
-                        const fta = Math.round(fga * (0.1 + r() * 0.3));
-                        const ftm = binom(fta, 0.68 + r() * 0.12, r);
-                        return {
-                            pid: p.id,
-                            fga,
-                            fgm: twm + tpm,
-                            tpa,
-                            tpm,
-                            fta,
-                            ftm,
-                            reb: Math.round(p.reb * (1.5 + r() * 5)),
-                            ast: Math.round(p.ast * (0.5 + r() * 4)),
-                            stl: Math.round(r() * 2.3),
-                            blk: Math.round(r() * p.def * 1.6),
-                            tov: Math.round(r() * 3),
-                            pts: twm * 2 + tpm * 3 + ftm,
-                        };
-                    });
-                score[tid] = lines[tid].reduce((s, l) => s + l.pts, 0);
-            }
-            if (score[a] === score[b]) {
-                // No ties: one more free throw for the home team's leading scorer.
-                const top = [...lines[a]].sort((x, y) => y.pts - x.pts)[0];
-                top.fta++;
-                top.ftm++;
-                top.pts++;
-                score[a]++;
-            }
-            games.push({ id: `W${w + 1}G${g + 1}`, week: w + 1, date, home: a, away: b, hs: score[a], as: score[b], lines });
-        }
-    }
-    return { players, games };
+const num = (n: number) => String(Math.round(Math.abs(n) * 100) / 100);
+/** A spread from one team's side: -6.5, +3, or PK. */
+const line = (n: number) => (n === 0 ? 'PK' : `${n > 0 ? '+' : '-'}${num(n)}`);
+/** The usual way to write a spread: favourite first ("DAL -6.5"). */
+const spreadLabel = (g: Game, homeLine: number) =>
+    homeLine === 0 ? "Pick'em" : homeLine < 0 ? `${g.home.abbr} ${line(homeLine)}` : `${g.away.abbr} ${line(-homeLine)}`;
+
+const timeFmt = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' });
+const dayFmt = new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+const stampFmt = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
+const shortDate = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
+const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+function dayLabel(d: Date) {
+    const today = new Date();
+    const tomorrow = new Date(today.getTime() + 86400000);
+    const yesterday = new Date(today.getTime() - 86400000);
+    const prefix =
+        dayKey(d) === dayKey(today)
+            ? 'Today · '
+            : dayKey(d) === dayKey(tomorrow)
+              ? 'Tomorrow · '
+              : dayKey(d) === dayKey(yesterday)
+                ? 'Yesterday · '
+                : '';
+    return prefix + dayFmt.format(d);
 }
+const stamp = (iso: string | null) => (iso ? stampFmt.format(new Date(iso)) : null);
 
-const { players: PLAYERS, games: GAMES } = buildLeague();
-const playerById = Object.fromEntries(PLAYERS.map((p) => [p.id, p])) as Record<string, Player>;
-const WEEKS = Math.max(...GAMES.map((g) => g.week));
+/* ---------------------------------------------------------------- small pieces */
 
-type Avg = {
-    p: Player;
-    gp: number;
-    pts: number;
-    reb: number;
-    ast: number;
-    stl: number;
-    blk: number;
-    tov: number;
-    tpm: number;
-    fgp: number;
-    tpp: number;
-    ftp: number;
-    log: { game: Game; line: Line }[];
-};
-
-const AVERAGES: Avg[] = PLAYERS.map((p) => {
-    const log = GAMES.flatMap((g) => (g.lines[p.team] ?? []).filter((l) => l.pid === p.id).map((line) => ({ game: g, line })));
-    const sum = (k: keyof Omit<Line, 'pid'>) => log.reduce((s, x) => s + x.line[k], 0);
-    const gp = log.length || 1;
-    const pct = (m: number, a: number) => (a ? m / a : 0);
-    return {
-        p,
-        gp: log.length,
-        pts: sum('pts') / gp,
-        reb: sum('reb') / gp,
-        ast: sum('ast') / gp,
-        stl: sum('stl') / gp,
-        blk: sum('blk') / gp,
-        tov: sum('tov') / gp,
-        tpm: sum('tpm') / gp,
-        fgp: pct(sum('fgm'), sum('fga')),
-        tpp: pct(sum('tpm'), sum('tpa')),
-        ftp: pct(sum('ftm'), sum('fta')),
-        log,
-    };
-});
-const avgById = Object.fromEntries(AVERAGES.map((a) => [a.p.id, a])) as Record<string, Avg>;
-
-type Standing = { team: Team; w: number; l: number; pf: number; pa: number; streak: string; last: ('W' | 'L')[] };
-const STANDINGS: Standing[] = TEAMS.map((team) => {
-    const results = GAMES.filter((g) => g.home === team.id || g.away === team.id).map((g) => {
-        const mine = g.home === team.id ? g.hs : g.as;
-        const theirs = g.home === team.id ? g.as : g.hs;
-        return { win: mine > theirs, mine, theirs };
-    });
-    let streakN = 0;
-    const lastWin = results[results.length - 1]?.win;
-    for (let i = results.length - 1; i >= 0 && results[i].win === lastWin; i--) streakN++;
-    return {
-        team,
-        w: results.filter((x) => x.win).length,
-        l: results.filter((x) => !x.win).length,
-        pf: results.reduce((s, x) => s + x.mine, 0) / results.length,
-        pa: results.reduce((s, x) => s + x.theirs, 0) / results.length,
-        streak: `${lastWin ? 'W' : 'L'}${streakN}`,
-        last: results.slice(-5).map((x) => (x.win ? 'W' : 'L')),
-    };
-}).sort((a, b) => b.w - a.w || b.pf - b.pa - (a.pf - a.pa));
-
-/* ---------------------------------------------------------------- helpers */
-
-const f1 = (n: number) => n.toFixed(1);
-const pctFmt = (n: number) => `${(n * 100).toFixed(1)}%`;
-
-function TeamDot({ id, size = 10 }: { id: string; size?: number }) {
+function Swatch({ team }: { team: Team }) {
+    // A plain colour chip from the feed's team colour. No logos: those are trademarks.
     return (
         <span
-            aria-hidden="true"
-            className="inline-block shrink-0 rounded-full"
-            style={{ width: size, height: size, background: teamById[id].color }}
+            aria-hidden
+            className="inline-block size-3 shrink-0 rounded-[3px] border"
+            style={{ background: team.color ?? C.panel2, borderColor: C.line }}
         />
     );
 }
 
-function SortHead<K extends string>({
-    label,
-    k,
-    sort,
-    setSort,
-    title,
-    left = false,
-}: {
-    label: string;
-    k: K;
-    sort: { key: K; dir: 1 | -1 };
-    setSort: (s: { key: K; dir: 1 | -1 }) => void;
-    title?: string;
-    left?: boolean;
-}) {
-    const active = sort.key === k;
+function ConfidenceMeter({ level }: { level: Confidence }) {
+    const filled = { low: 1, medium: 2, high: 3 }[level];
     return (
-        <th
-            scope="col"
-            aria-sort={active ? (sort.dir === -1 ? 'descending' : 'ascending') : 'none'}
-            className={`px-2 py-0 ${left ? 'text-left' : 'text-right'}`}
-        >
-            <button
-                type="button"
-                title={title}
-                onClick={() => setSort({ key: k, dir: active ? (sort.dir === -1 ? 1 : -1) : -1 })}
-                className={`inline-flex min-h-10 items-center gap-0.5 text-xs font-bold tracking-wider uppercase ${left ? '' : 'flex-row-reverse'}`}
-                style={{ color: active ? C.hot : C.soft }}
-            >
-                {label}
-                {active ? sort.dir === -1 ? <ChevronDown className="size-3.5" /> : <ChevronUp className="size-3.5" /> : <span className="w-3.5" />}
-            </button>
-        </th>
+        <span className="inline-flex items-center gap-1.5">
+            <span aria-hidden className="inline-flex items-end gap-[2px]">
+                {[1, 2, 3].map((i) => (
+                    <span key={i} className="w-[4px] rounded-[1px]" style={{ height: 4 + i * 3, background: i <= filled ? C.teal : C.line }} />
+                ))}
+            </span>
+            <span className="capitalize">{level}</span>
+        </span>
     );
 }
 
-function SectionTitle({ id, kicker, title, children }: { id: string; kicker: string; title: string; children?: ReactNode }) {
+function Kicker({ children }: { children: ReactNode }) {
     return (
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-            <div>
-                <p className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: C.hot }}>
-                    {kicker}
-                </p>
-                <h2 id={id} className="mt-1 text-5xl sm:text-6xl" style={display}>
-                    {title}
-                </h2>
-            </div>
+        <p className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: C.hot }}>
+            {children}
+        </p>
+    );
+}
+
+function SectionHead({ id, kicker, title, children }: { id: string; kicker: string; title: string; children?: ReactNode }) {
+    return (
+        <div data-reveal="left" className="mb-6">
+            <Kicker>{kicker}</Kicker>
+            <h2 id={id} className="mt-2 text-4xl sm:text-5xl" style={display}>
+                {title}
+            </h2>
             {children}
         </div>
     );
 }
 
-/* ---------------------------------------------------------------- shot chart */
-
-type Shot = { x: number; y: number; made: boolean; zone: 'Rim' | 'Mid-range' | 'Three' };
-
-function shotsFor(a: Avg): Shot[] {
-    const r = rng(a.p.id.split('').reduce((s, ch) => s * 31 + ch.charCodeAt(0), 7));
-    const shots: Shot[] = [];
-    const place = (kind: 'three' | 'two', made: boolean) => {
-        if (kind === 'three') {
-            if (r() < 0.22) {
-                const left = r() < 0.5;
-                shots.push({ x: left ? 12 + r() * 14 : 474 + r() * 14, y: 20 + r() * 110, made, zone: 'Three' });
-                return;
-            }
-            const th = (r() * 2 - 1) * 1.15;
-            const d = 245 + r() * 40;
-            shots.push({ x: 250 + d * Math.sin(th), y: 52 + d * Math.cos(th), made, zone: 'Three' });
-            return;
-        }
-        const rim = r() < (a.p.pos === 'C' ? 0.75 : 0.5);
-        const th = (r() * 2 - 1) * 1.45;
-        const d = rim ? r() * 55 : 70 + r() * 150;
-        shots.push({ x: 250 + d * Math.sin(th), y: Math.max(14, 52 + d * Math.cos(th)), made, zone: rim ? 'Rim' : 'Mid-range' });
-    };
-    for (const { line } of a.log) {
-        for (let i = 0; i < line.tpa; i++) place('three', i < line.tpm);
-        for (let i = 0; i < line.fga - line.tpa; i++) place('two', i < line.fgm - line.tpm);
-    }
-    return shots;
-}
-
-function ShotChart({ a }: { a: Avg }) {
-    const shots = useMemo(() => shotsFor(a), [a]);
-    const zones = (['Rim', 'Mid-range', 'Three'] as const).map((z) => {
-        const s = shots.filter((x) => x.zone === z);
-        return { z, made: s.filter((x) => x.made).length, att: s.length };
-    });
+function TeamLine({ team, game, home }: { team: Team; game: Game; home: boolean }) {
+    const showScore = game.state !== 'pre' && team.score !== null;
+    const dim = game.final && !team.winner;
     return (
-        <figure>
-            <svg
-                viewBox="0 0 500 470"
-                className="w-full rounded-xl border"
-                style={{ background: C.court, borderColor: C.line }}
-                role="img"
-                aria-label={`Shot chart for ${a.p.name}: ${zones.map((z) => `${z.z} ${z.made} of ${z.att}`).join(', ')}`}
-            >
-                <g fill="none" stroke={'currentColor'} strokeWidth="2" style={{ color: C.soft }} opacity=".55">
-                    <rect x="2" y="2" width="496" height="466" />
-                    <rect x="170" y="2" width="160" height="190" />
-                    <circle cx="250" cy="192" r="60" />
-                    <path d="M210 52 a40 40 0 0 0 80 0" />
-                    <path d="M30 2 V140 A237.5 237.5 0 0 0 470 140 V2" />
-                    <path d="M220 42 h60" strokeWidth="3" />
-                    <path d="M190 468 a60 60 0 0 1 120 0" />
-                </g>
-                <circle cx="250" cy="52" r="8" fill="none" stroke={C.hot} strokeWidth="3" />
-                {shots.map((s, i) =>
-                    s.made ? (
-                        <circle key={i} cx={s.x} cy={s.y} r="6" style={{ fill: C.teal }} opacity=".85" />
-                    ) : (
-                        <path
-                            key={i}
-                            d={`M${s.x - 5} ${s.y - 5} l10 10 M${s.x + 5} ${s.y - 5} l-10 10`}
-                            style={{ stroke: C.hot }}
-                            strokeWidth="2.5"
-                            opacity=".7"
-                        />
-                    ),
-                )}
-            </svg>
-            <figcaption className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm" style={{ color: C.soft }}>
-                <span className="inline-flex items-center gap-1.5">
-                    <span className="size-2.5 rounded-full" style={{ background: C.teal }} /> Made
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                    <span style={{ color: C.hot }}>✕</span> Missed
-                </span>
-                {zones.map((z) => (
-                    <span key={z.z} className="tabular-nums">
-                        <b style={{ color: C.text }}>{z.z}</b> {z.made}/{z.att} {z.att ? `(${Math.round((z.made / z.att) * 100)}%)` : ''}
+        <span className="flex min-w-0 items-center gap-2">
+            <Swatch team={team} />
+            <span className="min-w-0 truncate font-semibold" style={{ color: dim ? C.soft : C.text }}>
+                {team.rank ? (
+                    <span className="mr-1 text-xs font-bold tabular-nums" style={{ color: C.soft }}>
+                        #{team.rank}
                     </span>
-                ))}
-            </figcaption>
-        </figure>
+                ) : null}
+                <span className="sm:hidden">{team.abbr}</span>
+                <span className="hidden sm:inline">{team.name}</span>
+            </span>
+            <span className="shrink-0 text-xs tabular-nums" style={{ color: C.soft }}>
+                {team.record ?? ''}
+                <span className="sr-only">{home ? ' (home)' : ' (away)'}</span>
+            </span>
+            {showScore && <span className="ml-auto pl-2 text-lg font-bold tabular-nums">{team.score}</span>}
+        </span>
     );
 }
 
-/* ---------------------------------------------------------------- playoffs */
-
-function headToHead(x: string, y: string) {
-    const g = GAMES.find((q) => (q.home === x && q.away === y) || (q.home === y && q.away === x));
-    if (!g) return null;
-    const xs = g.home === x ? g.hs : g.as;
-    const ys = g.home === x ? g.as : g.hs;
-    return { game: g, winner: xs > ys ? x : y, score: `${Math.max(xs, ys)}-${Math.min(xs, ys)}` };
-}
-
-function recordOf(id: string) {
-    const s = STANDINGS.find((x) => x.team.id === id)!;
-    return `${s.w}-${s.l}`;
-}
-
-function Slot({ id, seed, picked, onPick, label }: { id: string | null; seed?: number; picked: boolean; onPick?: () => void; label: string }) {
-    return (
-        <button
-            type="button"
-            disabled={!id || !onPick}
-            onClick={onPick}
-            aria-pressed={picked}
-            aria-label={id ? `${label}: pick ${teamById[id].name}` : `${label}: to be decided`}
-            className="flex min-h-12 w-full items-center gap-2.5 rounded-lg border px-3 text-left font-semibold transition-colors disabled:cursor-default"
-            style={{
-                borderColor: picked ? C.hot : C.line,
-                background: picked ? `color-mix(in srgb, ${C.hot} 14%, ${C.panel})` : C.panel,
-                opacity: id ? 1 : 0.55,
-            }}
-        >
-            {seed && (
-                <span className="w-4 text-xs" style={{ color: C.soft }}>
-                    {seed}
-                </span>
-            )}
-            {id ? <TeamDot id={id} /> : <span className="size-2.5 rounded-full border" style={{ borderColor: C.soft }} />}
-            <span className="min-w-0 flex-1 truncate">{id ? teamById[id].name : 'TBD'}</span>
-            {id && (
-                <span className="text-xs tabular-nums" style={{ color: C.soft }}>
-                    {recordOf(id)}
-                </span>
-            )}
-        </button>
-    );
-}
-
-function Bracket({ onBox }: { onBox: (id: string) => void }) {
-    const seeds = STANDINGS.slice(0, 4).map((s) => s.team.id);
-    const [semi1, setSemi1] = useState<string | null>(null);
-    const [semi2, setSemi2] = useState<string | null>(null);
-    const [champ, setChamp] = useState<string | null>(null);
-
-    const pick = (slot: 1 | 2, id: string) => {
-        (slot === 1 ? setSemi1 : setSemi2)(id);
-        setChamp(null);
-    };
-
-    const semi = (slot: 1 | 2, hi: number, lo: number, value: string | null) => {
-        const h2h = headToHead(seeds[hi - 1], seeds[lo - 1]);
+function LeanCell({ game }: { game: Game }) {
+    const p = game.prediction;
+    if (game.state === 'in')
         return (
-            <div className="min-w-0 space-y-1.5">
-                <p className="text-xs font-bold tracking-wider uppercase" style={{ color: C.soft }}>
-                    Semifinal {slot} · Sun, Nov 1
-                </p>
-                <Slot
-                    id={seeds[hi - 1]}
-                    seed={hi}
-                    picked={value === seeds[hi - 1]}
-                    onPick={() => pick(slot, seeds[hi - 1])}
-                    label={`Semifinal ${slot}`}
-                />
-                <Slot
-                    id={seeds[lo - 1]}
-                    seed={lo}
-                    picked={value === seeds[lo - 1]}
-                    onPick={() => pick(slot, seeds[lo - 1])}
-                    label={`Semifinal ${slot}`}
-                />
-                {h2h && (
-                    <button
-                        type="button"
-                        onClick={() => onBox(h2h.game.id)}
-                        className="min-h-8 text-left text-xs underline-offset-2 hover:underline"
-                        style={{ color: C.soft }}
-                    >
-                        Season meeting: {teamById[h2h.winner].short} won {h2h.score} (week {h2h.game.week}) →
-                    </button>
-                )}
-            </div>
+            <span className="font-bold" style={{ color: 'var(--rd-live)' }}>
+                Live · {game.statusText}
+            </span>
         );
-    };
+    if (game.state === 'post') return <span style={{ color: C.soft }}>{game.final ? 'Final' : game.statusText}</span>;
+    if (game.odds?.spreadHome == null) return <span style={{ color: C.soft }}>No line posted yet</span>;
+    if (!p.lean || !p.confidence) return <span style={{ color: C.soft }}>No lean</span>;
+    return (
+        <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-0.5">
+            <span className="font-bold" style={{ color: C.teal }}>
+                Lean {p.lean.team} {line(p.lean.line)}
+            </span>
+            <span className="text-xs" style={{ color: C.soft }}>
+                <ConfidenceMeter level={p.confidence} />
+            </span>
+        </span>
+    );
+}
 
+function InjuryList({ team, list }: { team: Team; list: Injury[] }) {
     return (
         <div>
-            <div className="flex flex-col gap-6 md:flex-row md:items-center">
-                <div className="min-w-0 flex-1 space-y-8">
-                    {semi(1, 1, 4, semi1)}
-                    {semi(2, 2, 3, semi2)}
-                </div>
-                <svg aria-hidden="true" viewBox="0 0 40 200" className="hidden h-56 w-10 shrink-0 md:block" preserveAspectRatio="none">
-                    <path
-                        d="M0 50 H20 V150 H0 M20 100 H40"
-                        fill="none"
-                        style={{ stroke: C.line }}
-                        strokeWidth="2"
-                        vectorEffect="non-scaling-stroke"
-                    />
-                </svg>
-                <div className="min-w-0 flex-1 space-y-1.5">
-                    <p className="text-xs font-bold tracking-wider uppercase" style={{ color: C.soft }}>
-                        Final · Sun, Nov 8
-                    </p>
-                    <Slot id={semi1} picked={!!semi1 && champ === semi1} onPick={semi1 && semi2 ? () => setChamp(semi1) : undefined} label="Final" />
-                    <Slot id={semi2} picked={!!semi2 && champ === semi2} onPick={semi1 && semi2 ? () => setChamp(semi2) : undefined} label="Final" />
-                </div>
-                <div className="min-w-0 flex-1 md:pl-4">
-                    <p className="text-xs font-bold tracking-wider uppercase" style={{ color: C.soft }}>
-                        Champion
-                    </p>
-                    <p className="mt-2 flex items-center gap-3 text-4xl" style={{ ...display, color: champ ? C.hot : C.soft }} aria-live="polite">
-                        <Trophy className="size-8 shrink-0" />
-                        {champ ? teamById[champ].short : 'Your pick'}
-                    </p>
-                </div>
-            </div>
-            <div className="mt-6 flex flex-wrap items-center gap-4 text-sm" style={{ color: C.soft }}>
-                <p>Tap a team to pick the winner of each game. Just for fun: picks are not saved.</p>
-                {(semi1 || semi2) && (
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setSemi1(null);
-                            setSemi2(null);
-                            setChamp(null);
-                        }}
-                        className="min-h-10 font-bold underline underline-offset-4"
-                        style={{ color: C.text }}
-                    >
-                        Reset bracket
-                    </button>
+            <h4 className="flex items-center gap-2 text-sm font-bold">
+                <Swatch team={team} /> {team.name}
+            </h4>
+            {list.length === 0 ? (
+                <p className="mt-2 text-sm" style={{ color: C.soft }}>
+                    No players listed by the feed.
+                </p>
+            ) : (
+                <ul className="mt-2 divide-y text-sm" style={{ borderColor: C.line }}>
+                    {list.map((p, i) => (
+                        <li key={i} className="py-2" style={{ borderColor: C.line }}>
+                            <p className="flex flex-wrap items-baseline gap-x-2">
+                                <span className="font-semibold">{p.name}</span>
+                                {p.pos && (
+                                    <span className="text-xs" style={{ color: C.soft }}>
+                                        {p.pos}
+                                    </span>
+                                )}
+                                <span
+                                    className="ml-auto text-xs font-bold tracking-wide uppercase"
+                                    style={{ color: p.status === 'Out' || p.status === 'Doubtful' ? C.hot : C.soft }}
+                                >
+                                    {p.status}
+                                </span>
+                            </p>
+                            {p.comment && (
+                                <p className="mt-0.5" style={{ color: C.soft }}>
+                                    {p.comment}
+                                </p>
+                            )}
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    );
+}
+
+function HeadlineRows({ items }: { items: Headline[] }) {
+    return (
+        <ul className="divide-y border-y" style={{ borderColor: C.line }}>
+            {items.map((h, i) => (
+                <li key={i} className="py-3" style={{ borderColor: C.line }}>
+                    {h.url ? (
+                        <a href={h.url} target="_blank" rel="noopener noreferrer" className="group inline-flex items-start gap-2 font-semibold">
+                            <span className="underline-offset-4 group-hover:underline">{h.headline}</span>
+                            <ExternalLink aria-hidden className="mt-1 size-3.5 shrink-0" style={{ color: C.soft }} />
+                            <span className="sr-only">(opens espn.com in a new tab)</span>
+                        </a>
+                    ) : (
+                        <p className="font-semibold">{h.headline}</p>
+                    )}
+                    {h.description && (
+                        <p className="mt-1 text-sm" style={{ color: C.soft }}>
+                            {h.description}
+                        </p>
+                    )}
+                    {h.published && (
+                        <p className="mt-1 text-xs" style={{ color: C.soft }}>
+                            {stamp(h.published)}
+                        </p>
+                    )}
+                </li>
+            ))}
+        </ul>
+    );
+}
+
+function Detail({ game, injuryStatus, threshold }: { game: Game; injuryStatus: Board['injuries']['status']; threshold: number }) {
+    const p = game.prediction;
+    const o = game.odds;
+    const label = 'text-xs font-bold tracking-wider uppercase';
+    return (
+        <div className="grid gap-8 px-3 pt-2 pb-8 sm:px-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+            <div>
+                {game.state === 'pre' ? (
+                    <>
+                        <h3 className={label} style={{ color: C.soft }}>
+                            The model's read
+                        </h3>
+                        <p className="mt-2 text-lg font-semibold">{p.summary}</p>
+
+                        {o && (
+                            <dl
+                                className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 border-y py-4 text-sm sm:grid-cols-4"
+                                style={{ borderColor: C.line }}
+                            >
+                                {[
+                                    ['Spread', o.spreadHome != null ? spreadLabel(game, o.spreadHome) : 'Not posted'],
+                                    ['Opened', o.openSpreadHome != null ? spreadLabel(game, o.openSpreadHome) : 'Not in feed'],
+                                    ['Total', o.total != null ? num(o.total) : 'Not posted'],
+                                    ['Model line', p.modelLine != null ? spreadLabel(game, p.modelLine) : 'None'],
+                                ].map(([k, v]) => (
+                                    <div key={k}>
+                                        <dt className={label} style={{ color: C.soft }}>
+                                            {k}
+                                        </dt>
+                                        <dd className="mt-1 font-bold tabular-nums">{v}</dd>
+                                    </div>
+                                ))}
+                            </dl>
+                        )}
+                        {o && (o.moneyHome || o.moneyAway) && (
+                            <p className="mt-3 text-sm tabular-nums" style={{ color: C.soft }}>
+                                Moneyline: {game.away.abbr} {o.moneyAway ?? 'off'} · {game.home.abbr} {o.moneyHome ?? 'off'}
+                                {o.provider ? ` · Lines: ${o.provider}, as listed by ESPN` : ''}
+                            </p>
+                        )}
+
+                        {p.factors.length > 0 && (
+                            <>
+                                <h3 className={`${label} mt-6`} style={{ color: C.soft }}>
+                                    Every factor, in points
+                                </h3>
+                                <ul className="mt-2 divide-y border-y" style={{ borderColor: C.line }}>
+                                    {p.factors.map((f) => (
+                                        <li key={f.key} className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 py-3" style={{ borderColor: C.line }}>
+                                            <span className="font-semibold">{f.label}</span>
+                                            <span
+                                                className="text-right font-bold tabular-nums"
+                                                style={{ color: f.status === 'used' ? C.text : C.soft }}
+                                            >
+                                                {f.status === 'no_data' ? 'Not counted' : f.favors ? `${f.favors} +${num(f.value)}` : 'Even'}
+                                            </span>
+                                            <span className="col-span-2 mt-0.5 text-sm" style={{ color: C.soft }}>
+                                                {f.note}
+                                            </span>
+                                        </li>
+                                    ))}
+                                    <li className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 py-3" style={{ borderColor: C.line }}>
+                                        <span className="font-bold">Net adjustment</span>
+                                        <span className="text-right font-bold tabular-nums" style={{ color: p.lean ? C.teal : C.text }}>
+                                            {p.adjustment ? `${p.adjustment > 0 ? game.home.abbr : game.away.abbr} +${num(p.adjustment)}` : 'Even'}
+                                        </span>
+                                        <span className="col-span-2 mt-0.5 text-sm" style={{ color: C.soft }}>
+                                            {p.lean
+                                                ? `At or over the ${num(threshold)}-point bar, so the model leans ${p.lean.team} ${line(p.lean.line)}.`
+                                                : `Under the ${num(threshold)}-point bar, so no lean.`}{' '}
+                                            Not betting advice.
+                                        </span>
+                                    </li>
+                                </ul>
+                            </>
+                        )}
+                    </>
+                ) : (
+                    <>
+                        <h3 className={label} style={{ color: C.soft }}>
+                            {game.state === 'in' ? 'In progress' : 'Final score'}
+                        </h3>
+                        <p className="mt-2 text-lg font-semibold tabular-nums">
+                            {game.away.name} {game.away.score ?? '–'}, {game.home.name} {game.home.score ?? '–'}
+                            <span style={{ color: C.soft }}> · {game.statusText}</span>
+                        </p>
+                        <p className="mt-2 text-sm" style={{ color: C.soft }}>
+                            The model only reads games that have not started. Once a game is live there is no lean, and the feed stops listing the
+                            pre-game line.
+                        </p>
+                    </>
                 )}
+                <p className="mt-4 text-sm" style={{ color: C.soft }}>
+                    {[game.venue && `${game.venue}${game.neutral ? ' (neutral site)' : ''}`, game.tv && `TV: ${game.tv}`, game.note]
+                        .filter(Boolean)
+                        .join(' · ')}
+                </p>
+            </div>
+
+            <div className="space-y-8">
+                <section>
+                    <h3 className={label} style={{ color: C.soft }}>
+                        Injury report
+                    </h3>
+                    {game.injuries.home && game.injuries.away ? (
+                        <div className="mt-3 grid gap-6 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                            <InjuryList team={game.away} list={game.injuries.away} />
+                            <InjuryList team={game.home} list={game.injuries.home} />
+                        </div>
+                    ) : (
+                        <p className="mt-2 text-sm" style={{ color: C.soft }}>
+                            {injuryStatus === 'unavailable'
+                                ? 'The injury feed could not be loaded right now, so no injuries are listed or counted.'
+                                : "ESPN's public injury feed has almost nothing for this league, so no injuries are listed or counted here. That does not mean everyone is healthy."}
+                        </p>
+                    )}
+                </section>
+                <section>
+                    <h3 className={label} style={{ color: C.soft }}>
+                        Headlines tagged to these teams
+                    </h3>
+                    {game.headlines.length ? (
+                        <div className="mt-3">
+                            <HeadlineRows items={game.headlines} />
+                        </div>
+                    ) : (
+                        <p className="mt-2 text-sm" style={{ color: C.soft }}>
+                            Nothing in the current feed is tagged to either team.
+                        </p>
+                    )}
+                    <p className="mt-2 text-xs" style={{ color: C.soft }}>
+                        Context only. The model does not read headlines or guess at their mood.
+                    </p>
+                </section>
             </div>
         </div>
     );
 }
 
+const FILTERS = [
+    ['all', 'All'],
+    ['upcoming', 'Upcoming'],
+    ['leans', 'Model leans'],
+    ['live', 'Live'],
+    ['final', 'Final'],
+] as const;
+type FilterKey = (typeof FILTERS)[number][0];
+const matches = (g: Game, f: FilterKey) =>
+    f === 'all' ||
+    (f === 'upcoming' && g.state === 'pre') ||
+    (f === 'leans' && g.state === 'pre' && !!g.prediction.lean) ||
+    (f === 'live' && g.state === 'in') ||
+    (f === 'final' && g.state === 'post');
+
 /* ---------------------------------------------------------------- page */
 
-type PKey = 'name' | 'team' | 'gp' | 'pts' | 'reb' | 'ast' | 'stl' | 'blk' | 'tpm' | 'fgp' | 'tpp' | 'ftp';
-type SKey = 'rank' | 'w' | 'pct' | 'pf' | 'pa' | 'diff';
+export default function Rundown({
+    leagues,
+    rules,
+    threshold,
+    record,
+}: {
+    leagues: League[];
+    rules: Rule[];
+    threshold: number;
+    record: RecordSummary;
+}) {
+    useReveal();
+    const [slots, setSlots] = useState<Record<string, Slot>>(() => Object.fromEntries(leagues.map((l) => [l.key, { status: 'loading' } as Slot])));
+    const [league, setLeague] = useState(leagues[0].key);
+    const [filter, setFilter] = useState<FilterKey>('all');
+    const [openId, setOpenId] = useState<string | null>(null);
 
-const LEADER_STATS = [
-    { key: 'pts', label: 'Points', fmt: f1 },
-    { key: 'reb', label: 'Rebounds', fmt: f1 },
-    { key: 'ast', label: 'Assists', fmt: f1 },
-    { key: 'tpm', label: '3-pointers', fmt: f1 },
-    { key: 'fgp', label: 'FG%', fmt: pctFmt },
-] as const;
+    const load = useCallback(async (key: string) => {
+        setSlots((s) => ({ ...s, [key]: { status: 'loading' } }));
+        try {
+            const res = await fetch(`/demos/rundown/board/${key}`, { headers: { Accept: 'application/json' } });
+            if (!res.ok)
+                throw new Error(res.status === 429 ? 'Too many refreshes in a row. Give it a minute.' : `The server answered ${res.status}.`);
+            const board = (await res.json()) as Board;
+            setSlots((s) => ({ ...s, [key]: { status: 'ready', board } }));
+        } catch (e) {
+            setSlots((s) => ({ ...s, [key]: { status: 'error', message: e instanceof Error ? e.message : 'Could not reach the server.' } }));
+        }
+    }, []);
 
-export default function Rundown() {
-    const [week, setWeek] = useState(WEEKS);
-    const [boxId, setBoxId] = useState<string | null>(null);
-    const [profileId, setProfileId] = useState<string | null>(null);
-    const [leaderKey, setLeaderKey] = useState<(typeof LEADER_STATS)[number]['key']>('pts');
-    const [teamFilter, setTeamFilter] = useState('all');
-    const [query, setQuery] = useState('');
-    const [psort, setPsort] = useState<{ key: PKey; dir: 1 | -1 }>({ key: 'pts', dir: -1 });
-    const [ssort, setSsort] = useState<{ key: SKey; dir: 1 | -1 }>({ key: 'rank', dir: 1 });
-    const byPts = useMemo(() => [...AVERAGES].sort((a, b) => b.pts - a.pts), []);
-    const [cmpA, setCmpA] = useState(byPts[0].p.id);
-    const [cmpB, setCmpB] = useState(byPts[1].p.id);
+    useEffect(() => {
+        // Open on the league in the address (?league=nba), then load all four so the tabs can show counts.
+        const wanted = new URLSearchParams(window.location.search).get('league');
+        if (wanted && leagues.some((l) => l.key === wanted)) setLeague(wanted);
+        leagues.forEach((l) => void load(l.key));
+    }, [leagues, load]);
 
-    const box = GAMES.find((g) => g.id === boxId) ?? null;
-    const profile = profileId ? avgById[profileId] : null;
-    const weekGames = GAMES.filter((g) => g.week === week);
-
-    const standings = useMemo(() => {
-        const val = (s: Standing, i: number) => ({ rank: i, w: s.w, pct: s.w / (s.w + s.l), pf: s.pf, pa: s.pa, diff: s.pf - s.pa })[ssort.key];
-        return STANDINGS.map((s, i) => ({ s, i })).sort((x, y) => (val(x.s, x.i) - val(y.s, y.i)) * ssort.dir);
-    }, [ssort]);
-
-    const leaderStat = LEADER_STATS.find((s) => s.key === leaderKey)!;
-    const leaders = useMemo(
-        () =>
-            [...AVERAGES]
-                .filter((a) => leaderKey !== 'fgp' || a.log.reduce((s, x) => s + x.line.fga, 0) >= 30)
-                .sort((a, b) => b[leaderKey] - a[leaderKey])
-                .slice(0, 5),
-        [leaderKey],
-    );
-
-    const rows = useMemo(() => {
-        const q = query.trim().toLowerCase();
-        return AVERAGES.filter((a) => (teamFilter === 'all' || a.p.team === teamFilter) && (!q || a.p.name.toLowerCase().includes(q))).sort(
-            (a, b) => {
-                if (psort.key === 'name') return a.p.name.localeCompare(b.p.name) * -psort.dir;
-                if (psort.key === 'team') return a.p.team.localeCompare(b.p.team) * -psort.dir;
-                return (a[psort.key] - b[psort.key]) * psort.dir;
-            },
-        );
-    }, [query, teamFilter, psort]);
-
-    const exportCsv = () => {
-        const head = ['Player', 'Team', 'Pos', 'GP', 'PTS', 'REB', 'AST', 'STL', 'BLK', '3PM', 'FG%', '3P%', 'FT%'];
-        const body = rows.map((a) =>
-            [
-                a.p.name,
-                teamById[a.p.team].name,
-                a.p.pos,
-                a.gp,
-                f1(a.pts),
-                f1(a.reb),
-                f1(a.ast),
-                f1(a.stl),
-                f1(a.blk),
-                f1(a.tpm),
-                pctFmt(a.fgp),
-                pctFmt(a.tpp),
-                pctFmt(a.ftp),
-            ]
-                .map((v) => `"${String(v).replace(/"/g, '""')}"`)
-                .join(','),
-        );
-        const url = URL.createObjectURL(new Blob([[head.join(','), ...body].join('\n')], { type: 'text/csv' }));
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'trinity-run-league-player-stats.csv';
-        a.click();
-        URL.revokeObjectURL(url);
+    const pick = (key: string) => {
+        setLeague(key);
+        setFilter('all');
+        setOpenId(null);
+        window.history.replaceState(window.history.state, '', `?league=${key}#board`);
     };
 
-    const pill = (on: boolean): CSSProperties =>
+    const current = leagues.find((l) => l.key === league)!;
+    const slot = slots[league];
+    const board = slot.status === 'ready' ? slot.board : null;
+    const games = useMemo(() => board?.games ?? [], [board]);
+    const shown = useMemo(() => games.filter((g) => matches(g, filter)), [games, filter]);
+    const days = useMemo(() => {
+        const groups: { key: string; label: string; games: Game[] }[] = [];
+        for (const g of shown) {
+            const d = new Date(g.start);
+            const key = dayKey(d);
+            const last = groups[groups.length - 1];
+            if (last?.key === key) last.games.push(g);
+            else groups.push({ key, label: dayLabel(d), games: [g] });
+        }
+        return groups;
+    }, [shown]);
+
+    const graded = record.wins + record.losses + record.pushes;
+    const chip = (on: boolean): CSSProperties =>
         on ? { background: C.hot, color: 'var(--rd-on-hot)', borderColor: 'transparent' } : { borderColor: C.line, color: C.soft };
-    const input = 'min-h-11 rounded-lg border px-3 text-base outline-none focus-visible:ring-2';
-    const a = avgById[cmpA];
-    const b = avgById[cmpB];
-    const compareRows = [
-        { label: 'Points', a: a.pts, b: b.pts, fmt: f1 },
-        { label: 'Rebounds', a: a.reb, b: b.reb, fmt: f1 },
-        { label: 'Assists', a: a.ast, b: b.ast, fmt: f1 },
-        { label: 'Steals', a: a.stl, b: b.stl, fmt: f1 },
-        { label: 'Blocks', a: a.blk, b: b.blk, fmt: f1 },
-        { label: 'FG%', a: a.fgp, b: b.fgp, fmt: pctFmt },
-        { label: '3P%', a: a.tpp, b: b.tpp, fmt: pctFmt },
-    ];
+    const cols = 'lg:grid-cols-[88px_minmax(0,1fr)_120px_70px_230px_24px]';
 
     return (
         <>
-            <Head title="Rundown (demo app)">
+            <Head title="Rundown: game analysis (demo)">
                 <meta name="robots" content="noindex, nofollow" />
             </Head>
             <style>{THEME}</style>
@@ -712,7 +548,7 @@ export default function Rundown() {
                 {/* Demo banner */}
                 <div style={{ background: C.panel2 }}>
                     <div className="mx-auto flex max-w-[1180px] flex-wrap items-center justify-between gap-x-6 gap-y-1 px-5 py-2.5 text-sm sm:px-8">
-                        <p>Demo app for a fictional league, designed &amp; built by Timasi Werema. Teams, players and stats are made up.</p>
+                        <p>Portfolio demo by Timasi Werema. Live data from ESPN's public feeds. Analysis only, not betting advice.</p>
                         <Link href="/#work" className="inline-flex min-h-8 items-center gap-1 underline underline-offset-4">
                             <ArrowLeft className="size-4" /> Back to portfolio
                         </Link>
@@ -723,24 +559,24 @@ export default function Rundown() {
                     className="sticky top-0 z-30 border-b backdrop-blur"
                     style={{ borderColor: C.line, background: `color-mix(in srgb, ${C.bg} 88%, transparent)` }}
                 >
-                    <nav className="mx-auto flex max-w-[1180px] flex-wrap items-center justify-between gap-x-6 gap-y-1 px-5 py-3 sm:px-8">
+                    <nav
+                        aria-label="Sections"
+                        className="mx-auto flex max-w-[1180px] flex-wrap items-center justify-between gap-x-6 gap-y-1 px-5 py-3 sm:px-8"
+                    >
                         <a href="#top" className="flex items-center gap-2 text-3xl" style={display}>
-                            <span
-                                className="flex size-9 items-center justify-center rounded-full"
-                                style={{ background: C.hot, color: 'var(--rd-on-hot)' }}
-                            >
-                                <Trophy className="size-5" />
+                            <span aria-hidden className="flex h-8 items-end gap-[3px] rounded px-1.5 pb-1.5" style={{ background: C.hot }}>
+                                {[8, 14, 20].map((h) => (
+                                    <span key={h} className="w-[4px]" style={{ height: h, background: 'var(--rd-on-hot)' }} />
+                                ))}
                             </span>
                             Rundown
                         </a>
                         <div className="-mx-2 flex gap-1 overflow-x-auto text-sm font-semibold" style={{ color: C.soft }}>
                             {[
-                                ['scores', 'Scores'],
-                                ['standings', 'Standings'],
-                                ['playoffs', 'Playoffs'],
-                                ['leaders', 'Leaders'],
-                                ['players', 'Players'],
-                                ['compare', 'Compare'],
+                                ['board', 'Board'],
+                                ['headlines', 'Headlines'],
+                                ['record', 'Track record'],
+                                ['how', 'How it works'],
                             ].map(([id, label]) => (
                                 <a key={id} href={`#${id}`} className="inline-flex min-h-11 shrink-0 items-center px-2 hover:underline">
                                     {label}
@@ -752,663 +588,413 @@ export default function Rundown() {
 
                 <main id="top" className="mx-auto max-w-[1180px] px-5 sm:px-8">
                     {/* Hero */}
-                    <section className="py-12 sm:py-16">
-                        <p className="text-sm font-bold tracking-[0.2em] uppercase" style={{ color: C.hot }}>
-                            Trinity Run League · Fall 2026 · Week {WEEKS} of {WEEKS}
-                        </p>
-                        <h1 className="mt-3 max-w-4xl text-6xl sm:text-8xl" style={display}>
-                            Every bucket, <span style={{ color: C.hot }}>on the record.</span>
-                        </h1>
-                        <p className="mt-5 max-w-2xl text-lg" style={{ color: C.soft }}>
-                            Live standings, box scores, league leaders and a page for every player, with shot charts. Scorekeepers enter a game once
-                            and the whole site updates.
-                        </p>
-                        <dl className="mt-8 flex flex-wrap gap-x-10 gap-y-4 border-t pt-6" style={{ borderColor: C.line }}>
-                            {[
-                                ['Teams', TEAMS.length],
-                                ['Players', PLAYERS.length],
-                                ['Games played', GAMES.length],
-                                ['Points scored', GAMES.reduce((s, g) => s + g.hs + g.as, 0).toLocaleString()],
-                            ].map(([k, v]) => (
-                                <div key={k}>
-                                    <dt className="text-xs font-bold tracking-wider uppercase" style={{ color: C.soft }}>
-                                        {k}
-                                    </dt>
-                                    <dd className="mt-1 text-4xl tabular-nums" style={display}>
-                                        {v}
-                                    </dd>
-                                </div>
-                            ))}
-                        </dl>
+                    <section className="py-10 sm:py-14">
+                        <div data-reveal="left">
+                            <Kicker>NFL · NBA · College football · Men's college basketball</Kicker>
+                            <h1 className="mt-3 max-w-4xl text-6xl sm:text-8xl" style={display}>
+                                The line, <span style={{ color: C.hot }}>then the reasons.</span>
+                            </h1>
+                            <p className="mt-5 max-w-2xl text-lg" style={{ color: C.soft }}>
+                                Rundown starts from the posted point spread, then shows every adjustment a small, fixed set of rules makes for
+                                injuries, rest, form and line movement. You see the lean and the working. Often the honest answer is "no lean".
+                            </p>
+                            <p className="mt-4 max-w-2xl text-sm" style={{ color: C.soft }}>
+                                For adults 21+. This is analysis, not betting advice, and nothing here is a promise about any result. If gambling is a
+                                problem for you or someone you know, call{' '}
+                                <a href="tel:18004262537" className="font-bold underline underline-offset-4" style={{ color: C.text }}>
+                                    1-800-GAMBLER
+                                </a>
+                                .
+                            </p>
+                        </div>
                     </section>
 
-                    {/* Scores */}
-                    <section aria-labelledby="scores" className="scroll-mt-20 py-10">
-                        <SectionTitle id="scores" kicker="Results" title="Scores">
-                            <div role="radiogroup" aria-label="Week" className="flex max-w-full gap-1 overflow-x-auto pb-1">
-                                {Array.from({ length: WEEKS }, (_, i) => i + 1).map((w) => (
-                                    <button
-                                        key={w}
-                                        type="button"
-                                        role="radio"
-                                        aria-checked={week === w}
-                                        onClick={() => setWeek(w)}
-                                        className="min-h-10 shrink-0 rounded-full border px-3.5 text-sm font-bold"
-                                        style={pill(week === w)}
-                                    >
-                                        Wk {w}
-                                    </button>
-                                ))}
-                            </div>
-                        </SectionTitle>
-                        <ul className="border-t" style={{ borderColor: C.line }}>
-                            {weekGames.map((g) => {
-                                const homeWon = g.hs > g.as;
+                    {/* Board */}
+                    <section aria-labelledby="board" className="scroll-mt-20 pb-12">
+                        <h2 id="board" className="sr-only">
+                            Game board
+                        </h2>
+                        <div role="tablist" aria-label="League" className="flex gap-1 overflow-x-auto border-b" style={{ borderColor: C.line }}>
+                            {leagues.map((l) => {
+                                const s = slots[l.key];
+                                const on = l.key === league;
                                 return (
-                                    <li key={g.id} className="border-b" style={{ borderColor: C.line }}>
-                                        <button
-                                            type="button"
-                                            onClick={() => setBoxId(g.id)}
-                                            className="flex w-full flex-wrap items-center gap-x-6 gap-y-2 px-1 py-4 text-left transition-colors hover:opacity-90"
+                                    <button
+                                        key={l.key}
+                                        role="tab"
+                                        id={`tab-${l.key}`}
+                                        aria-selected={on}
+                                        aria-controls="board-panel"
+                                        onClick={() => pick(l.key)}
+                                        className="-mb-px inline-flex min-h-12 shrink-0 items-baseline gap-2 border-b-[3px] px-3 text-2xl sm:px-5 sm:text-3xl"
+                                        style={{ ...display, borderColor: on ? C.hot : 'transparent', color: on ? C.text : C.soft }}
+                                    >
+                                        {l.label}
+                                        <span
+                                            className="text-xs font-bold tabular-nums"
+                                            style={{ fontFamily: "'Archivo Variable', system-ui, sans-serif", color: C.soft }}
                                         >
-                                            <span className="w-24 text-xs font-bold tracking-wider uppercase" style={{ color: C.soft }}>
-                                                {g.date} · Final
+                                            {s.status === 'ready' ? (s.board.ok ? s.board.games.length : '!') : s.status === 'error' ? '!' : '…'}
+                                            <span className="sr-only">
+                                                {s.status === 'ready' && s.board.ok
+                                                    ? ' games'
+                                                    : s.status === 'loading'
+                                                      ? ' loading'
+                                                      : ' data unavailable'}
                                             </span>
-                                            <span className="flex min-w-0 flex-[1_1_420px] flex-col gap-1 sm:flex-row sm:items-center sm:gap-6">
-                                                {[
-                                                    [g.away, g.as, !homeWon],
-                                                    [g.home, g.hs, homeWon],
-                                                ].map(([tid, pts, won], i) => (
-                                                    <span
-                                                        key={String(tid)}
-                                                        className="flex min-w-0 flex-1 items-center gap-2"
-                                                        style={{ opacity: won ? 1 : 0.6 }}
-                                                    >
-                                                        <TeamDot id={String(tid)} />
-                                                        <span className="truncate font-semibold">{teamById[String(tid)].name}</span>
-                                                        <span className="ml-auto text-3xl tabular-nums sm:ml-2" style={display}>
-                                                            {String(pts)}
-                                                        </span>
-                                                        {i === 0 && (
-                                                            <span className="hidden text-sm sm:inline" style={{ color: C.soft }}>
-                                                                @
-                                                            </span>
-                                                        )}
-                                                    </span>
-                                                ))}
-                                            </span>
-                                            <span className="inline-flex items-center gap-1 text-sm font-bold" style={{ color: C.hot }}>
-                                                Box score <ArrowRight className="size-4" />
-                                            </span>
-                                        </button>
-                                    </li>
+                                        </span>
+                                    </button>
                                 );
                             })}
-                        </ul>
-                    </section>
+                        </div>
 
-                    {/* Standings */}
-                    <section aria-labelledby="standings" className="scroll-mt-20 py-10">
-                        <SectionTitle id="standings" kicker="Top 4 make the playoffs" title="Standings" />
-                        <div className="relative overflow-x-auto rounded-xl border" style={{ borderColor: C.line, background: C.panel }}>
-                            <table className="w-full min-w-[640px] text-sm tabular-nums">
-                                <thead className="border-b" style={{ borderColor: C.line }}>
-                                    <tr>
-                                        <SortHead label="Team" k="rank" sort={ssort} setSort={setSsort} left title="League rank" />
-                                        <SortHead label="W-L" k="w" sort={ssort} setSort={setSsort} />
-                                        <SortHead label="Pct" k="pct" sort={ssort} setSort={setSsort} />
-                                        <SortHead label="PF" k="pf" sort={ssort} setSort={setSsort} title="Points for per game" />
-                                        <SortHead label="PA" k="pa" sort={ssort} setSort={setSsort} title="Points against per game" />
-                                        <SortHead label="Diff" k="diff" sort={ssort} setSort={setSsort} />
-                                        <th
-                                            scope="col"
-                                            className="px-2 text-right text-xs font-bold tracking-wider uppercase"
-                                            style={{ color: C.soft }}
-                                        >
-                                            Strk
-                                        </th>
-                                        <th
-                                            scope="col"
-                                            className="px-3 text-right text-xs font-bold tracking-wider uppercase"
-                                            style={{ color: C.soft }}
-                                        >
-                                            Last 5
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {standings.map(({ s, i }) => {
-                                        const diff = s.pf - s.pa;
+                        <div
+                            id="board-panel"
+                            role="tabpanel"
+                            aria-labelledby={`tab-${league}`}
+                            aria-busy={slot.status === 'loading'}
+                            className="pt-4"
+                        >
+                            <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+                                <div role="group" aria-label="Show" className="-mx-1 flex max-w-full gap-1.5 overflow-x-auto px-1 py-1">
+                                    {FILTERS.map(([key, label]) => {
+                                        const n = games.filter((g) => matches(g, key)).length;
                                         return (
-                                            <tr
-                                                key={s.team.id}
-                                                className="border-b last:border-b-0"
-                                                style={{
-                                                    borderColor: C.line,
-                                                    boxShadow:
-                                                        ssort.key === 'rank' && ssort.dir === 1 && i === 3 ? `inset 0 -2px 0 ${C.hot}` : undefined,
-                                                }}
+                                            <button
+                                                key={key}
+                                                aria-pressed={filter === key}
+                                                onClick={() => setFilter(key)}
+                                                className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border px-4 text-sm font-bold"
+                                                style={chip(filter === key)}
                                             >
-                                                <th scope="row" className="px-2 py-2 text-left font-semibold">
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                            setTeamFilter(s.team.id);
-                                                            document.getElementById('players')?.scrollIntoView({ behavior: 'smooth' });
-                                                        }}
-                                                        className="flex min-h-10 items-center gap-2.5 text-left hover:underline"
-                                                    >
-                                                        <span className="w-4 text-right text-xs" style={{ color: C.soft }}>
-                                                            {i + 1}
-                                                        </span>
-                                                        <TeamDot id={s.team.id} />
-                                                        {s.team.name}
-                                                    </button>
-                                                </th>
-                                                <td className="px-2 text-right font-bold">
-                                                    {s.w}-{s.l}
-                                                </td>
-                                                <td className="px-2 text-right">{(s.w / (s.w + s.l)).toFixed(3).replace(/^0/, '')}</td>
-                                                <td className="px-2 text-right">{f1(s.pf)}</td>
-                                                <td className="px-2 text-right">{f1(s.pa)}</td>
-                                                <td className="px-2 text-right font-semibold" style={{ color: diff >= 0 ? C.teal : C.hot }}>
-                                                    {diff >= 0 ? '+' : ''}
-                                                    {f1(diff)}
-                                                </td>
-                                                <td className="px-2 text-right">{s.streak}</td>
-                                                <td className="px-3">
-                                                    <span className="flex justify-end gap-1" aria-label={`Last five: ${s.last.join(' ')}`}>
-                                                        {s.last.map((r, j) => (
-                                                            <span
-                                                                key={j}
-                                                                className="size-2.5 rounded-full"
-                                                                style={{ background: r === 'W' ? C.teal : C.line }}
-                                                            />
-                                                        ))}
-                                                    </span>
-                                                </td>
-                                            </tr>
+                                                {label} <span className="tabular-nums opacity-80">{n}</span>
+                                            </button>
                                         );
                                     })}
-                                </tbody>
-                            </table>
-                        </div>
-                        <p className="mt-3 text-sm" style={{ color: C.soft }}>
-                            Tap a team to see its roster stats. The orange line marks the playoff cut; ties are broken by point differential.
-                        </p>
-                    </section>
-
-                    {/* Playoffs */}
-                    <section aria-labelledby="playoffs" className="scroll-mt-20 py-10">
-                        <SectionTitle id="playoffs" kicker="Make your picks" title="Playoffs" />
-                        <Bracket onBox={setBoxId} />
-                    </section>
-
-                    {/* Leaders */}
-                    <section aria-labelledby="leaders" className="scroll-mt-20 py-10">
-                        <SectionTitle id="leaders" kicker="Per game" title="League leaders">
-                            <div role="radiogroup" aria-label="Stat" className="flex max-w-full flex-wrap gap-1">
-                                {LEADER_STATS.map((s) => (
+                                </div>
+                                <div className="flex items-center gap-3 text-sm" style={{ color: C.soft }}>
+                                    <p aria-live="polite">
+                                        {slot.status === 'loading' ? 'Loading…' : board?.ok ? `Updated ${stamp(board.updatedAt)}` : 'No current data'}
+                                    </p>
                                     <button
-                                        key={s.key}
-                                        type="button"
-                                        role="radio"
-                                        aria-checked={leaderKey === s.key}
-                                        onClick={() => setLeaderKey(s.key)}
-                                        className="min-h-10 rounded-full border px-3.5 text-sm font-bold"
-                                        style={pill(leaderKey === s.key)}
+                                        onClick={() => void load(league)}
+                                        disabled={slot.status === 'loading'}
+                                        className="inline-flex min-h-11 items-center gap-2 rounded-full border px-4 font-bold disabled:opacity-50"
+                                        style={{ borderColor: C.line, color: C.text }}
                                     >
-                                        {s.label}
+                                        <RefreshCw aria-hidden className="size-4" /> Refresh
                                     </button>
-                                ))}
+                                </div>
                             </div>
-                        </SectionTitle>
-                        <ol className="border-t" style={{ borderColor: C.line }}>
-                            {leaders.map((l, i) => (
-                                <li key={l.p.id} className="border-b" style={{ borderColor: C.line }}>
+
+                            {board?.ok && (
+                                <p className="mt-2 text-sm" style={{ color: C.soft }}>
+                                    {board.slateNote} Times are in your time zone. {board.notes.join(' ')}
+                                </p>
+                            )}
+
+                            {slot.status === 'loading' && (
+                                <div className="mt-6 space-y-3" aria-hidden>
+                                    {[0, 1, 2, 3].map((i) => (
+                                        <div key={i} className="rd-skel h-16 rounded" style={{ background: C.panel }} />
+                                    ))}
+                                </div>
+                            )}
+
+                            {(slot.status === 'error' || (board && !board.ok)) && (
+                                <div className="mt-6 border-l-4 py-5 pr-4 pl-5" style={{ borderColor: C.hot, background: C.panel }} role="status">
+                                    <p className="text-2xl" style={display}>
+                                        {current.label} data unavailable
+                                    </p>
+                                    <p className="mt-2 max-w-2xl" style={{ color: C.soft }}>
+                                        {slot.status === 'error'
+                                            ? `This page could not load the board. ${slot.message}`
+                                            : `ESPN's public feed for ${current.name} did not answer, or sent something this page does not recognise. Nothing is shown rather than guessing.`}{' '}
+                                        {board?.lastGoodAt
+                                            ? `Last good update: ${stamp(board.lastGoodAt)}.`
+                                            : slot.status === 'ready'
+                                              ? 'No good update has been recorded yet.'
+                                              : ''}
+                                    </p>
                                     <button
-                                        type="button"
-                                        onClick={() => setProfileId(l.p.id)}
-                                        className="flex w-full items-center gap-4 py-3 text-left"
+                                        onClick={() => void load(league)}
+                                        className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full px-5 text-sm font-bold"
+                                        style={{ background: C.hot, color: 'var(--rd-on-hot)' }}
                                     >
-                                        <span className="w-8 text-4xl" style={{ ...display, color: i === 0 ? C.hot : C.soft }}>
-                                            {i + 1}
-                                        </span>
-                                        <span className="min-w-0 flex-1">
-                                            <span className="block truncate font-semibold">{l.p.name}</span>
-                                            <span className="flex items-center gap-1.5 text-sm" style={{ color: C.soft }}>
-                                                <TeamDot id={l.p.team} size={8} /> {teamById[l.p.team].short} · {l.p.pos}
-                                            </span>
-                                            <span className="mt-2 block h-1.5 rounded-full" style={{ background: C.line }} aria-hidden="true">
-                                                <span
-                                                    className="block h-full rounded-full"
-                                                    style={{
-                                                        width: `${(l[leaderKey] / leaders[0][leaderKey]) * 100}%`,
-                                                        background: i === 0 ? C.hot : C.soft,
-                                                    }}
-                                                />
-                                            </span>
-                                        </span>
-                                        <span className="w-20 text-right text-4xl tabular-nums" style={display}>
-                                            {leaderStat.fmt(l[leaderKey])}
-                                        </span>
+                                        <RefreshCw aria-hidden className="size-4" /> Try again
                                     </button>
-                                </li>
-                            ))}
-                        </ol>
-                        {leaderKey === 'fgp' && (
-                            <p className="mt-3 text-sm" style={{ color: C.soft }}>
-                                Minimum 30 shot attempts.
+                                </div>
+                            )}
+
+                            {board?.ok && games.length === 0 && (
+                                <p className="mt-6 border-y py-8 text-lg" style={{ borderColor: C.line, color: C.soft }}>
+                                    No {current.name} games on the feed right now. It may be an off day or the off-season.
+                                </p>
+                            )}
+                            {board?.ok && games.length > 0 && shown.length === 0 && (
+                                <div className="mt-6 border-y py-8" style={{ borderColor: C.line }}>
+                                    <p className="text-lg" style={{ color: C.soft }}>
+                                        No games match "{FILTERS.find(([k]) => k === filter)![1]}" right now.
+                                    </p>
+                                    <button onClick={() => setFilter('all')} className="mt-2 min-h-11 font-bold underline underline-offset-4">
+                                        Show all {games.length} games
+                                    </button>
+                                </div>
+                            )}
+
+                            {board?.ok &&
+                                days.map((day) => (
+                                    <div key={day.key} className="mt-8">
+                                        <h3 className="text-2xl" style={display}>
+                                            {day.label}
+                                        </h3>
+                                        <div
+                                            aria-hidden
+                                            className={`mt-2 hidden gap-x-4 border-b px-3 pb-2 text-xs font-bold tracking-wider uppercase lg:grid ${cols}`}
+                                            style={{ borderColor: C.line, color: C.soft }}
+                                        >
+                                            <span>Time</span>
+                                            <span>Away / home</span>
+                                            <span>Spread</span>
+                                            <span>Total</span>
+                                            <span>Model</span>
+                                            <span />
+                                        </div>
+                                        <ul className="border-t lg:border-t-0" style={{ borderColor: C.line }}>
+                                            {day.games.map((g) => {
+                                                const open = openId === g.id;
+                                                const o = g.odds;
+                                                return (
+                                                    <li
+                                                        key={g.id}
+                                                        className="border-b"
+                                                        style={{ borderColor: C.line, background: open ? C.panel : undefined }}
+                                                    >
+                                                        <button
+                                                            aria-expanded={open}
+                                                            aria-controls={`game-${g.id}`}
+                                                            onClick={() => setOpenId(open ? null : g.id)}
+                                                            className={`grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 px-3 py-3.5 text-left ${cols}`}
+                                                        >
+                                                            <span
+                                                                className="col-span-2 text-sm font-bold tabular-nums lg:col-span-1"
+                                                                style={{ color: C.soft }}
+                                                            >
+                                                                {g.state === 'pre'
+                                                                    ? timeFmt.format(new Date(g.start))
+                                                                    : g.state === 'in'
+                                                                      ? 'Live'
+                                                                      : 'Final'}
+                                                            </span>
+                                                            <span className="col-span-2 grid gap-1.5 lg:col-span-1">
+                                                                <TeamLine team={g.away} game={g} home={false} />
+                                                                <TeamLine team={g.home} game={g} home />
+                                                            </span>
+                                                            <span className="text-sm tabular-nums lg:text-base">
+                                                                <span className="lg:hidden" style={{ color: C.soft }}>
+                                                                    Spread{' '}
+                                                                </span>
+                                                                <span className="font-semibold">
+                                                                    {o?.spreadHome != null ? spreadLabel(g, o.spreadHome) : '–'}
+                                                                </span>
+                                                                <span className="lg:hidden">
+                                                                    <span style={{ color: C.soft }}> · Total </span>
+                                                                    <span className="font-semibold">{o?.total != null ? num(o.total) : '–'}</span>
+                                                                </span>
+                                                            </span>
+                                                            <span className="hidden font-semibold tabular-nums lg:block">
+                                                                {o?.total != null ? num(o.total) : '–'}
+                                                            </span>
+                                                            <span className="order-last col-span-1 text-sm lg:order-none lg:text-base">
+                                                                <LeanCell game={g} />
+                                                            </span>
+                                                            <ChevronDown
+                                                                aria-hidden
+                                                                className="size-5 justify-self-end transition-transform"
+                                                                style={{ color: C.soft, transform: open ? 'rotate(180deg)' : undefined }}
+                                                            />
+                                                            <span className="sr-only">{open ? 'Hide' : 'Show'} the breakdown</span>
+                                                        </button>
+                                                        {open && (
+                                                            <div id={`game-${g.id}`}>
+                                                                <Detail game={g} injuryStatus={board.injuries.status} threshold={threshold} />
+                                                            </div>
+                                                        )}
+                                                    </li>
+                                                );
+                                            })}
+                                        </ul>
+                                    </div>
+                                ))}
+                        </div>
+                    </section>
+
+                    {/* Headlines */}
+                    <section aria-labelledby="headlines" className="scroll-mt-20 border-t py-12" style={{ borderColor: C.line }}>
+                        <SectionHead id="headlines" kicker={`${current.name} · from the feed`} title="Headlines" />
+                        {board?.ok && board.headlines.length > 0 ? (
+                            <div className="max-w-3xl">
+                                <HeadlineRows items={board.headlines} />
+                                <p className="mt-3 text-sm" style={{ color: C.soft }}>
+                                    Headlines are ESPN's, shown as context. No rule in the model reads them. Injuries reach the model only through the
+                                    injury report.
+                                </p>
+                            </div>
+                        ) : (
+                            <p style={{ color: C.soft }}>
+                                {slot.status === 'loading' ? 'Loading…' : `No ${current.name} headlines could be loaded right now.`}
                             </p>
                         )}
                     </section>
 
-                    {/* Players */}
-                    <section aria-labelledby="players" className="scroll-mt-20 py-10">
-                        <SectionTitle id="players" kicker="Season averages" title="Player stats">
-                            <button
-                                type="button"
-                                onClick={exportCsv}
-                                className="inline-flex min-h-11 items-center gap-2 rounded-lg border px-4 text-sm font-bold"
-                                style={{ borderColor: C.line }}
-                            >
-                                <Download className="size-4" /> Export CSV
-                            </button>
-                        </SectionTitle>
-                        <div className="mb-4 flex flex-wrap gap-3">
-                            <label className="relative min-w-0 flex-[1_1_240px]">
-                                <span className="sr-only">Search players</span>
-                                <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" style={{ color: C.soft }} />
-                                <input
-                                    type="search"
-                                    value={query}
-                                    onChange={(e) => setQuery(e.target.value)}
-                                    placeholder="Search players"
-                                    className={`${input} w-full pl-9`}
-                                    style={{ background: C.panel, borderColor: C.line, color: C.text }}
-                                />
-                            </label>
-                            <label className="min-w-0 flex-[1_1_200px]">
-                                <span className="sr-only">Team</span>
-                                <select
-                                    value={teamFilter}
-                                    onChange={(e) => setTeamFilter(e.target.value)}
-                                    className={`${input} w-full`}
-                                    style={{ background: C.panel, borderColor: C.line, color: C.text }}
-                                >
-                                    <option value="all">All teams</option>
-                                    {TEAMS.map((t) => (
-                                        <option key={t.id} value={t.id}>
-                                            {t.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </label>
-                        </div>
-                        <div className="relative overflow-x-auto rounded-xl border" style={{ borderColor: C.line, background: C.panel }}>
-                            <table className="w-full min-w-[860px] text-sm tabular-nums">
-                                <thead className="border-b" style={{ borderColor: C.line }}>
-                                    <tr>
-                                        <SortHead label="Player" k="name" sort={psort} setSort={setPsort} left />
-                                        <SortHead label="Team" k="team" sort={psort} setSort={setPsort} left />
-                                        <SortHead label="GP" k="gp" sort={psort} setSort={setPsort} title="Games played" />
-                                        <SortHead label="PTS" k="pts" sort={psort} setSort={setPsort} />
-                                        <SortHead label="REB" k="reb" sort={psort} setSort={setPsort} />
-                                        <SortHead label="AST" k="ast" sort={psort} setSort={setPsort} />
-                                        <SortHead label="STL" k="stl" sort={psort} setSort={setPsort} />
-                                        <SortHead label="BLK" k="blk" sort={psort} setSort={setPsort} />
-                                        <SortHead label="3PM" k="tpm" sort={psort} setSort={setPsort} />
-                                        <SortHead label="FG%" k="fgp" sort={psort} setSort={setPsort} />
-                                        <SortHead label="3P%" k="tpp" sort={psort} setSort={setPsort} />
-                                        <SortHead label="FT%" k="ftp" sort={psort} setSort={setPsort} />
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {rows.map((r) => (
-                                        <tr key={r.p.id} className="border-b last:border-b-0" style={{ borderColor: C.line }}>
-                                            <th scope="row" className="sticky left-0 px-2 text-left font-semibold" style={{ background: C.panel }}>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setProfileId(r.p.id)}
-                                                    className="min-h-10 text-left hover:underline"
-                                                >
-                                                    {r.p.name}
-                                                </button>
-                                            </th>
-                                            <td className="px-2">
-                                                <span className="flex items-center gap-1.5" style={{ color: C.soft }}>
-                                                    <TeamDot id={r.p.team} size={8} /> {r.p.team}
-                                                </span>
-                                            </td>
-                                            <td className="px-2 text-right">{r.gp}</td>
-                                            {(['pts', 'reb', 'ast', 'stl', 'blk', 'tpm'] as const).map((k) => (
-                                                <td key={k} className={`px-2 text-right ${psort.key === k ? 'font-bold' : ''}`}>
-                                                    {f1(r[k])}
-                                                </td>
-                                            ))}
-                                            {(['fgp', 'tpp', 'ftp'] as const).map((k) => (
-                                                <td key={k} className={`px-2 text-right ${psort.key === k ? 'font-bold' : ''}`}>
-                                                    {pctFmt(r[k])}
-                                                </td>
-                                            ))}
-                                        </tr>
-                                    ))}
-                                    {rows.length === 0 && (
-                                        <tr>
-                                            <td colSpan={12} className="px-3 py-8 text-center" style={{ color: C.soft }}>
-                                                No players match that search.
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                        <p className="mt-3 text-sm" style={{ color: C.soft }}>
-                            {rows.length} players · tap a column to sort, tap a name for the player page and shot chart.
-                        </p>
-                    </section>
-
-                    {/* Compare */}
-                    <section aria-labelledby="compare" className="scroll-mt-20 py-10">
-                        <SectionTitle id="compare" kicker="Head to head" title="Compare players" />
-                        <div className="mb-6 flex flex-wrap items-center gap-3">
-                            {[
-                                [cmpA, setCmpA, C.hot],
-                                [cmpB, setCmpB, C.teal],
-                            ].map(([val, set, color], i) => (
-                                <label key={i} className="flex min-w-0 flex-[1_1_260px] items-center gap-2">
-                                    <span className="size-3 shrink-0 rounded-full" style={{ background: color as string }} />
-                                    <span className="sr-only">Player {i + 1}</span>
-                                    <select
-                                        value={val as string}
-                                        onChange={(e) => (set as (v: string) => void)(e.target.value)}
-                                        className={`${input} w-full`}
-                                        style={{ background: C.panel, borderColor: C.line, color: C.text }}
-                                    >
-                                        {TEAMS.map((t) => (
-                                            <optgroup key={t.id} label={t.name}>
-                                                {PLAYERS.filter((p) => p.team === t.id).map((p) => (
-                                                    <option key={p.id} value={p.id}>
-                                                        {p.name}
-                                                    </option>
+                    {/* Track record */}
+                    <section aria-labelledby="record" className="scroll-mt-20 border-t py-12" style={{ borderColor: C.line }}>
+                        <SectionHead id="record" kicker="Graded against the spread" title="Track record" />
+                        <div className="max-w-3xl">
+                            {graded === 0 ? (
+                                <p className="text-lg">
+                                    No graded leans yet, so there is no record to show.{' '}
+                                    <span style={{ color: C.soft }}>
+                                        {record.pending > 0
+                                            ? `${record.pending} lean${record.pending === 1 ? ' is' : 's are'} saved and waiting on a final score.`
+                                            : 'Nothing has been saved yet either.'}
+                                    </span>
+                                </p>
+                            ) : (
+                                <>
+                                    <p className="text-5xl tabular-nums sm:text-6xl" style={display}>
+                                        {record.wins}-{record.losses}-{record.pushes}
+                                    </p>
+                                    <p className="mt-2" style={{ color: C.soft }}>
+                                        Wins, losses and pushes against the spread across {graded} graded lean{graded === 1 ? '' : 's'}
+                                        {record.since ? ` since ${shortDate.format(new Date(record.since))}` : ''}. {record.pending} more waiting on a
+                                        final score. A sample this small proves nothing either way.
+                                    </p>
+                                </>
+                            )}
+                            <p className="mt-4 text-sm" style={{ color: C.soft }}>
+                                How it is kept: the first lean the model publishes for a game is saved with a timestamp before the game starts and
+                                never edited. It is graded only after the feed reports a final score. Games with no lean are not counted. Past results
+                                say nothing about future ones.
+                            </p>
+                            {record.recent.length > 0 && (
+                                <div className="mt-6 overflow-x-auto">
+                                    <table className="w-full min-w-[520px] text-sm tabular-nums">
+                                        <caption className="sr-only">Most recently graded leans</caption>
+                                        <thead style={{ color: C.soft }}>
+                                            <tr className="border-b text-left text-xs tracking-wider uppercase" style={{ borderColor: C.line }}>
+                                                {['League', 'Game', 'Lean', 'Confidence', 'Final', 'Result'].map((h) => (
+                                                    <th key={h} scope="col" className="px-2 py-2">
+                                                        {h}
+                                                    </th>
                                                 ))}
-                                            </optgroup>
-                                        ))}
-                                    </select>
-                                </label>
-                            ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {record.recent.map((r, i) => (
+                                                <tr key={i} className="border-b" style={{ borderColor: C.line }}>
+                                                    <td className="px-2 py-2 uppercase">{r.league}</td>
+                                                    <td className="px-2">{r.matchup}</td>
+                                                    <td className="px-2 font-semibold">{r.lean}</td>
+                                                    <td className="px-2 capitalize">{r.confidence}</td>
+                                                    <td className="px-2">{r.score}</td>
+                                                    <td className="px-2 font-bold capitalize" style={{ color: r.result === 'win' ? C.teal : C.text }}>
+                                                        {r.result}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
                         </div>
-                        <dl className="border-t" style={{ borderColor: C.line }}>
-                            {compareRows.map((row) => {
-                                const max = Math.max(row.a, row.b) || 1;
-                                return (
-                                    <div
-                                        key={row.label}
-                                        className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 border-b py-3"
-                                        style={{ borderColor: C.line }}
-                                    >
-                                        <dd className="flex items-center justify-end gap-2">
-                                            <span className={`tabular-nums ${row.a > row.b ? 'font-bold' : ''}`}>{row.fmt(row.a)}</span>
-                                            <span
-                                                className="h-2.5 rounded-l-full"
-                                                style={{ width: `${(row.a / max) * 70}%`, background: C.hot, opacity: row.a >= row.b ? 1 : 0.45 }}
-                                            />
-                                        </dd>
-                                        <dt className="w-20 text-center text-xs font-bold tracking-wider uppercase" style={{ color: C.soft }}>
-                                            {row.label}
-                                        </dt>
-                                        <dd className="flex items-center gap-2">
-                                            <span
-                                                className="h-2.5 rounded-r-full"
-                                                style={{ width: `${(row.b / max) * 70}%`, background: C.teal, opacity: row.b >= row.a ? 1 : 0.45 }}
-                                            />
-                                            <span className={`tabular-nums ${row.b > row.a ? 'font-bold' : ''}`}>{row.fmt(row.b)}</span>
-                                        </dd>
-                                    </div>
-                                );
-                            })}
-                        </dl>
                     </section>
 
-                    {/* What a real version adds */}
-                    <section className="my-10 rounded-2xl border p-6 sm:p-8" style={{ borderColor: C.line, background: C.panel }}>
-                        <h2 className="text-4xl" style={display}>
-                            What the full version adds
-                        </h2>
-                        <ul className="mt-4 grid gap-x-8 gap-y-2 sm:grid-cols-2" style={{ color: C.soft }}>
-                            {[
-                                'A phone-friendly scorekeeper screen for the table at each game',
-                                'Team and player logins, with photos and bios',
-                                'Playoff bracket that fills itself in from the standings',
-                                'Game recaps and highlight clips',
-                                'Registration and league fees through Square or Stripe',
-                                'Text or email alerts when a final score is posted',
-                            ].map((f) => (
-                                <li key={f} className="flex gap-2">
-                                    <span style={{ color: C.hot }}>●</span> {f}
-                                </li>
-                            ))}
-                        </ul>
+                    {/* How this works */}
+                    <section aria-labelledby="how" className="scroll-mt-20 border-t py-12" style={{ borderColor: C.line }}>
+                        <SectionHead id="how" kicker="No black box" title="How this works" />
+                        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+                            <div>
+                                <p className="max-w-2xl" style={{ color: C.soft }}>
+                                    The market's point spread is the starting point: it already reflects far more information than this page has. Each
+                                    rule below adds or removes a small number of points for one team. If the rules add up to {num(threshold)} point or
+                                    more, the model leans to that side of the spread. Otherwise: no lean.
+                                </p>
+                                <dl className="mt-6 border-t" style={{ borderColor: C.line }}>
+                                    {rules.map((r) => (
+                                        <div
+                                            key={r.name}
+                                            className="grid gap-x-6 gap-y-1 border-b py-4 sm:grid-cols-[180px_minmax(0,1fr)]"
+                                            style={{ borderColor: C.line }}
+                                        >
+                                            <dt className="font-bold">
+                                                {r.name}
+                                                <span className="block text-xs font-normal" style={{ color: C.soft }}>
+                                                    Up to {r.max}
+                                                </span>
+                                            </dt>
+                                            <dd className="text-sm" style={{ color: C.soft }}>
+                                                {r.rule}
+                                            </dd>
+                                        </div>
+                                    ))}
+                                </dl>
+                                <p className="mt-4 text-sm" style={{ color: C.soft }}>
+                                    Home and road form, season record and ranking all describe team quality, which the spread already reflects. Their
+                                    caps add up to less than the bar on purpose: form alone never produces a lean. Confidence is only a measure of
+                                    agreement between four groups (injuries, rest, form, line movement). High: 2.5+ points with three or more groups
+                                    on the same side and 80% of all movement pointing that way. Medium: 1.5+ points, two or more groups, 60%.
+                                    Everything else is low. It is not a probability of anything.
+                                </p>
+                            </div>
+                            <div>
+                                <h3 className="text-2xl" style={display}>
+                                    Limits, plainly
+                                </h3>
+                                <ul className="mt-3 space-y-3 text-sm" style={{ color: C.soft }}>
+                                    {[
+                                        'The weights are judgement calls written by hand. They were not fitted to past results.',
+                                        'One line from one book, as ESPN lists it. No line shopping, and lines move after this page reads them.',
+                                        'Sharp markets usually price in injuries and rest already. A lean means "public factors stack on this side", not "the line is wrong".',
+                                        'The feed does not say who starts. A "leader" is whoever ESPN lists as the team\'s leader in passing, rushing, receiving, points, rebounds or assists.',
+                                        "College injury reports are nearly empty in ESPN's public feed, so college leans use fewer factors.",
+                                        'Weather, travel, matchups, coaching and motivation are not modelled.',
+                                        "ESPN's public feeds are unofficial. They can change or stop, and this page will say so when they do.",
+                                    ].map((t) => (
+                                        <li key={t} className="border-l-2 pl-3" style={{ borderColor: C.line }}>
+                                            {t}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
                     </section>
                 </main>
 
                 <footer className="border-t" style={{ borderColor: C.line }}>
-                    <div
-                        className="mx-auto flex max-w-[1180px] flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm sm:px-8"
-                        style={{ color: C.soft }}
-                    >
-                        <p>Rundown and the Trinity Run League are fictional. This is a portfolio demo; all stats are generated.</p>
+                    <div className="mx-auto max-w-[1180px] space-y-4 px-5 py-8 text-sm sm:px-8" style={{ color: C.soft }}>
+                        <p className="max-w-3xl">
+                            Rundown is a portfolio demo designed and built by Timasi Werema. Scores, lines, injuries and headlines come live from
+                            ESPN's public feeds. Not affiliated with or endorsed by ESPN, any sportsbook, the NFL, the NBA, the NCAA or any team. Team
+                            names belong to their owners.
+                        </p>
+                        <p className="max-w-3xl">
+                            Analysis only, not betting advice. No outcome is promised. 21+. Gambling problem? Call{' '}
+                            <a href="tel:18004262537" className="font-bold underline underline-offset-4" style={{ color: C.text }}>
+                                1-800-GAMBLER
+                            </a>
+                            .
+                        </p>
                         <Link
                             href="/start"
                             className="inline-flex min-h-11 items-center font-bold underline underline-offset-4"
                             style={{ color: C.text }}
                         >
-                            Want a stats site for your league? Let's talk →
+                            Want a live-data site like this for your business? Let's talk →
                         </Link>
                     </div>
                 </footer>
             </div>
-
-            {/* Box score */}
-            <Dialog open={!!box} onOpenChange={(o) => !o && setBoxId(null)}>
-                <DialogContent
-                    className="max-h-[92dvh] max-w-3xl overflow-y-auto rounded-2xl border p-5 sm:p-7"
-                    style={{ background: C.panel, color: C.text, borderColor: C.line }}
-                >
-                    {box && (
-                        <>
-                            <div>
-                                <DialogDescription className="text-xs font-bold tracking-wider uppercase" style={{ color: C.soft }}>
-                                    Week {box.week} · {box.date} · Final
-                                </DialogDescription>
-                                <DialogTitle className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-3xl" style={display}>
-                                    <span>
-                                        {teamById[box.away].short} {box.as}
-                                    </span>
-                                    <span style={{ color: C.soft }}>@</span>
-                                    <span>
-                                        {teamById[box.home].short} {box.hs}
-                                    </span>
-                                </DialogTitle>
-                            </div>
-                            {[box.away, box.home].map((tid) => (
-                                <div key={tid} className="mt-5 min-w-0">
-                                    <h3 className="mb-2 flex items-center gap-2 font-bold">
-                                        <TeamDot id={tid} /> {teamById[tid].name}
-                                    </h3>
-                                    <div className="relative overflow-x-auto rounded-lg border" style={{ borderColor: C.line }}>
-                                        <table className="w-full min-w-[520px] text-sm tabular-nums">
-                                            <thead style={{ color: C.soft }}>
-                                                <tr className="border-b text-xs tracking-wider uppercase" style={{ borderColor: C.line }}>
-                                                    {['Player', 'PTS', 'REB', 'AST', 'FG', '3P', 'FT', 'STL', 'BLK'].map((h, i) => (
-                                                        <th key={h} scope="col" className={`px-2 py-2 ${i ? 'text-right' : 'text-left'}`}>
-                                                            {h}
-                                                        </th>
-                                                    ))}
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {[...box.lines[tid]]
-                                                    .sort((x, y) => y.pts - x.pts)
-                                                    .map((l) => (
-                                                        <tr key={l.pid} className="border-b last:border-b-0" style={{ borderColor: C.line }}>
-                                                            <th scope="row" className="px-2 py-1.5 text-left font-semibold">
-                                                                <button
-                                                                    type="button"
-                                                                    className="min-h-8 text-left hover:underline"
-                                                                    onClick={() => {
-                                                                        setBoxId(null);
-                                                                        setProfileId(l.pid);
-                                                                    }}
-                                                                >
-                                                                    {playerById[l.pid].name}
-                                                                </button>
-                                                            </th>
-                                                            <td className="px-2 text-right font-bold">{l.pts}</td>
-                                                            <td className="px-2 text-right">{l.reb}</td>
-                                                            <td className="px-2 text-right">{l.ast}</td>
-                                                            <td className="px-2 text-right">
-                                                                {l.fgm}-{l.fga}
-                                                            </td>
-                                                            <td className="px-2 text-right">
-                                                                {l.tpm}-{l.tpa}
-                                                            </td>
-                                                            <td className="px-2 text-right">
-                                                                {l.ftm}-{l.fta}
-                                                            </td>
-                                                            <td className="px-2 text-right">{l.stl}</td>
-                                                            <td className="px-2 text-right">{l.blk}</td>
-                                                        </tr>
-                                                    ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            ))}
-                        </>
-                    )}
-                </DialogContent>
-            </Dialog>
-
-            {/* Player page */}
-            <Sheet open={!!profile} onOpenChange={(o) => !o && setProfileId(null)}>
-                <SheetContent
-                    side="right"
-                    className="w-full overflow-y-auto border-l p-0 sm:max-w-xl"
-                    style={{ background: C.bg, color: C.text, borderColor: C.line }}
-                >
-                    {profile && (
-                        <div className="p-5 sm:p-7">
-                            <p className="flex items-center gap-2 text-sm font-semibold" style={{ color: C.soft }}>
-                                <TeamDot id={profile.p.team} /> {teamById[profile.p.team].name} · #{profile.p.num} · {profile.p.pos}
-                            </p>
-                            <SheetTitle className="mt-2 text-5xl" style={{ ...display, color: C.text }}>
-                                {profile.p.name}
-                            </SheetTitle>
-                            <SheetDescription className="sr-only">Season averages, shot chart and game log</SheetDescription>
-                            <dl className="mt-5 flex flex-wrap gap-x-6 gap-y-3 border-y py-4" style={{ borderColor: C.line }}>
-                                {[
-                                    ['PTS', f1(profile.pts)],
-                                    ['REB', f1(profile.reb)],
-                                    ['AST', f1(profile.ast)],
-                                    ['FG%', pctFmt(profile.fgp)],
-                                    ['3P%', pctFmt(profile.tpp)],
-                                ].map(([k, v]) => (
-                                    <div key={k}>
-                                        <dt className="text-xs font-bold tracking-wider" style={{ color: C.soft }}>
-                                            {k}
-                                        </dt>
-                                        <dd className="text-3xl tabular-nums" style={display}>
-                                            {v}
-                                        </dd>
-                                    </div>
-                                ))}
-                            </dl>
-
-                            <h3 className="mt-6 mb-3 text-2xl" style={display}>
-                                Shot chart
-                            </h3>
-                            <ShotChart a={profile} />
-
-                            <h3 className="mt-8 mb-3 text-2xl" style={display}>
-                                Points by game
-                            </h3>
-                            <svg
-                                viewBox="0 0 300 80"
-                                className="w-full"
-                                role="img"
-                                aria-label={`Points by game: ${profile.log.map((x) => x.line.pts).join(', ')}`}
-                            >
-                                {(() => {
-                                    const pts = profile.log.map((x) => x.line.pts);
-                                    const max = Math.max(...pts, 10);
-                                    const xy = pts.map((p, i) => [10 + (i * 280) / Math.max(1, pts.length - 1), 70 - (p / max) * 60]);
-                                    return (
-                                        <>
-                                            <path
-                                                d={`M${xy.map((q) => q.join(' ')).join(' L')}`}
-                                                fill="none"
-                                                style={{ stroke: C.hot }}
-                                                strokeWidth="2.5"
-                                            />
-                                            {xy.map(([x, y], i) => (
-                                                <g key={i}>
-                                                    <circle cx={x} cy={y} r="3.5" style={{ fill: C.hot }} />
-                                                    <text x={x} y={y - 8} textAnchor="middle" fontSize="10" style={{ fill: C.soft }}>
-                                                        {pts[i]}
-                                                    </text>
-                                                </g>
-                                            ))}
-                                        </>
-                                    );
-                                })()}
-                            </svg>
-
-                            <h3 className="mt-6 mb-3 text-2xl" style={display}>
-                                Game log
-                            </h3>
-                            <div className="relative overflow-x-auto rounded-lg border" style={{ borderColor: C.line }}>
-                                <table className="w-full min-w-[440px] text-sm tabular-nums">
-                                    <thead style={{ color: C.soft }}>
-                                        <tr className="border-b text-xs tracking-wider uppercase" style={{ borderColor: C.line }}>
-                                            {['Wk', 'Opp', 'Result', 'PTS', 'REB', 'AST', 'FG'].map((h, i) => (
-                                                <th key={h} scope="col" className={`px-2 py-2 ${i < 3 ? 'text-left' : 'text-right'}`}>
-                                                    {h}
-                                                </th>
-                                            ))}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {profile.log.map(({ game, line }) => {
-                                            const home = game.home === profile.p.team;
-                                            const opp = home ? game.away : game.home;
-                                            const mine = home ? game.hs : game.as;
-                                            const theirs = home ? game.as : game.hs;
-                                            return (
-                                                <tr key={game.id} className="border-b last:border-b-0" style={{ borderColor: C.line }}>
-                                                    <td className="px-2 py-2">{game.week}</td>
-                                                    <td className="px-2">
-                                                        {home ? 'vs' : '@'} {opp}
-                                                    </td>
-                                                    <td className="px-2" style={{ color: mine > theirs ? C.teal : C.hot }}>
-                                                        {mine > theirs ? 'W' : 'L'} {mine}-{theirs}
-                                                    </td>
-                                                    <td className="px-2 text-right font-bold">{line.pts}</td>
-                                                    <td className="px-2 text-right">{line.reb}</td>
-                                                    <td className="px-2 text-right">{line.ast}</td>
-                                                    <td className="px-2 text-right">
-                                                        {line.fgm}-{line.fga}
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    )}
-                </SheetContent>
-            </Sheet>
         </>
     );
 }
