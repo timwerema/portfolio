@@ -105,6 +105,29 @@ class BackupTest extends TestCase
         $this->assertCount(0, File::glob($this->dir.'/tmp-*'));
     }
 
+    public function test_an_empty_database_is_refused_instead_of_saved_as_a_backup(): void
+    {
+        // SQLite file with no tables at all.
+        $empty = sys_get_temp_dir().'/backup-empty-'.uniqid().'.sqlite';
+        touch($empty);
+        config(['database.connections.sqlite.database' => $empty]);
+        $this->app['db']->purge('sqlite');
+
+        $this->artisan('backup:run')->assertFailed();
+        $this->assertCount(0, File::glob($this->dir.'/backup-*.tar.gz'));
+        @unlink($empty);
+
+        // MySQL dump that "worked" but holds no tables.
+        config(['database.default' => 'mysql', 'database.connections.mysql' => [
+            'driver' => 'mysql', 'host' => '127.0.0.1', 'port' => '3306', 'database' => 'portfolio', 'username' => 'portfolio', 'password' => 'x',
+        ]]);
+        Process::fake(['*--single-transaction*' => Process::result("/*!40101 SET NAMES utf8mb4 */;\n")]);
+
+        $this->artisan('backup:run')->assertFailed();
+        $this->assertCount(0, File::glob($this->dir.'/backup-*.tar.gz'));
+        $this->assertCount(0, File::glob($this->dir.'/tmp-*'));
+    }
+
     public function test_old_backups_are_pruned(): void
     {
         $old = $this->dir.'/backup-2000-01-01-000000.tar.gz';

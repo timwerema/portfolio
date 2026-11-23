@@ -45,6 +45,13 @@ class BackupRun extends Command
 
         try {
             if ($driver === 'sqlite') {
+                // An empty database file backs up "successfully" and restores nothing. Refuse it:
+                // it means the site's data lives somewhere else (see DB_CONNECTION in .env).
+                if ((int) DB::scalar("select count(*) from sqlite_master where type = 'table'") === 0) {
+                    $this->error('The SQLite database has no tables, so there is nothing to back up. Is the site really using this database?');
+
+                    return self::FAILURE;
+                }
                 // VACUUM INTO writes a clean, consistent copy even while the site is in use.
                 DB::statement('VACUUM INTO ?', [$work.'/database.sqlite']);
             } elseif ($error = $this->dumpMysql($connection, $work.'/database.sql')) {
@@ -113,6 +120,10 @@ class BackupRun extends Command
 
         if (! $dump->successful() || trim($dump->output()) === '') {
             return 'Database dump failed: '.(trim($dump->errorOutput()) ?: 'no output. Is mariadb-dump / mysqldump installed?');
+        }
+
+        if (! str_contains($dump->output(), 'CREATE TABLE')) {
+            return 'The database dump contains no tables, so it was not saved as a backup.';
         }
 
         File::put($target, $dump->output());
