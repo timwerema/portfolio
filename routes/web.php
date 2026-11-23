@@ -12,6 +12,7 @@ use App\Http\Controllers\LiveShowsController;
 use App\Http\Controllers\PreviewReviewController;
 use App\Http\Controllers\ProjectRequestController;
 use App\Http\Controllers\PublicInvoiceController;
+use App\Http\Controllers\RundownController;
 use App\Http\Middleware\RequireTwoFactor;
 use App\Models\ContactMessage;
 use App\Support\HealthChecks;
@@ -93,7 +94,8 @@ Route::get('/demos/studyloop', fn () => Inertia::render('demos/studyloop'))->nam
 // Encore Live: real R&B shows near you from your Spotify listening (Ticketmaster search runs server-side).
 Route::get('/live', [LiveShowsController::class, 'page'])->name('live');
 Route::get('/live/shows', [LiveShowsController::class, 'shows'])->middleware('throttle:20,1')->name('live.shows');
-Route::get('/demos/rundown', fn () => Inertia::render('demos/rundown'))->name('demos.rundown');
+Route::get('/demos/rundown', [RundownController::class, 'page'])->name('demos.rundown');
+Route::get('/demos/rundown/board/{league}', [RundownController::class, 'board'])->middleware('throttle:40,1')->name('demos.rundown.board');
 Route::get('/demos/deskbot', fn () => Inertia::render('demos/deskbot'))->name('demos.deskbot');
 Route::get('/demos/hardwood', fn () => Inertia::render('demos/hardwood'))->name('demos.hardwood');
 

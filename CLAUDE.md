@@ -81,6 +81,7 @@ SQLite locally and in tests, **MariaDB on the live box** (since 22 Nov 2026; `ba
 | **Package shortcuts** `/starter`, `/business`, `/custom` (type one + the client to run that package's playbook) | Skills in `.claude/skills/*/SKILL.md`; baselines in `client-sites/PACKAGES.md` |
 | **Master prompt** (Timasi's standard brief for custom sites; demos are held to the same design and "no dead buttons" standard) | `client-sites/MASTER-PROMPT.md` |
 | Conversion tracking hooks (`cta_click`, `inquiry_sent`). **Nothing is sent until an analytics script is added to the site**; mark buttons with `cta="name"` on `PillLink` or `data-cta` | `resources/js/lib/track.ts` |
+| Rundown demo (live ESPN data + prediction model) | `app/Support/Rundown/*`, `RundownController`, `resources/js/pages/demos/rundown.tsx`, `tests/Feature/RundownTest.php`, `tests/Unit/RundownPredictionModelTest.php` |
 | Tests | `tests/Feature/*` (PHPUnit) |
 
 ## Commands
@@ -107,6 +108,7 @@ npm run brand:assets                  # regenerate og-image.png and favicons fro
 | `health:check` (heartbeat + alert on change) | every 5 min |
 | `invoices:remind` (3 days after due, then weekly, max 3) | daily 09:20 |
 | `business:weekly-summary` | Mondays 07:40 |
+| `rundown:refresh` (Rundown demo: save leans, grade finished games) | hourly at :07 |
 
 ## Deploying an update
 
@@ -130,8 +132,17 @@ It pulls `main`, installs, builds, migrates and rebuilds caches. Then check
 - Own domain not bought yet (GitHub Student Developer Pack may include one).
 - Demos built: Clearcoat (detailing, PPF & wraps), 4th Quarter (gym), Orbit City FC
   (fictional youth soccer club; was the "Galacticals v3 concept"), LATESHIFT (streetwear store), StudyLoop (slides-to-learning),
-  Encore Live (`/live`, Spotify + Ticketmaster), Rundown (league stats), Deskbot (AI agent: pixel robot office
+  Encore Live (`/live`, Spotify + Ticketmaster), Rundown (live sports analysis, **not fictional**; see below), Deskbot (AI agent: pixel robot office
   helper, scripted), Hardwood Performance Lab (the original basketball portfolio look). No ideas queued.
+- **Rundown (`/demos/rundown`) is a real, live-data demo**, not a fictional business: game analysis for NFL, NBA,
+  college football and men's college basketball from ESPN's public (unofficial, key-less) feeds, fetched on the
+  server only (`app/Support/Rundown/EspnFeed.php`, cached; JSON at `/demos/rundown/board/{league}`). Leans come from
+  the fixed rules in `app/Support/Rundown/PredictionModel.php` (the page's "How this works" text is built from the
+  same constants). Leans are saved before kickoff in `rundown_predictions` and graded after a final score
+  (`rundown:refresh`, hourly); the track record shows only those rows. Rules: never invent games, odds or injuries
+  (feed down = "data unavailable"), no sportsbook links, no "best bets"/affiliate language, no team or league logos,
+  keep the 21+ / 1-800-GAMBLER / "not betting advice" notices, keep it `noindex`. The box must be able to reach
+  `site.api.espn.com` outbound (Collin's network; do not change it).
 - "Look official" pages live in code: `/start` project questionnaire
   (`ProjectRequestController`, saved as a message with `source = start`), `/privacy`,
   `/terms` (`resources/js/pages/legal.tsx`). Needs a deploy to reach the box.
