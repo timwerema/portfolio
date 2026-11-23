@@ -60,6 +60,50 @@ class ClientSiteHealthTest extends TestCase
         $this->assertStringContainsString('Database', $site['detail']);
     }
 
+    public function test_a_site_in_maintenance_is_shown_as_such_not_as_broken(): void
+    {
+        $this->connect();
+        Http::fake(['*' => Http::response([
+            'status' => 'fail', 'healthy' => false,
+            'maintenance' => ['mode' => 'auto', 'reason' => 'Database check failed', 'since' => now()->subMinutes(10)->toIso8601String()],
+            'checks' => [['name' => 'Database', 'status' => 'fail', 'detail' => 'Down']],
+        ], 503)]);
+
+        $site = ClientSiteHealth::all()[0];
+
+        $this->assertSame('maintenance', $site['status']);
+        $this->assertStringContainsString('Database check failed', $site['detail']);
+        $this->assertStringContainsString('10 minutes ago', $site['detail']);
+        $this->assertStringContainsString('comes back by itself', $site['detail']);
+    }
+
+    public function test_hand_switched_maintenance_and_no_maintenance_are_told_apart(): void
+    {
+        $this->connect();
+        Http::fake(['*' => Http::sequence()
+            ->push(['status' => 'ok', 'healthy' => false, 'maintenance' => ['mode' => 'manual', 'reason' => 'Updating room photos', 'since' => 'not a date'], 'checks' => []], 503)
+            ->push(['status' => 'ok', 'healthy' => true, 'maintenance' => null, 'checks' => []])]);
+
+        $site = ClientSiteHealth::all()[0];
+        $this->assertSame('maintenance', $site['status']);
+        $this->assertStringContainsString('by hand', $site['detail']);
+        $this->assertStringContainsString('Updating room photos', $site['detail']);
+
+        Cache::flush();
+        $this->assertSame('ok', ClientSiteHealth::all()[0]['status']);
+    }
+
+    public function test_a_stopped_health_bot_is_not_reported_as_the_site_being_down(): void
+    {
+        $this->connect();
+        Http::fake(['*' => Http::response(['status' => 'stale', 'healthy' => false, 'stale' => true, 'maintenance' => null, 'checks' => []], 503)]);
+
+        $site = ClientSiteHealth::all()[0];
+
+        $this->assertSame('stale', $site['status']);
+        $this->assertStringContainsString('health bot has stopped', $site['detail']);
+    }
+
     public function test_a_wrong_token_shows_as_unknown(): void
     {
         $this->connect();

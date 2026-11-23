@@ -27,7 +27,7 @@ type ClientSite = {
     name: string;
     kind: string;
     url: string | null;
-    status: 'ok' | 'warn' | 'fail' | 'stale' | 'unknown' | 'unreachable' | 'not_connected';
+    status: 'maintenance' | 'ok' | 'warn' | 'fail' | 'stale' | 'unknown' | 'unreachable' | 'not_connected';
     detail: string;
     checked_at: string | null;
     reservations: { pending: number; last_7_days: number } | null;
@@ -37,6 +37,7 @@ const SITE_STATUS: Record<ClientSite['status'], { label: string; className: stri
     ok: { label: 'Healthy', className: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-500/15 dark:text-emerald-200' },
     warn: { label: 'Warning', className: 'bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-200' },
     fail: { label: 'Broken', className: 'bg-red-100 text-red-900 dark:bg-red-500/15 dark:text-red-200' },
+    maintenance: { label: 'In maintenance', className: 'bg-sky-100 text-sky-900 dark:bg-sky-500/15 dark:text-sky-200' },
     stale: { label: 'Not reporting', className: 'bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-200' },
     unreachable: { label: 'No answer', className: 'bg-red-100 text-red-900 dark:bg-red-500/15 dark:text-red-200' },
     unknown: { label: 'Unknown', className: 'bg-muted text-muted-foreground' },

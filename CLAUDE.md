@@ -43,7 +43,14 @@ Context for Claude sessions working on this repository. Read this first.
 - Demo sites are for **fictional** businesses: label them as demos, keep them `noindex`,
   never use fake reviews, and simulate (never collect) passwords or card details.
   Don't copy real clients' code, photos or branding.
-- Commit as `Timasi Werema`. Push to `main` only when Timasi asks or has already
+- **Maanet Gardens is the one exception to "demos are fictional":** it is real client work (a hotel
+  in Kutus, Kenya; code in the private `client-sites` repo). Timasi chose to show it as real client
+  work. Keep it apart from the fictional demos, do not rename it, never copy its photos or contact
+  details into this public repo, and confirm the hotel has agreed before it appears publicly.
+- Commit and push as `Timasi Werema <timasiwerema@gmail.com>`. No "Co-Authored-By: Claude",
+  "Claude-Session" or "Generated with Claude Code" lines in commits or pull requests, even if a
+  hook suggests them. "Unverified" badges on GitHub are expected.
+- Push to `main` only when Timasi asks or has already
   asked for that kind of change.
 
 ## Stack
@@ -61,7 +68,7 @@ SQLite locally and in tests, **MariaDB on the live box** (since 22 Nov 2026; `ba
 | Demo sites | `resources/js/pages/demos/*.tsx`, routes in `routes/web.php`, listed in `config/portfolio.php` → `demos` |
 | Admin dashboard (`/dashboard`, login required). Look: "workspace" (Notion-style neutrals, compact sidebar, big page titles, frosted-glass sidebar, top bar, panels and menus over a soft colour glow; light and dark) | `resources/js/pages/admin/**`, controllers in `app/Http/Controllers/Admin/`. Theme: the `body.workspace` block at the end of `resources/css/app.css` (set by `components/app-shell.tsx`); colours are variables on `html:has(body.workspace)` |
 | Lead tracker (`/dashboard/leads`): who was contacted, through which channel, status, last contact, follow-up date; due follow-ups sort first | `app/Models/Lead.php`, `Admin/LeadController.php`, `resources/js/pages/admin/leads/index.tsx`, `tests/Feature/LeadTrackerTest.php` |
-| Client-site status on the dashboard overview (Maanet Gardens demo: server-side call to its `/api/health`; tokens live in `config/services.php` → `client_sites`, **never** in `config/portfolio.php`, which is sent to public pages) | `app/Support/ClientSiteHealth.php`, env `MAANET_DEMO_URL` + `MAANET_HEALTH_TOKEN` |
+| Client-site status on the dashboard overview (Maanet Gardens demo: server-side call to its `/api/health`; shows "In maintenance" apart from "Broken", and "Not reporting" when its health bot stops; tokens live in `config/services.php` → `client_sites`, **never** in `config/portfolio.php`, which is sent to public pages) | `app/Support/ClientSiteHealth.php`, env `MAANET_DEMO_URL` + `MAANET_HEALTH_TOKEN` |
 | Security: two-step login for the dashboard (authenticator app + recovery codes; `REQUIRE_TWO_FACTOR`, lost phone: `php artisan user:reset-2fa <email>`), security headers and Content-Security-Policy (new outside hosts must be added there), package audits and secret scan in CI | `app/Support/TwoFactor.php`, `Settings/TwoFactorController.php`, `Auth/TwoFactorChallengeController.php`, `Middleware/RequireTwoFactor.php`, `Middleware/SecurityHeaders.php`, `.github/workflows/tests.yml` |
 | Client demo approvals (`/p/{token}`) | `PreviewReviewController`, `resources/js/pages/previews/*`. Uploaded HTML is served sandboxed. |
 | Client invoice page (`/i/{token}`) | `PublicInvoiceController`, `resources/js/pages/invoices/public.tsx` |

@@ -2,8 +2,10 @@
 
 namespace App\Support;
 
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use Throwable;
 
 /**
@@ -76,9 +78,17 @@ class ClientSiteHealth
         ])->values()->all();
         $problems = collect($checks)->where('status', '!=', 'ok')->pluck('name')->implode(', ');
 
+        // The site has put up its "back shortly" page: by hand, or by itself after a failed check.
+        // That is a different thing from "broken", so it gets its own status.
+        $maintenance = is_array($data['maintenance'] ?? null) ? $data['maintenance'] : null;
+        if ($maintenance) {
+            $status = 'maintenance';
+        }
+
         return array_merge($base, [
             'status' => $status,
             'detail' => match ($status) {
+                'maintenance' => self::maintenanceDetail($maintenance, $problems),
                 'ok' => 'All checks passing.',
                 'stale' => 'Its health bot has stopped reporting. Check the cron entry on that host.',
                 default => $problems !== '' ? "Needs attention: {$problems}." : 'Needs attention.',
@@ -90,5 +100,31 @@ class ClientSiteHealth
                 'last_7_days' => (int) ($data['reservations']['last_7_days'] ?? 0),
             ] : null,
         ]);
+    }
+
+    private static function maintenanceDetail(array $maintenance, string $problems): string
+    {
+        $auto = ($maintenance['mode'] ?? '') === 'auto';
+        $detail = $auto
+            ? 'The site switched itself to its maintenance page after a failed check. It comes back by itself when the checks pass.'
+            : 'Maintenance page switched on by hand. It stays on until someone switches it off.';
+
+        $reason = trim((string) ($maintenance['reason'] ?? ''));
+        if ($reason !== '') {
+            $detail .= ' Reason: '.Str::limit($reason, 160).'.';
+        }
+        if ($auto && $problems !== '') {
+            $detail .= " Failing: {$problems}.";
+        }
+
+        try {
+            if (! empty($maintenance['since'])) {
+                $detail .= ' Since '.Carbon::parse((string) $maintenance['since'])->diffForHumans().'.';
+            }
+        } catch (Throwable) {
+            // An unreadable date is simply left out.
+        }
+
+        return $detail;
     }
 }
