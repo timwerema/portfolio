@@ -58,24 +58,30 @@ class BackupTest extends TestCase
         File::deleteDirectory($out);
     }
 
-    public function test_backup_dumps_a_mysql_database_without_the_password_on_the_command_line(): void
+    public function test_backup_dumps_a_mysql_database_using_only_its_own_private_options_file(): void
     {
         config(['database.default' => 'mysql', 'database.connections.mysql' => [
-            'driver' => 'mysql', 'host' => '127.0.0.1', 'port' => '3306', 'database' => 'portfolio', 'username' => 'portfolio', 'password' => 'not-a-real-secret',
+            'driver' => 'mysql', 'host' => '127.0.0.1', 'port' => '3306', 'database' => 'portfolio', 'username' => 'portfolio', 'password' => 'p#a ss"w\\o$rd',
         ]]);
-        Process::fake(['*--single-transaction*' => Process::result('CREATE TABLE users (id int);')]);
+        $seen = [];
+        Process::fake(['*--single-transaction*' => function ($process) use (&$seen) {
+            $command = (array) $process->command;
+            $file = substr($command[1], strlen('--defaults-file='));
+            $seen = ['command' => implode(' ', $command), 'first' => $command[1], 'options' => file_get_contents($file), 'mode' => substr(sprintf('%o', fileperms($file)), -3), 'file' => $file];
+
+            return Process::result('CREATE TABLE users (id int);');
+        }]);
 
         $this->artisan('backup:run')->assertSuccessful();
 
-        Process::assertRan(function ($process) {
-            $command = implode(' ', (array) $process->command);
-            if (! str_contains($command, '--single-transaction')) {
-                return false;
-            }
-
-            return str_contains($command, '--user=portfolio') && ! str_contains($command, 'not-a-real-secret')
-                && ($process->environment['MYSQL_PWD'] ?? null) === 'not-a-real-secret';
-        });
+        // --defaults-file must come first: it makes the tool ignore ~/.my.cnf and server-wide client files.
+        $this->assertStringStartsWith('--defaults-file=', $seen['first']);
+        $this->assertStringNotContainsString('w\\o$rd', $seen['command'], 'the password is never on the command line');
+        $this->assertStringContainsString('user="portfolio"', $seen['options']);
+        $this->assertStringContainsString('password="p#a ss\\"w\\\\o$rd"', $seen['options']);
+        $this->assertStringContainsString('host="127.0.0.1"', $seen['options']);
+        $this->assertSame('600', $seen['mode']);
+        $this->assertFileDoesNotExist($seen['file'], 'the options file is deleted afterwards');
 
         $files = File::glob($this->dir.'/backup-*.tar.gz');
         $this->assertCount(1, $files);
@@ -83,6 +89,7 @@ class BackupTest extends TestCase
         mkdir($out);
         exec('tar -xzf '.escapeshellarg($files[0]).' -C '.escapeshellarg($out));
         $this->assertStringContainsString('CREATE TABLE users', file_get_contents($out.'/database.sql'));
+        $this->assertFileDoesNotExist($out.'/.dump.cnf', 'the password file never ends up in the backup');
         File::deleteDirectory($out);
     }
 

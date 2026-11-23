@@ -81,7 +81,6 @@ class BackupRun extends Command
 
     /**
      * Dump a MySQL/MariaDB database to a .sql file. Returns an error message, or null when it worked.
-     * The password goes through the environment, never the command line, so it cannot show up in `ps`.
      */
     private function dumpMysql(string $connection, string $target): ?string
     {
@@ -89,16 +88,28 @@ class BackupRun extends Command
         $finder = new ExecutableFinder;
         $binary = $finder->find('mariadb-dump') ?? $finder->find('mysqldump') ?? 'mysqldump';
 
-        $command = [$binary, '--single-transaction', '--no-tablespaces', '--skip-comments', '--user='.$c['username']];
+        // Connection settings go in a private options file that is the ONLY one the tool reads
+        // (--defaults-file). Without that, a ~/.my.cnf or server-wide client file with a different
+        // user or password silently wins and the dump is refused. It also keeps the password off
+        // the command line. The file lives in the temporary work folder and is deleted with it.
+        $options = dirname($target).'/.dump.cnf';
+        $quote = fn (?string $v): string => '"'.addcslashes((string) $v, '\\"').'"';
+        $lines = ['[client]', 'user='.$quote($c['username']), 'password='.$quote($c['password'] ?? '')];
         if (filled($c['unix_socket'] ?? null)) {
-            $command[] = '--socket='.$c['unix_socket'];
+            $lines[] = 'socket='.$quote($c['unix_socket']);
         } else {
-            $command[] = '--host='.$c['host'];
-            $command[] = '--port='.$c['port'];
+            $lines[] = 'host='.$quote($c['host']);
+            $lines[] = 'port='.(int) $c['port'];
+            $lines[] = 'protocol=tcp';
         }
-        $command[] = $c['database'];
+        File::put($options, implode("\n", $lines)."\n");
+        chmod($options, 0600);
 
-        $dump = Process::env(['MYSQL_PWD' => (string) ($c['password'] ?? '')])->timeout(300)->run($command);
+        try {
+            $dump = Process::timeout(300)->run([$binary, '--defaults-file='.$options, '--single-transaction', '--no-tablespaces', '--skip-comments', $c['database']]);
+        } finally {
+            File::delete($options);
+        }
 
         if (! $dump->successful() || trim($dump->output()) === '') {
             return 'Database dump failed: '.(trim($dump->errorOutput()) ?: 'no output. Is mariadb-dump / mysqldump installed?');
