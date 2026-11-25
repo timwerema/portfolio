@@ -95,6 +95,9 @@ return [
     // Monday-morning business summary email to you.
     'weekly_summary' => env('WEEKLY_SUMMARY', true),
 
+    // Morning email listing leads whose follow-up is due (php artisan leads:nudge). Silent when nothing is due.
+    'lead_nudge' => env('LEAD_NUDGE', true),
+
     'alerts' => [
         // Where site problem alerts go. Defaults to contact.notify_email, then links.email.
         'email' => env('ALERT_EMAIL'),

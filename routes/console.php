@@ -22,5 +22,8 @@ Schedule::command('invoices:remind')->dailyAt('09:20')->withoutOverlapping();
 // Weekly business summary to you, Mondays at 7:40.
 Schedule::command('business:weekly-summary')->weeklyOn(1, '07:40');
 
+// Lead follow-ups due today, 13:35 UTC (about 7:35am Central in winter, 8:35am in summer).
+Schedule::command('leads:nudge')->dailyAt('13:35')->withoutOverlapping(10);
+
 // Rundown demo: every hour, save new model leans before kickoff and grade finished games (calls ESPN's public feeds).
 Schedule::command('rundown:refresh')->hourlyAt(7)->withoutOverlapping(10);

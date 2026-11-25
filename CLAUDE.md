@@ -96,6 +96,7 @@ php artisan backup:run                # back up DB + uploaded demos to storage/b
 php artisan health:check              # run health checks (alerts on change)
 php artisan invoices:remind --dry-run # see which overdue invoices would get reminders
 php artisan business:weekly-summary --show
+php artisan leads:nudge --show         # see which leads would be in this morning's nudge email
 npm run resume:pdf                    # regenerate public/resume.pdf (needs the site running + Playwright)
 npm run brand:assets                  # regenerate og-image.png and favicons from config
 ```
@@ -108,6 +109,7 @@ npm run brand:assets                  # regenerate og-image.png and favicons fro
 | `health:check` (heartbeat + alert on change) | every 5 min |
 | `invoices:remind` (3 days after due, then weekly, max 3) | daily 09:20 |
 | `business:weekly-summary` | Mondays 07:40 |
+| `leads:nudge` (email of leads to follow up or contact; silent when none; `LEAD_NUDGE`) | daily 13:35 |
 | `rundown:refresh` (Rundown demo: save leans, grade finished games) | hourly at :07 |
 
 ## Deploying an update
